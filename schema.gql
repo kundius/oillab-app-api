@@ -1,0 +1,280 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+interface DefaultError {
+  message: String!
+}
+
+type File {
+  id: String!
+  name: String!
+  path: String!
+  url: String!
+  size: Float!
+  type: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: User
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Report {
+  id: String!
+  note: String
+  sampledAt: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  client: User!
+  vehicle: Vehicle!
+  laboratoryResult: File
+  expressLaboratoryResult: File
+  lubricant: String!
+  stateNumber: String!
+  totalMileage: String!
+  lubricantMileage: String!
+  samplingNodes: String!
+}
+
+type Vehicle {
+  id: String!
+  model: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  owner: User!
+  reports: [Report!]!
+  releaseYear: String!
+  stateNumber: String!
+  engineModel: String!
+  generalOperatingTime: String!
+}
+
+type User {
+  id: String!
+  name: String!
+  email: String
+  isActive: Boolean!
+  lastActivityAt: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  vehicles: [Vehicle!]!
+  reports: [Report!]!
+  files: [File]!
+  role: UserRole!
+  password: String!
+}
+
+enum UserRole {
+  Member
+  Administrator
+}
+
+type NotFoundError implements DefaultError {
+  message: String!
+}
+
+type DefaultMutationResponse {
+  success: Boolean!
+  error: DefaultError
+}
+
+type PageInfo {
+  total: Int!
+  page: Int!
+  perPage: Int!
+}
+
+type UserCreateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: User
+}
+
+type UserUpdateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: User
+}
+
+type UserPaginateResponse {
+  pageInfo: PageInfo!
+  items: [User!]!
+}
+
+type VehicleCreateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Vehicle
+}
+
+type VehicleUpdateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Vehicle
+}
+
+type VehiclePaginateResponse {
+  pageInfo: PageInfo!
+  items: [Vehicle!]!
+}
+
+type ReportCreateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Report
+}
+
+type ReportUpdateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Report
+}
+
+type ReportPaginateResponse {
+  pageInfo: PageInfo!
+  items: [Report!]!
+}
+
+type Query {
+  user(id: String!): User
+  currentUser: User
+  userPaginate(perPage: Int = 12, page: Int = 1, sort: [UserSort!], filter: UserFilter): UserPaginateResponse!
+  vehicle(id: String!): Vehicle
+  vehiclePaginate(perPage: Int = 12, page: Int = 1, sort: [VehicleSort!], filter: VehicleFilter): VehiclePaginateResponse!
+  report(id: String!): Report
+  reportPaginate(perPage: Int = 12, page: Int = 1, sort: [ReportSort!], filter: ReportFilter): ReportPaginateResponse!
+}
+
+enum UserSort {
+  ID_ASC
+  ID_DESC
+  NAME_ASC
+  NAME_DESC
+  EMAIL_ASC
+  EMAIL_DESC
+}
+
+input UserFilter {
+  name: StringFilter
+  email: StringFilter
+}
+
+input StringFilter {
+  eq: String
+  contains: String
+}
+
+enum VehicleSort {
+  MODEL_ASC
+  MODEL_DESC
+  RELEASE_YEAR_ASC
+  RELEASE_YEAR_DESC
+  STATE_NUMBER_ASC
+  STATE_NUMBER_DESC
+  ENGINE_MODEL_ASC
+  ENGINE_MODEL_DESC
+  GENERAL_OPERATING_TIME_ASC
+  GENERAL_OPERATING_TIME_DESC
+}
+
+input VehicleFilter {
+  model: StringFilter
+  releaseYear: StringFilter
+  stateNumber: StringFilter
+  engineModel: StringFilter
+  generalOperatingTime: StringFilter
+}
+
+enum ReportSort {
+  LUBRICANT_ASC
+  LUBRICANT_DESC
+  STATE_NUMBER_ASC
+  STATE_NUMBER_DESC
+  TOTAL_MILEAGE_ASC
+  TOTAL_MILEAGE_DESC
+  LUBRICANT_MILEAGE_ASC
+  LUBRICANT_MILEAGE_DESC
+  SAMPLING_NODES_ASC
+  SAMPLING_NODES_DESC
+  SAMPLED_AT_ASC
+  SAMPLED_AT_DESC
+}
+
+input ReportFilter {
+  lubricant: StringFilter
+  stateNumber: StringFilter
+  totalMileage: StringFilter
+  lubricantMileage: StringFilter
+  samplingNodes: StringFilter
+  sampledAt: StringFilter
+}
+
+type Mutation {
+  userCreate(input: UserCreateInput!): UserCreateResponse!
+  userUpdate(input: UserUpdateInput!, id: String!): UserUpdateResponse!
+  userDelete(id: String!): DefaultMutationResponse!
+  vehicleCreate(input: VehicleCreateInput!): VehicleCreateResponse!
+  vehicleUpdate(input: VehicleUpdateInput!, id: String!): VehicleUpdateResponse!
+  vehicleDelete(id: String!): DefaultMutationResponse!
+  reportCreate(input: ReportCreateInput!): ReportCreateResponse!
+  reportUpdate(input: ReportUpdateInput!, id: String!): ReportUpdateResponse!
+  reportDelete(id: String!): DefaultMutationResponse!
+}
+
+input UserCreateInput {
+  password: String!
+  name: String!
+  email: String!
+}
+
+input UserUpdateInput {
+  password: String
+  name: String
+  email: String
+}
+
+input VehicleCreateInput {
+  model: String!
+  releaseYear: String!
+  stateNumber: String!
+  engineModel: String!
+  generalOperatingTime: String!
+  owner: String!
+}
+
+input VehicleUpdateInput {
+  model: String
+  releaseYear: String
+  stateNumber: String
+  engineModel: String
+  generalOperatingTime: String
+  owner: String
+}
+
+input ReportCreateInput {
+  lubricant: String!
+  stateNumber: String!
+  totalMileage: String!
+  lubricantMileage: String!
+  samplingNodes: String!
+  note: String
+  sampledAt: DateTime!
+  client: String!
+  vehicle: String!
+}
+
+input ReportUpdateInput {
+  lubricant: String
+  stateNumber: String
+  totalMileage: String
+  lubricantMileage: String
+  samplingNodes: String
+  note: String
+  sampledAt: DateTime
+  client: String
+  vehicle: String
+}
