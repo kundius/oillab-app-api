@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { ContextModule } from '@app/context/context.module'
 import { UserModule } from '@app/user/user.module'
 import { VehicleModule } from '@app/vehicle/vehicle.module'
+import { FileModule } from '@app/file/file.module'
 
 import {
   Report
@@ -16,6 +17,7 @@ import { ReportService } from './services/report.service'
     ContextModule,
     UserModule,
     VehicleModule,
+    FileModule,
     TypeOrmModule.forFeature([Report])
   ],
   providers: [

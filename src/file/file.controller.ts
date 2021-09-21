@@ -13,7 +13,7 @@ export class FileController {
     private readonly fileService: FileService
   ) {}
 
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   @Post('uploadFile')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile (
@@ -21,13 +21,14 @@ export class FileController {
   ) {
     const currentUser = this.contextService.getCurrentUser()
 
-    if (!currentUser) {
-      throw new ForbiddenException()
-    }
+    // if (!currentUser) {
+    //   throw new ForbiddenException()
+    // }
 
     const fileEntity = await this.fileService.uploadAndCreateFile({
       buffer: file.buffer,
-      dir: `user/${currentUser.id}/upload`,
+      dir: `user/test/upload`,
+      // dir: `user/${currentUser.id}/upload`,
       name: `${nanoid()}_${file.originalname}`
     })
 
@@ -35,7 +36,8 @@ export class FileController {
       success: 1,
       file: {
         url: await this.fileService.getUrl(fileEntity),
-        id: fileEntity.id
+        id: fileEntity.id,
+        name: fileEntity.name
       }
     }
   }

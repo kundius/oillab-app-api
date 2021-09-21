@@ -33,6 +33,7 @@ type Report {
   vehicle: Vehicle!
   laboratoryResult: File
   expressLaboratoryResult: File
+  number: Float!
   lubricant: String!
   stateNumber: String!
   totalMileage: String!
@@ -143,6 +144,7 @@ type Query {
   user(id: String!): User
   currentUser: User
   userPaginate(perPage: Int = 12, page: Int = 1, sort: [UserSort!], filter: UserFilter): UserPaginateResponse!
+  file(id: ID!): File
   vehicle(id: String!): Vehicle
   vehiclePaginate(perPage: Int = 12, page: Int = 1, sort: [VehicleSort!], filter: VehicleFilter): VehiclePaginateResponse!
   report(id: String!): Report
@@ -202,6 +204,8 @@ enum ReportSort {
   SAMPLING_NODES_DESC
   SAMPLED_AT_ASC
   SAMPLED_AT_DESC
+  NUMBER_ASC
+  NUMBER_DESC
 }
 
 input ReportFilter {
@@ -210,7 +214,20 @@ input ReportFilter {
   totalMileage: StringFilter
   lubricantMileage: StringFilter
   samplingNodes: StringFilter
-  sampledAt: StringFilter
+  sampledAt: DateFilter
+  number: NumberFilter
+}
+
+input DateFilter {
+  eq: DateTime
+  lt: DateTime
+  gt: DateTime
+}
+
+input NumberFilter {
+  eq: Float
+  lt: Float
+  gt: Float
 }
 
 type Mutation {
@@ -265,6 +282,8 @@ input ReportCreateInput {
   sampledAt: DateTime!
   client: String!
   vehicle: String!
+  expressLaboratoryResult: String
+  laboratoryResult: String
 }
 
 input ReportUpdateInput {
@@ -277,4 +296,6 @@ input ReportUpdateInput {
   sampledAt: DateTime
   client: String
   vehicle: String
+  expressLaboratoryResult: String
+  laboratoryResult: String
 }

@@ -5,6 +5,8 @@ import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { Report } from '@app/report/entities/report.entity'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
 import { StringFilter } from '@app/graphql/StringFilter'
+import { DateFilter } from '@app/graphql/DateFilter'
+import { NumberFilter } from '@app/graphql/NumberFilter'
 
 @InputType()
 export class ReportCreateInput {
@@ -34,6 +36,12 @@ export class ReportCreateInput {
 
   @Field()
   vehicle: string
+
+  @Field({ nullable: true })
+  expressLaboratoryResult?: string | null
+
+  @Field({ nullable: true })
+  laboratoryResult?: string | null
 }
 
 @ObjectType()
@@ -70,6 +78,12 @@ export class ReportUpdateInput {
 
   @Field({ nullable: true })
   vehicle?: string
+
+  @Field({ nullable: true })
+  expressLaboratoryResult?: string | null
+
+  @Field({ nullable: true })
+  laboratoryResult?: string | null
 }
 
 @ObjectType()
@@ -90,7 +104,9 @@ export enum ReportSort {
   SAMPLING_NODES_ASC,
   SAMPLING_NODES_DESC,
   SAMPLED_AT_ASC,
-  SAMPLED_AT_DESC
+  SAMPLED_AT_DESC,
+  NUMBER_ASC,
+  NUMBER_DESC
 }
 
 registerEnumType(ReportSort, {
@@ -115,7 +131,10 @@ export class ReportFilter {
   samplingNodes?: StringFilter
 
   @Field({ nullable: true })
-  sampledAt?: StringFilter
+  sampledAt?: DateFilter
+
+  @Field({ nullable: true })
+  number?: NumberFilter
 }
 
 @ArgsType()

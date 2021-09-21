@@ -35,6 +35,9 @@ export class Report {
   id: string
 
   @Column()
+  number: number
+
+  @Column()
   lubricant: string
 
   @Column()

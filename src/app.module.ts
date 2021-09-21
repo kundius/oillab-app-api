@@ -9,12 +9,14 @@ import { VehicleModule } from './vehicle/vehicle.module'
 import { ReportModule } from './report/report.module'
 import { AuthModule } from './auth/auth.module'
 import { ContextModule } from './context/context.module'
+import { FileModule } from './file/file.module'
 
 @Module({
   imports: [
     ContextModule,
     AuthModule,
     UserModule,
+    FileModule,
     VehicleModule,
     ReportModule,
     TypeOrmModule.forRoot(configService.getTypeOrmConfig()),

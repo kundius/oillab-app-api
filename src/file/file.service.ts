@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { S3 } from 'aws-sdk'
-import FileType from 'file-type'
+import { fromBuffer } from 'file-type'
 
 import { configService } from '@app/config/config.service'
 import { ContextService } from '@app/context/context.service'
@@ -13,25 +13,25 @@ import { User } from '@app/user/entities/user.entity'
 
 @Injectable()
 export class FileService {
-  constructor (
+  constructor(
     @InjectRepository(File)
     private readonly fileRepository: Repository<File>,
     private readonly contextService: ContextService
   ) {}
 
-  createQueryBuilder (): SelectQueryBuilder<File> {
+  createQueryBuilder(): SelectQueryBuilder<File> {
     return this.fileRepository.createQueryBuilder('file')
   }
 
-  async findById (id: string): Promise<File | undefined> {
+  async findById(id: string): Promise<File | undefined> {
     return await this.fileRepository.findOne(id)
   }
 
-  async findByIdOrFail (id: string): Promise<File> {
+  async findByIdOrFail(id: string): Promise<File> {
     return await this.fileRepository.findOneOrFail(id)
   }
 
-  async many (): Promise<{
+  async many(): Promise<{
     items: File[]
   }> {
     const qb = this.fileRepository.createQueryBuilder('file')
@@ -43,13 +43,13 @@ export class FileService {
     }
   }
 
-  async changeName (file: File, name: string): Promise<File> {
+  async changeName(file: File, name: string): Promise<File> {
     file.name = name
     await this.fileRepository.save(file)
     return file
   }
 
-  async createFile (command: {
+  async createFile(command: {
     name: string
     path: string
     url: string
@@ -63,16 +63,18 @@ export class FileService {
     fileEntity.url = command.url
     fileEntity.size = command.size
     fileEntity.type = command.type || null
-    fileEntity.user = Promise.resolve(command.user || this.contextService.getCurrentUser() || null)
+    fileEntity.user = Promise.resolve(
+      command.user || this.contextService.getCurrentUser() || null
+    )
     await this.fileRepository.save(fileEntity)
     return fileEntity
   }
 
-  async getUrl (file: File): Promise<string> {
+  async getUrl(file: File): Promise<string> {
     return `${configService.getS3Url()}/${file.path}`
   }
 
-  async uploadAndCreateFile (command: {
+  async uploadAndCreateFile(command: {
     buffer: Buffer
     name: string
     dir: string
@@ -86,29 +88,33 @@ export class FileService {
     })
   }
 
-  async removeFile (file: File): Promise<void> {
+  async removeFile(file: File): Promise<void> {
     const s3 = new S3(configService.getS3ClientConfig())
 
-    await s3.deleteObject({
-      Bucket: configService.getS3Bucket(),
-      Key: file.path
-    }).promise()
+    await s3
+      .deleteObject({
+        Bucket: configService.getS3Bucket(),
+        Key: file.path
+      })
+      .promise()
 
     await this.fileRepository.remove(file)
   }
 
-  async delete (file: File): Promise<void> {
+  async delete(file: File): Promise<void> {
     const s3 = new S3(configService.getS3ClientConfig())
 
-    await s3.deleteObject({
-      Bucket: configService.getS3Bucket(),
-      Key: file.path
-    }).promise()
+    await s3
+      .deleteObject({
+        Bucket: configService.getS3Bucket(),
+        Key: file.path
+      })
+      .promise()
 
     await this.fileRepository.remove(file)
   }
 
-  async upload (command: {
+  async upload(command: {
     buffer: Buffer
     name: string
     dir: string
@@ -119,7 +125,7 @@ export class FileService {
     size: number
     type?: string | null
   }> {
-    const type = await FileType.fromBuffer(command.buffer)
+    const type = await fromBuffer(command.buffer)
 
     const s3 = new S3(configService.getS3ClientConfig())
 
@@ -129,12 +135,14 @@ export class FileService {
       Key = `${command.dir}/${Key}`
     }
 
-    await s3.putObject({
-      Bucket: configService.getS3Bucket(),
-      Body: command.buffer,
-      Key,
-      ContentType: type?.mime
-    }).promise()
+    await s3
+      .putObject({
+        Bucket: configService.getS3Bucket(),
+        Body: command.buffer,
+        Key,
+        ContentType: type?.mime
+      })
+      .promise()
 
     return {
       name: name,

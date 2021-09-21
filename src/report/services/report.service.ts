@@ -4,6 +4,7 @@ import { Repository, SelectQueryBuilder } from 'typeorm'
 
 import { UserService } from '@app/user/services/user.service'
 import { VehicleService } from '@app/vehicle/services/vehicle.service'
+import { FileService } from '@app/file/file.service'
 
 import * as dto from '../dto/report.dto'
 import { Report } from '../entities/report.entity'
@@ -14,7 +15,8 @@ export class ReportService {
     @InjectRepository(Report)
     private readonly reportRepository: Repository<Report>,
     private readonly userService: UserService,
-    private readonly vehicleService: VehicleService
+    private readonly vehicleService: VehicleService,
+    private readonly fileService: FileService
   ) {}
 
   async findById(id: string): Promise<Report | undefined> {
@@ -38,6 +40,14 @@ export class ReportService {
     record.client = Promise.resolve(client)
     record.vehicle = Promise.resolve(vehicle)
     record.sampledAt = input.sampledAt
+    if (typeof input.expressLaboratoryResult !== 'undefined') {
+      const expressLaboratoryResult = await this.fileService.findByIdOrFail(input.expressLaboratoryResult)
+      record.expressLaboratoryResult = Promise.resolve(expressLaboratoryResult)
+    }
+    if (typeof input.laboratoryResult !== 'undefined') {
+      const laboratoryResult = await this.fileService.findByIdOrFail(input.laboratoryResult)
+      record.laboratoryResult = Promise.resolve(laboratoryResult)
+    }
     await this.reportRepository.save(record)
     return record
   }
@@ -71,6 +81,22 @@ export class ReportService {
     if (typeof input.vehicle !== 'undefined') {
       const vehicle = await this.vehicleService.findByIdOrFail(input.vehicle)
       record.vehicle = Promise.resolve(vehicle)
+    }
+    if (typeof input.expressLaboratoryResult !== 'undefined') {
+      if (input.expressLaboratoryResult === null) {
+        record.expressLaboratoryResult = Promise.resolve(null)
+      } else {
+        const expressLaboratoryResult = await this.fileService.findByIdOrFail(input.expressLaboratoryResult)
+        record.expressLaboratoryResult = Promise.resolve(expressLaboratoryResult)
+      }
+    }
+    if (typeof input.laboratoryResult !== 'undefined') {
+      if (input.laboratoryResult === null) {
+        record.laboratoryResult = Promise.resolve(null)
+      } else {
+        const laboratoryResult = await this.fileService.findByIdOrFail(input.laboratoryResult)
+        record.laboratoryResult = Promise.resolve(laboratoryResult)
+      }
     }
     await this.reportRepository.save(record)
     return record
@@ -153,6 +179,12 @@ export class ReportService {
         case dto.ReportSort.TOTAL_MILEAGE_DESC:
           qb.orderBy('report.totalMileage', 'DESC')
           break
+        case dto.ReportSort.NUMBER_ASC:
+          qb.orderBy('report.number', 'ASC')
+          break
+        case dto.ReportSort.NUMBER_DESC:
+          qb.orderBy('report.number', 'DESC')
+          break
         default:
           throw new Error('Not implemented')
       }
@@ -216,11 +248,35 @@ export class ReportService {
     }
     if (filter.sampledAt) {
       if (filter.sampledAt.eq) {
-        qb.andWhere('report.sampledAt ILIKE :sampledAtEq', { sampledAtEq: filter.sampledAt.eq })
+        qb.andWhere('report.sampledAt = :sampledAtEq', {
+          sampledAtEq: filter.sampledAt.eq
+        })
       }
-      if (filter.sampledAt.contains) {
-        qb.andWhere('report.sampledAt ILIKE :sampledAtContains', {
-          sampledAtContains: `%${filter.sampledAt.contains}%`
+      if (filter.sampledAt.lt) {
+        qb.andWhere('report.sampledAt < :sampledAtLt', {
+          sampledAtLt: filter.sampledAt.lt
+        })
+      }
+      if (filter.sampledAt.gt) {
+        qb.andWhere('report.sampledAt > :sampledAtGt', {
+          sampledAtGt: filter.sampledAt.gt
+        })
+      }
+    }
+    if (filter.number) {
+      if (filter.number.eq) {
+        qb.andWhere('report.number = :numberEq', {
+          numberEq: filter.number.eq
+        })
+      }
+      if (filter.number.lt) {
+        qb.andWhere('report.number < :numberLt', {
+          numberLt: filter.number.lt
+        })
+      }
+      if (filter.number.gt) {
+        qb.andWhere('report.number > :numberGt', {
+          numberGt: filter.number.gt
         })
       }
     }
