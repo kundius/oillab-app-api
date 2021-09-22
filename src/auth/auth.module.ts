@@ -7,6 +7,7 @@ import { UserModule } from '@app/user/user.module'
 import { ContextModule } from '@app/context/context.module'
 
 import { AuthService } from './auth.service'
+import { AuthResolver } from './auth.resolver'
 import { GqlAuthGuard } from './auth.guard'
 import { JwtStrategy } from './jwt.strategy'
 
@@ -17,7 +18,7 @@ import { JwtStrategy } from './jwt.strategy'
     PassportModule,
     JwtModule.register({ secret: configService.getSecret() })
   ],
-  providers: [AuthService, GqlAuthGuard, JwtStrategy],
-  exports: [AuthService]
+  providers: [AuthService, GqlAuthGuard, JwtStrategy, AuthResolver],
+  exports: [AuthService, AuthResolver]
 })
 export class AuthModule {}

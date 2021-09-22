@@ -68,13 +68,13 @@ export class Report {
   @UpdateDateColumn()
   updatedAt: Date
 
-  @Field(() => User)
-  @ManyToOne(() => User, user => user.reports)
-  client: Promise<User>
+  @Field(() => User, { nullable: true })
+  @ManyToOne(() => User, user => user.reports, { nullable: true })
+  client: Promise<User | null>
 
-  @Field(() => Vehicle)
-  @ManyToOne(() => Vehicle, vehicle => vehicle.reports)
-  vehicle: Promise<Vehicle>
+  @Field(() => Vehicle, { nullable: true })
+  @ManyToOne(() => Vehicle, vehicle => vehicle.reports, { nullable: true })
+  vehicle: Promise<Vehicle | null>
 
   @Field(() => File, { nullable: true })
   @ManyToOne(() => File, { nullable: true })

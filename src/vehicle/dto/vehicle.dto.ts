@@ -5,6 +5,7 @@ import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { Vehicle } from '@app/vehicle/entities/vehicle.entity'
 import { StringFilter } from '@app/graphql/StringFilter'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
+import { IdFilter } from '@app/graphql/IdFilter'
 
 @InputType()
 export class VehicleCreateInput {
@@ -93,6 +94,12 @@ export class VehicleFilter {
 
   @Field({ nullable: true })
   generalOperatingTime?: StringFilter
+
+  @Field({ nullable: true })
+  ownerName?: StringFilter
+
+  @Field({ nullable: true })
+  ownerId?: IdFilter
 }
 
 @ArgsType()

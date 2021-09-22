@@ -28,8 +28,6 @@ export class ReportService {
   }
 
   async create(input: dto.ReportCreateInput) {
-    const client = await this.userService.findByIdOrFail(input.client)
-    const vehicle = await this.vehicleService.findByIdOrFail(input.vehicle)
     const record = await this.reportRepository.create()
     record.lubricant = input.lubricant
     record.stateNumber = input.stateNumber
@@ -37,15 +35,26 @@ export class ReportService {
     record.lubricantMileage = input.lubricantMileage
     record.samplingNodes = input.samplingNodes
     record.note = input.note || null
-    record.client = Promise.resolve(client)
-    record.vehicle = Promise.resolve(vehicle)
     record.sampledAt = input.sampledAt
-    if (typeof input.expressLaboratoryResult !== 'undefined') {
-      const expressLaboratoryResult = await this.fileService.findByIdOrFail(input.expressLaboratoryResult)
+    if (!!input.vehicle) {
+      const vehicle = await this.vehicleService.findByIdOrFail(input.vehicle)
+      record.vehicle = Promise.resolve(vehicle)
+    }
+    if (!!input.client) {
+      record.client = Promise.resolve(
+        await this.userService.findByIdOrFail(input.client)
+      )
+    }
+    if (!!input.expressLaboratoryResult) {
+      const expressLaboratoryResult = await this.fileService.findByIdOrFail(
+        input.expressLaboratoryResult
+      )
       record.expressLaboratoryResult = Promise.resolve(expressLaboratoryResult)
     }
-    if (typeof input.laboratoryResult !== 'undefined') {
-      const laboratoryResult = await this.fileService.findByIdOrFail(input.laboratoryResult)
+    if (!!input.laboratoryResult) {
+      const laboratoryResult = await this.fileService.findByIdOrFail(
+        input.laboratoryResult
+      )
       record.laboratoryResult = Promise.resolve(laboratoryResult)
     }
     await this.reportRepository.save(record)
@@ -75,26 +84,40 @@ export class ReportService {
       record.sampledAt = input.sampledAt
     }
     if (typeof input.client !== 'undefined') {
-      const client = await this.userService.findByIdOrFail(input.client)
-      record.client = Promise.resolve(client)
+      if (input.client === null) {
+        record.client = Promise.resolve(null)
+      } else {
+        const client = await this.userService.findByIdOrFail(input.client)
+        record.client = Promise.resolve(client)
+      }
     }
     if (typeof input.vehicle !== 'undefined') {
-      const vehicle = await this.vehicleService.findByIdOrFail(input.vehicle)
-      record.vehicle = Promise.resolve(vehicle)
+      if (input.vehicle === null) {
+        record.vehicle = Promise.resolve(null)
+      } else {
+        const vehicle = await this.vehicleService.findByIdOrFail(input.vehicle)
+        record.vehicle = Promise.resolve(vehicle)
+      }
     }
     if (typeof input.expressLaboratoryResult !== 'undefined') {
       if (input.expressLaboratoryResult === null) {
         record.expressLaboratoryResult = Promise.resolve(null)
       } else {
-        const expressLaboratoryResult = await this.fileService.findByIdOrFail(input.expressLaboratoryResult)
-        record.expressLaboratoryResult = Promise.resolve(expressLaboratoryResult)
+        const expressLaboratoryResult = await this.fileService.findByIdOrFail(
+          input.expressLaboratoryResult
+        )
+        record.expressLaboratoryResult = Promise.resolve(
+          expressLaboratoryResult
+        )
       }
     }
     if (typeof input.laboratoryResult !== 'undefined') {
       if (input.laboratoryResult === null) {
         record.laboratoryResult = Promise.resolve(null)
       } else {
-        const laboratoryResult = await this.fileService.findByIdOrFail(input.laboratoryResult)
+        const laboratoryResult = await this.fileService.findByIdOrFail(
+          input.laboratoryResult
+        )
         record.laboratoryResult = Promise.resolve(laboratoryResult)
       }
     }
@@ -107,18 +130,21 @@ export class ReportService {
   }
 
   async paginate(
-    args: dto.ReportPaginateArgs
+    args: dto.ReportPaginateArgs,
+    customize?: (qb: SelectQueryBuilder<Report>) => void
   ): Promise<dto.ReportPaginateResponse> {
     const { page, perPage, filter, sort } = args
 
     const qb = this.reportRepository.createQueryBuilder('report')
 
+    customize?.(qb)
+
     if (filter) {
-      await this.applyFilter(qb, filter)
+      this.applyFilter(qb, filter)
     }
 
     if (sort) {
-      await this.applySort(qb, sort)
+      this.applySort(qb, sort)
     }
 
     const total = await qb.getCount()
@@ -137,10 +163,10 @@ export class ReportService {
     }
   }
 
-  async applySort(
+  applySort(
     qb: SelectQueryBuilder<Report>,
     sort: dto.ReportSort[]
-  ): Promise<SelectQueryBuilder<Report>> {
+  ): SelectQueryBuilder<Report> {
     for (const value of sort) {
       switch (value) {
         case dto.ReportSort.LUBRICANT_ASC:
@@ -192,13 +218,15 @@ export class ReportService {
     return qb
   }
 
-  async applyFilter(
+  applyFilter(
     qb: SelectQueryBuilder<Report>,
     filter: dto.ReportFilter
-  ): Promise<SelectQueryBuilder<Report>> {
+  ): SelectQueryBuilder<Report> {
     if (filter.lubricant) {
       if (filter.lubricant.eq) {
-        qb.andWhere('report.lubricant ILIKE :lubricantEq', { lubricantEq: filter.lubricant.eq })
+        qb.andWhere('report.lubricant ILIKE :lubricantEq', {
+          lubricantEq: filter.lubricant.eq
+        })
       }
       if (filter.lubricant.contains) {
         qb.andWhere('report.lubricant ILIKE :lubricantContains', {
@@ -208,7 +236,9 @@ export class ReportService {
     }
     if (filter.stateNumber) {
       if (filter.stateNumber.eq) {
-        qb.andWhere('report.stateNumber ILIKE :stateNumberEq', { stateNumberEq: filter.stateNumber.eq })
+        qb.andWhere('report.stateNumber ILIKE :stateNumberEq', {
+          stateNumberEq: filter.stateNumber.eq
+        })
       }
       if (filter.stateNumber.contains) {
         qb.andWhere('report.stateNumber ILIKE :stateNumberContains', {
@@ -218,7 +248,9 @@ export class ReportService {
     }
     if (filter.totalMileage) {
       if (filter.totalMileage.eq) {
-        qb.andWhere('report.totalMileage ILIKE :totalMileageEq', { totalMileageEq: filter.totalMileage.eq })
+        qb.andWhere('report.totalMileage ILIKE :totalMileageEq', {
+          totalMileageEq: filter.totalMileage.eq
+        })
       }
       if (filter.totalMileage.contains) {
         qb.andWhere('report.totalMileage ILIKE :totalMileageContains', {
@@ -228,7 +260,9 @@ export class ReportService {
     }
     if (filter.lubricantMileage) {
       if (filter.lubricantMileage.eq) {
-        qb.andWhere('report.lubricantMileage ILIKE :lubricantMileageEq', { lubricantMileageEq: filter.lubricantMileage.eq })
+        qb.andWhere('report.lubricantMileage ILIKE :lubricantMileageEq', {
+          lubricantMileageEq: filter.lubricantMileage.eq
+        })
       }
       if (filter.lubricantMileage.contains) {
         qb.andWhere('report.lubricantMileage ILIKE :lubricantMileageContains', {
@@ -238,7 +272,9 @@ export class ReportService {
     }
     if (filter.samplingNodes) {
       if (filter.samplingNodes.eq) {
-        qb.andWhere('report.samplingNodes ILIKE :samplingNodesEq', { samplingNodesEq: filter.samplingNodes.eq })
+        qb.andWhere('report.samplingNodes ILIKE :samplingNodesEq', {
+          samplingNodesEq: filter.samplingNodes.eq
+        })
       }
       if (filter.samplingNodes.contains) {
         qb.andWhere('report.samplingNodes ILIKE :samplingNodesContains', {
@@ -278,6 +314,42 @@ export class ReportService {
         qb.andWhere('report.number > :numberGt', {
           numberGt: filter.number.gt
         })
+      }
+    }
+    if (filter.clientName) {
+      if (filter.clientName.eq) {
+        qb.leftJoin('report.client', 'client').andWhere(
+          'client.name ILIKE :clientNameEq',
+          {
+            clientNameEq: filter.clientName.eq
+          }
+        )
+      }
+      if (filter.clientName.contains) {
+        qb.leftJoin('report.client', 'client').andWhere(
+          'client.name ILIKE :clientNameContains',
+          {
+            clientNameContains: `%${filter.clientName.contains}%`
+          }
+        )
+      }
+    }
+    if (filter.vehicleModel) {
+      if (filter.vehicleModel.eq) {
+        qb.leftJoin('report.vehicle', 'vehicle').andWhere(
+          'vehicle.model ILIKE :vehicleModelEq',
+          {
+            vehicleModelEq: filter.vehicleModel.eq
+          }
+        )
+      }
+      if (filter.vehicleModel.contains) {
+        qb.leftJoin('report.vehicle', 'vehicle').andWhere(
+          'vehicle.model ILIKE :vehicleModelContains',
+          {
+            vehicleModelContains: `%${filter.vehicleModel.contains}%`
+          }
+        )
       }
     }
     return qb

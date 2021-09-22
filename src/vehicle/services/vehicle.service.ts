@@ -206,6 +206,36 @@ export class VehicleService {
         )
       }
     }
+    if (filter.ownerName) {
+      if (filter.ownerName.eq) {
+        qb.leftJoin('vehicle.owner', 'owner').andWhere(
+          'owner.name ILIKE :ownerNameEq',
+          {
+            ownerNameEq: filter.ownerName.eq
+          }
+        )
+      }
+      if (filter.ownerName.contains) {
+        qb.leftJoin('vehicle.owner', 'owner').andWhere(
+          'owner.name ILIKE :ownerNameContains',
+          {
+            ownerNameContains: `%${filter.ownerName.contains}%`
+          }
+        )
+      }
+    }
+    if (filter.ownerId) {
+      if (filter.ownerId.eq) {
+        qb.andWhere('vehicle.owner = :ownerEq', {
+          ownerEq: filter.ownerId.eq
+        })
+      }
+      if (filter.ownerId.in) {
+        qb.andWhere('vehicle.owner IN :...ownerIn', {
+          ownerIn: filter.ownerId.in
+        })
+      }
+    }
     return qb
   }
 }

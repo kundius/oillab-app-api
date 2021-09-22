@@ -29,8 +29,8 @@ type Report {
   sampledAt: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
-  client: User!
-  vehicle: Vehicle!
+  client: User
+  vehicle: Vehicle
   laboratoryResult: File
   expressLaboratoryResult: File
   number: Float!
@@ -140,6 +140,22 @@ type ReportPaginateResponse {
   items: [Report!]!
 }
 
+type PermissionDeniedError implements DefaultError {
+  message: String!
+}
+
+type ValidationError implements DefaultError {
+  message: String!
+  field: String!
+}
+
+type SignInResponse {
+  success: Boolean!
+  error: DefaultError
+  token: String
+  record: User
+}
+
 type Query {
   user(id: String!): User
   currentUser: User
@@ -189,6 +205,13 @@ input VehicleFilter {
   stateNumber: StringFilter
   engineModel: StringFilter
   generalOperatingTime: StringFilter
+  ownerName: StringFilter
+  ownerId: IdFilter
+}
+
+input IdFilter {
+  eq: String
+  in: [String!]
 }
 
 enum ReportSort {
@@ -213,6 +236,8 @@ input ReportFilter {
   stateNumber: StringFilter
   totalMileage: StringFilter
   lubricantMileage: StringFilter
+  clientName: StringFilter
+  vehicleModel: StringFilter
   samplingNodes: StringFilter
   sampledAt: DateFilter
   number: NumberFilter
@@ -231,6 +256,7 @@ input NumberFilter {
 }
 
 type Mutation {
+  signIn(input: SignInInput!): SignInResponse!
   userCreate(input: UserCreateInput!): UserCreateResponse!
   userUpdate(input: UserUpdateInput!, id: String!): UserUpdateResponse!
   userDelete(id: String!): DefaultMutationResponse!
@@ -240,6 +266,11 @@ type Mutation {
   reportCreate(input: ReportCreateInput!): ReportCreateResponse!
   reportUpdate(input: ReportUpdateInput!, id: String!): ReportUpdateResponse!
   reportDelete(id: String!): DefaultMutationResponse!
+}
+
+input SignInInput {
+  email: String!
+  password: String!
 }
 
 input UserCreateInput {
@@ -280,8 +311,8 @@ input ReportCreateInput {
   samplingNodes: String!
   note: String
   sampledAt: DateTime!
-  client: String!
-  vehicle: String!
+  client: String
+  vehicle: String
   expressLaboratoryResult: String
   laboratoryResult: String
 }

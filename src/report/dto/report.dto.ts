@@ -31,11 +31,11 @@ export class ReportCreateInput {
   @Field(() => Date)
   sampledAt: Date
 
-  @Field()
-  client: string
+  @Field({ nullable: true })
+  client?: string
 
-  @Field()
-  vehicle: string
+  @Field({ nullable: true })
+  vehicle?: string
 
   @Field({ nullable: true })
   expressLaboratoryResult?: string | null
@@ -126,6 +126,12 @@ export class ReportFilter {
 
   @Field({ nullable: true })
   lubricantMileage?: StringFilter
+
+  @Field({ nullable: true })
+  clientName?: StringFilter
+
+  @Field({ nullable: true })
+  vehicleModel?: StringFilter
 
   @Field({ nullable: true })
   samplingNodes?: StringFilter
