@@ -29,6 +29,7 @@ export class ReportService {
 
   async create(input: dto.ReportCreateInput) {
     const record = await this.reportRepository.create()
+    record.number = await this.reportRepository.count() + 1
     record.lubricant = input.lubricant
     record.stateNumber = input.stateNumber
     record.totalMileage = input.totalMileage

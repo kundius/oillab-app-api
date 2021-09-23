@@ -33,6 +33,7 @@
     "file-type": "^16.5.3",
     "graphql": "^15.5.3",
     "graphql-fields-to-relations": "^1.0.4",
+    "mysql": "^2.18.1",
     "nanoid": "^3.1.25",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",

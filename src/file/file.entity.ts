@@ -27,7 +27,7 @@ export class File {
   size: number
 
   @Field(() => String, { nullable: true })
-  @Column({ type: 'character varying', nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   type: string | null
 
   @Field(() => Date)
