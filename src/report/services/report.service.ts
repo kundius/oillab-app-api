@@ -225,60 +225,60 @@ export class ReportService {
   ): SelectQueryBuilder<Report> {
     if (filter.lubricant) {
       if (filter.lubricant.eq) {
-        qb.andWhere('report.lubricant ILIKE :lubricantEq', {
+        qb.andWhere('report.lubricant LIKE :lubricantEq', {
           lubricantEq: filter.lubricant.eq
         })
       }
       if (filter.lubricant.contains) {
-        qb.andWhere('report.lubricant ILIKE :lubricantContains', {
+        qb.andWhere('report.lubricant LIKE :lubricantContains', {
           lubricantContains: `%${filter.lubricant.contains}%`
         })
       }
     }
     if (filter.stateNumber) {
       if (filter.stateNumber.eq) {
-        qb.andWhere('report.stateNumber ILIKE :stateNumberEq', {
+        qb.andWhere('report.stateNumber LIKE :stateNumberEq', {
           stateNumberEq: filter.stateNumber.eq
         })
       }
       if (filter.stateNumber.contains) {
-        qb.andWhere('report.stateNumber ILIKE :stateNumberContains', {
+        qb.andWhere('report.stateNumber LIKE :stateNumberContains', {
           stateNumberContains: `%${filter.stateNumber.contains}%`
         })
       }
     }
     if (filter.totalMileage) {
       if (filter.totalMileage.eq) {
-        qb.andWhere('report.totalMileage ILIKE :totalMileageEq', {
+        qb.andWhere('report.totalMileage LIKE :totalMileageEq', {
           totalMileageEq: filter.totalMileage.eq
         })
       }
       if (filter.totalMileage.contains) {
-        qb.andWhere('report.totalMileage ILIKE :totalMileageContains', {
+        qb.andWhere('report.totalMileage LIKE :totalMileageContains', {
           totalMileageContains: `%${filter.totalMileage.contains}%`
         })
       }
     }
     if (filter.lubricantMileage) {
       if (filter.lubricantMileage.eq) {
-        qb.andWhere('report.lubricantMileage ILIKE :lubricantMileageEq', {
+        qb.andWhere('report.lubricantMileage LIKE :lubricantMileageEq', {
           lubricantMileageEq: filter.lubricantMileage.eq
         })
       }
       if (filter.lubricantMileage.contains) {
-        qb.andWhere('report.lubricantMileage ILIKE :lubricantMileageContains', {
+        qb.andWhere('report.lubricantMileage LIKE :lubricantMileageContains', {
           lubricantMileageContains: `%${filter.lubricantMileage.contains}%`
         })
       }
     }
     if (filter.samplingNodes) {
       if (filter.samplingNodes.eq) {
-        qb.andWhere('report.samplingNodes ILIKE :samplingNodesEq', {
+        qb.andWhere('report.samplingNodes LIKE :samplingNodesEq', {
           samplingNodesEq: filter.samplingNodes.eq
         })
       }
       if (filter.samplingNodes.contains) {
-        qb.andWhere('report.samplingNodes ILIKE :samplingNodesContains', {
+        qb.andWhere('report.samplingNodes LIKE :samplingNodesContains', {
           samplingNodesContains: `%${filter.samplingNodes.contains}%`
         })
       }
@@ -320,7 +320,7 @@ export class ReportService {
     if (filter.clientName) {
       if (filter.clientName.eq) {
         qb.leftJoin('report.client', 'client').andWhere(
-          'client.name ILIKE :clientNameEq',
+          'client.name LIKE :clientNameEq',
           {
             clientNameEq: filter.clientName.eq
           }
@@ -328,7 +328,7 @@ export class ReportService {
       }
       if (filter.clientName.contains) {
         qb.leftJoin('report.client', 'client').andWhere(
-          'client.name ILIKE :clientNameContains',
+          'client.name LIKE :clientNameContains',
           {
             clientNameContains: `%${filter.clientName.contains}%`
           }
@@ -338,7 +338,7 @@ export class ReportService {
     if (filter.vehicleModel) {
       if (filter.vehicleModel.eq) {
         qb.leftJoin('report.vehicle', 'vehicle').andWhere(
-          'vehicle.model ILIKE :vehicleModelEq',
+          'vehicle.model LIKE :vehicleModelEq',
           {
             vehicleModelEq: filter.vehicleModel.eq
           }
@@ -346,7 +346,7 @@ export class ReportService {
       }
       if (filter.vehicleModel.contains) {
         qb.leftJoin('report.vehicle', 'vehicle').andWhere(
-          'vehicle.model ILIKE :vehicleModelContains',
+          'vehicle.model LIKE :vehicleModelContains',
           {
             vehicleModelContains: `%${filter.vehicleModel.contains}%`
           }

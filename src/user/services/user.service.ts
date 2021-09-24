@@ -152,18 +152,18 @@ export class UserService {
   ): Promise<SelectQueryBuilder<User>> {
     if (filter.name) {
       if (filter.name.eq) {
-        qb.andWhere('user.name ILIKE :nameEq', { nameEq: filter.name.eq })
+        qb.andWhere('user.name LIKE :nameEq', { nameEq: filter.name.eq })
       }
       if (filter.name.contains) {
-        qb.andWhere('user.name ILIKE :nameContains', { nameContains: `%${filter.name.contains}%` })
+        qb.andWhere('user.name LIKE :nameContains', { nameContains: `%${filter.name.contains}%` })
       }
     }
     if (filter.email) {
       if (filter.email.eq) {
-        qb.andWhere('user.email ILIKE :emailEq', { emailEq: filter.email.eq })
+        qb.andWhere('user.email LIKE :emailEq', { emailEq: filter.email.eq })
       }
       if (filter.email.contains) {
-        qb.andWhere('user.email ILIKE :emailContains', { emailContains: `%${filter.email.contains}%` })
+        qb.andWhere('user.email LIKE :emailContains', { emailContains: `%${filter.email.contains}%` })
       }
     }
     return qb

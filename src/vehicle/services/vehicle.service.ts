@@ -144,48 +144,48 @@ export class VehicleService {
   ): Promise<SelectQueryBuilder<Vehicle>> {
     if (filter.engineModel) {
       if (filter.engineModel.eq) {
-        qb.andWhere('vehicle.engineModel ILIKE :engineModelEq', {
+        qb.andWhere('vehicle.engineModel LIKE :engineModelEq', {
           engineModelEq: filter.engineModel.eq
         })
       }
       if (filter.engineModel.contains) {
-        qb.andWhere('vehicle.engineModel ILIKE :engineModelContains', {
+        qb.andWhere('vehicle.engineModel LIKE :engineModelContains', {
           engineModelContains: `%${filter.engineModel.contains}%`
         })
       }
     }
     if (filter.model) {
       if (filter.model.eq) {
-        qb.andWhere('vehicle.model ILIKE :modelEq', {
+        qb.andWhere('vehicle.model LIKE :modelEq', {
           modelEq: filter.model.eq
         })
       }
       if (filter.model.contains) {
-        qb.andWhere('vehicle.model ILIKE :modelContains', {
+        qb.andWhere('vehicle.model LIKE :modelContains', {
           modelContains: `%${filter.model.contains}%`
         })
       }
     }
     if (filter.releaseYear) {
       if (filter.releaseYear.eq) {
-        qb.andWhere('vehicle.releaseYear ILIKE :releaseYearEq', {
+        qb.andWhere('vehicle.releaseYear LIKE :releaseYearEq', {
           releaseYearEq: filter.releaseYear.eq
         })
       }
       if (filter.releaseYear.contains) {
-        qb.andWhere('vehicle.releaseYear ILIKE :releaseYearContains', {
+        qb.andWhere('vehicle.releaseYear LIKE :releaseYearContains', {
           releaseYearContains: `%${filter.releaseYear.contains}%`
         })
       }
     }
     if (filter.stateNumber) {
       if (filter.stateNumber.eq) {
-        qb.andWhere('vehicle.stateNumber ILIKE :stateNumberEq', {
+        qb.andWhere('vehicle.stateNumber LIKE :stateNumberEq', {
           stateNumberEq: filter.stateNumber.eq
         })
       }
       if (filter.stateNumber.contains) {
-        qb.andWhere('vehicle.stateNumber ILIKE :stateNumberContains', {
+        qb.andWhere('vehicle.stateNumber LIKE :stateNumberContains', {
           stateNumberContains: `%${filter.stateNumber.contains}%`
         })
       }
@@ -193,13 +193,13 @@ export class VehicleService {
     if (filter.generalOperatingTime) {
       if (filter.generalOperatingTime.eq) {
         qb.andWhere(
-          'vehicle.generalOperatingTime ILIKE :generalOperatingTimeEq',
+          'vehicle.generalOperatingTime LIKE :generalOperatingTimeEq',
           { generalOperatingTimeEq: filter.generalOperatingTime.eq }
         )
       }
       if (filter.generalOperatingTime.contains) {
         qb.andWhere(
-          'vehicle.generalOperatingTime ILIKE :generalOperatingTimeContains',
+          'vehicle.generalOperatingTime LIKE :generalOperatingTimeContains',
           {
             generalOperatingTimeContains: `%${filter.generalOperatingTime.contains}%`
           }
@@ -209,7 +209,7 @@ export class VehicleService {
     if (filter.ownerName) {
       if (filter.ownerName.eq) {
         qb.leftJoin('vehicle.owner', 'owner').andWhere(
-          'owner.name ILIKE :ownerNameEq',
+          'owner.name LIKE :ownerNameEq',
           {
             ownerNameEq: filter.ownerName.eq
           }
@@ -217,7 +217,7 @@ export class VehicleService {
       }
       if (filter.ownerName.contains) {
         qb.leftJoin('vehicle.owner', 'owner').andWhere(
-          'owner.name ILIKE :ownerNameContains',
+          'owner.name LIKE :ownerNameContains',
           {
             ownerNameContains: `%${filter.ownerName.contains}%`
           }
