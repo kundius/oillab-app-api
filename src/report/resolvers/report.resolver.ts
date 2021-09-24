@@ -95,7 +95,8 @@ export class ReportResolver {
 
     if (
       typeof input.client !== 'undefined' &&
-      currentUser.role !== UserRole.Administrator
+      currentUser.role !== UserRole.Administrator &&
+      input.client !== currentUser.id
     ) {
       return {
         error: new PermissionDeniedError('Вам не разрешено изменять клиента'),
