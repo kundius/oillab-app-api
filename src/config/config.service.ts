@@ -30,7 +30,7 @@ class ConfigService {
 
   public getTypeOrmConfig (): TypeOrmModuleOptions {
     return {
-      type: 'mariadb',
+      type: 'mysql',
       host: this.getValue('TYPEORM_HOST'),
       port: parseInt(this.getValue('TYPEORM_PORT'), 2),
       username: this.getValue('TYPEORM_USERNAME'),
