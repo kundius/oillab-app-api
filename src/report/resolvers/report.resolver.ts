@@ -96,6 +96,7 @@ export class ReportResolver {
     if (
       typeof input.client !== 'undefined' &&
       currentUser.role !== UserRole.Administrator &&
+      input.client !== (await record.client).id &&
       input.client !== currentUser.id
     ) {
       return {
