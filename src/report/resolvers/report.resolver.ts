@@ -1,4 +1,12 @@
-import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent } from '@nestjs/graphql'
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int,
+  ResolveField,
+  Parent
+} from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 
 import { GqlAuthGuard } from '@app/auth/auth.guard'
@@ -15,23 +23,23 @@ import { PermissionDeniedError } from '@app/graphql/PermissionDeniedError'
 @Resolver(() => Report)
 @UseGuards(GqlAuthGuard)
 export class ReportResolver {
-  constructor (
+  constructor(
     private readonly reportService: ReportService,
     private readonly contextService: ContextService
   ) {}
 
   @Query(() => Report, { nullable: true })
-  async report (
+  async report(
     @Args('id', { type: () => String }) id: string
   ): Promise<Report | undefined> {
     return this.reportService.findById(id)
   }
 
   @Query(() => dto.ReportPaginateResponse)
-  async reportPaginate (
+  async reportPaginate(
     @Args() args: dto.ReportPaginateArgs
   ): Promise<dto.ReportPaginateResponse> {
-    return this.reportService.paginate(args, qb => {
+    return this.reportService.paginate(args, (qb) => {
       const currentUser = this.contextService.getCurrentUser()
       if (currentUser.role !== UserRole.Administrator) {
         qb.andWhere('report.client = :onlySelfId', {
@@ -42,12 +50,16 @@ export class ReportResolver {
   }
 
   @Mutation(() => dto.ReportCreateResponse)
-  async reportCreate (
+  async reportCreate(
     @Args('input') input: dto.ReportCreateInput
   ): Promise<dto.ReportCreateResponse> {
     const currentUser = this.contextService.getCurrentUser()
 
-    if (typeof input.client !== 'undefined' && currentUser.role !== UserRole.Administrator) {
+    if (
+      typeof input.client !== 'undefined' &&
+      currentUser.role !== UserRole.Administrator &&
+      input.client !== currentUser.id
+    ) {
       return {
         error: new PermissionDeniedError('Вам не разрешено изменять клиента'),
         success: false
@@ -67,7 +79,7 @@ export class ReportResolver {
   }
 
   @Mutation(() => dto.ReportUpdateResponse)
-  async reportUpdate (
+  async reportUpdate(
     @Args('id', { type: () => String }) id: string,
     @Args('input') input: dto.ReportUpdateInput
   ): Promise<dto.ReportUpdateResponse> {
@@ -81,7 +93,10 @@ export class ReportResolver {
       }
     }
 
-    if (typeof input.client !== 'undefined' && currentUser.role !== UserRole.Administrator) {
+    if (
+      typeof input.client !== 'undefined' &&
+      currentUser.role !== UserRole.Administrator
+    ) {
       return {
         error: new PermissionDeniedError('Вам не разрешено изменять клиента'),
         success: false
@@ -96,11 +111,8 @@ export class ReportResolver {
     }
   }
 
-  
   @Mutation(() => DefaultMutationResponse)
-  async reportDelete (
-    @Args('id') id: string
-  ): Promise<DefaultMutationResponse> {
+  async reportDelete(@Args('id') id: string): Promise<DefaultMutationResponse> {
     const record = await this.reportService.findById(id)
 
     if (!record) {
