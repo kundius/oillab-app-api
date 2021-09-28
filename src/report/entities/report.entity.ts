@@ -41,9 +41,6 @@ export class Report {
   lubricant: string
 
   @Column()
-  stateNumber: string
-
-  @Column()
   totalMileage: string
 
   @Column()

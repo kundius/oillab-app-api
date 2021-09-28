@@ -31,7 +31,6 @@ export class ReportService {
     const record = await this.reportRepository.create()
     record.number = await this.reportRepository.count() + 1
     record.lubricant = input.lubricant
-    record.stateNumber = input.stateNumber
     record.totalMileage = input.totalMileage
     record.lubricantMileage = input.lubricantMileage
     record.samplingNodes = input.samplingNodes
@@ -65,9 +64,6 @@ export class ReportService {
   async update(record: Report, input: dto.ReportUpdateInput) {
     if (typeof input.lubricant !== 'undefined') {
       record.lubricant = input.lubricant
-    }
-    if (typeof input.stateNumber !== 'undefined') {
-      record.stateNumber = input.stateNumber
     }
     if (typeof input.totalMileage !== 'undefined') {
       record.totalMileage = input.totalMileage
@@ -194,12 +190,6 @@ export class ReportService {
         case dto.ReportSort.SAMPLING_NODES_DESC:
           qb.orderBy('report.samplingNodes', 'DESC')
           break
-        case dto.ReportSort.STATE_NUMBER_ASC:
-          qb.orderBy('report.stateNumber', 'ASC')
-          break
-        case dto.ReportSort.STATE_NUMBER_DESC:
-          qb.orderBy('report.stateNumber', 'DESC')
-          break
         case dto.ReportSort.TOTAL_MILEAGE_ASC:
           qb.orderBy('report.totalMileage', 'ASC')
           break
@@ -232,18 +222,6 @@ export class ReportService {
       if (filter.lubricant.contains) {
         qb.andWhere('report.lubricant LIKE :lubricantContains', {
           lubricantContains: `%${filter.lubricant.contains}%`
-        })
-      }
-    }
-    if (filter.stateNumber) {
-      if (filter.stateNumber.eq) {
-        qb.andWhere('report.stateNumber LIKE :stateNumberEq', {
-          stateNumberEq: filter.stateNumber.eq
-        })
-      }
-      if (filter.stateNumber.contains) {
-        qb.andWhere('report.stateNumber LIKE :stateNumberContains', {
-          stateNumberContains: `%${filter.stateNumber.contains}%`
         })
       }
     }
@@ -349,6 +327,60 @@ export class ReportService {
           'vehicle.model LIKE :vehicleModelContains',
           {
             vehicleModelContains: `%${filter.vehicleModel.contains}%`
+          }
+        )
+      }
+    }
+    if (filter.vehicleEngineModel) {
+      if (filter.vehicleEngineModel.eq) {
+        qb.leftJoin('report.vehicle', 'vehicle').andWhere(
+          'vehicle.engineModel LIKE :vehicleEngineModelEq',
+          {
+            vehicleEngineModelEq: filter.vehicleEngineModel.eq
+          }
+        )
+      }
+      if (filter.vehicleEngineModel.contains) {
+        qb.leftJoin('report.vehicle', 'vehicle').andWhere(
+          'vehicle.engineModel LIKE :vehicleEngineModelContains',
+          {
+            vehicleEngineModelContains: `%${filter.vehicleEngineModel.contains}%`
+          }
+        )
+      }
+    }
+    if (filter.vehicleReleaseYear) {
+      if (filter.vehicleReleaseYear.eq) {
+        qb.leftJoin('report.vehicle', 'vehicle').andWhere(
+          'vehicle.releaseYear LIKE :vehicleReleaseYearEq',
+          {
+            vehicleReleaseYearEq: filter.vehicleReleaseYear.eq
+          }
+        )
+      }
+      if (filter.vehicleReleaseYear.contains) {
+        qb.leftJoin('report.vehicle', 'vehicle').andWhere(
+          'vehicle.releaseYear LIKE :vehicleReleaseYearContains',
+          {
+            vehicleReleaseYearContains: `%${filter.vehicleReleaseYear.contains}%`
+          }
+        )
+      }
+    }
+    if (filter.vehicleStateNumber) {
+      if (filter.vehicleStateNumber.eq) {
+        qb.leftJoin('report.vehicle', 'vehicle').andWhere(
+          'vehicle.stateNumber LIKE :vehicleStateNumberEq',
+          {
+            vehicleStateNumberEq: filter.vehicleStateNumber.eq
+          }
+        )
+      }
+      if (filter.vehicleStateNumber.contains) {
+        qb.leftJoin('report.vehicle', 'vehicle').andWhere(
+          'vehicle.stateNumber LIKE :vehicleStateNumberContains',
+          {
+            vehicleStateNumberContains: `%${filter.vehicleStateNumber.contains}%`
           }
         )
       }

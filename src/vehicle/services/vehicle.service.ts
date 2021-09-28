@@ -27,7 +27,6 @@ export class VehicleService {
     const owner = await this.userService.findByIdOrFail(input.owner)
     const record = await this.vehicleRepository.create()
     record.engineModel = input.engineModel
-    record.generalOperatingTime = input.generalOperatingTime
     record.model = input.model
     record.owner = Promise.resolve(owner)
     record.releaseYear = input.releaseYear
@@ -39,9 +38,6 @@ export class VehicleService {
   async update(record: Vehicle, input: dto.VehicleUpdateInput) {
     if (typeof input.engineModel !== 'undefined') {
       record.engineModel = input.engineModel
-    }
-    if (typeof input.generalOperatingTime !== 'undefined') {
-      record.generalOperatingTime = input.generalOperatingTime
     }
     if (typeof input.model !== 'undefined') {
       record.model = input.model
@@ -113,12 +109,6 @@ export class VehicleService {
         case dto.VehicleSort.ENGINE_MODEL_DESC:
           qb.orderBy('vehicle.engineModel', 'DESC')
           break
-        case dto.VehicleSort.GENERAL_OPERATING_TIME_ASC:
-          qb.orderBy('vehicle.generalOperatingTime', 'ASC')
-          break
-        case dto.VehicleSort.GENERAL_OPERATING_TIME_DESC:
-          qb.orderBy('vehicle.generalOperatingTime', 'DESC')
-          break
         case dto.VehicleSort.RELEASE_YEAR_ASC:
           qb.orderBy('vehicle.releaseYear', 'ASC')
           break
@@ -188,22 +178,6 @@ export class VehicleService {
         qb.andWhere('vehicle.stateNumber LIKE :stateNumberContains', {
           stateNumberContains: `%${filter.stateNumber.contains}%`
         })
-      }
-    }
-    if (filter.generalOperatingTime) {
-      if (filter.generalOperatingTime.eq) {
-        qb.andWhere(
-          'vehicle.generalOperatingTime LIKE :generalOperatingTimeEq',
-          { generalOperatingTimeEq: filter.generalOperatingTime.eq }
-        )
-      }
-      if (filter.generalOperatingTime.contains) {
-        qb.andWhere(
-          'vehicle.generalOperatingTime LIKE :generalOperatingTimeContains',
-          {
-            generalOperatingTimeContains: `%${filter.generalOperatingTime.contains}%`
-          }
-        )
       }
     }
     if (filter.ownerName) {

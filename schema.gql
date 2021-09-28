@@ -35,7 +35,6 @@ type Report {
   expressLaboratoryResult: File
   number: Float!
   lubricant: String!
-  stateNumber: String!
   totalMileage: String!
   lubricantMileage: String!
   samplingNodes: String!
@@ -51,7 +50,6 @@ type Vehicle {
   releaseYear: String!
   stateNumber: String!
   engineModel: String!
-  generalOperatingTime: String!
 }
 
 type User {
@@ -204,7 +202,6 @@ input VehicleFilter {
   releaseYear: StringFilter
   stateNumber: StringFilter
   engineModel: StringFilter
-  generalOperatingTime: StringFilter
   ownerName: StringFilter
   ownerId: IdFilter
 }
@@ -233,11 +230,13 @@ enum ReportSort {
 
 input ReportFilter {
   lubricant: StringFilter
-  stateNumber: StringFilter
   totalMileage: StringFilter
   lubricantMileage: StringFilter
   clientName: StringFilter
   vehicleModel: StringFilter
+  vehicleStateNumber: StringFilter
+  vehicleReleaseYear: StringFilter
+  vehicleEngineModel: StringFilter
   samplingNodes: StringFilter
   sampledAt: DateFilter
   number: NumberFilter
@@ -290,7 +289,6 @@ input VehicleCreateInput {
   releaseYear: String!
   stateNumber: String!
   engineModel: String!
-  generalOperatingTime: String!
   owner: String!
 }
 
@@ -299,13 +297,11 @@ input VehicleUpdateInput {
   releaseYear: String
   stateNumber: String
   engineModel: String
-  generalOperatingTime: String
   owner: String
 }
 
 input ReportCreateInput {
   lubricant: String!
-  stateNumber: String!
   totalMileage: String!
   lubricantMileage: String!
   samplingNodes: String!
@@ -319,7 +315,6 @@ input ReportCreateInput {
 
 input ReportUpdateInput {
   lubricant: String
-  stateNumber: String
   totalMileage: String
   lubricantMileage: String
   samplingNodes: String

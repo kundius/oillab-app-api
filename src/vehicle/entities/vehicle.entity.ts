@@ -46,9 +46,6 @@ export class Vehicle {
   @Column()
   engineModel: string
 
-  @Column()
-  generalOperatingTime: string
-
   @Field(() => Date)
   @CreateDateColumn()
   createdAt: Date

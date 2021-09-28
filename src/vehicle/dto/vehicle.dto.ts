@@ -22,9 +22,6 @@ export class VehicleCreateInput {
   engineModel: string
 
   @Field()
-  generalOperatingTime: string
-
-  @Field()
   owner: string
 }
 
@@ -47,9 +44,6 @@ export class VehicleUpdateInput {
 
   @Field({ nullable: true })
   engineModel?: string
-
-  @Field({ nullable: true })
-  generalOperatingTime?: string
 
   @Field({ nullable: true })
   owner?: string
@@ -91,9 +85,6 @@ export class VehicleFilter {
 
   @Field({ nullable: true })
   engineModel?: StringFilter
-
-  @Field({ nullable: true })
-  generalOperatingTime?: StringFilter
 
   @Field({ nullable: true })
   ownerName?: StringFilter

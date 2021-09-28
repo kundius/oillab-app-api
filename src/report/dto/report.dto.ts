@@ -14,9 +14,6 @@ export class ReportCreateInput {
   lubricant: string
 
   @Field()
-  stateNumber: string
-
-  @Field()
   totalMileage: string
 
   @Field()
@@ -54,9 +51,6 @@ export class ReportCreateResponse extends DefaultMutationResponse {
 export class ReportUpdateInput {
   @Field({ nullable: true })
   lubricant?: string
-
-  @Field({ nullable: true })
-  stateNumber?: string
 
   @Field({ nullable: true })
   totalMileage?: string
@@ -119,9 +113,6 @@ export class ReportFilter {
   lubricant?: StringFilter
 
   @Field({ nullable: true })
-  stateNumber?: StringFilter
-
-  @Field({ nullable: true })
   totalMileage?: StringFilter
 
   @Field({ nullable: true })
@@ -132,6 +123,15 @@ export class ReportFilter {
 
   @Field({ nullable: true })
   vehicleModel?: StringFilter
+
+  @Field({ nullable: true })
+  vehicleStateNumber?: StringFilter
+
+  @Field({ nullable: true })
+  vehicleReleaseYear?: StringFilter
+
+  @Field({ nullable: true })
+  vehicleEngineModel?: StringFilter
 
   @Field({ nullable: true })
   samplingNodes?: StringFilter
