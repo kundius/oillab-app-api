@@ -435,10 +435,8 @@ export class ReportService {
     }
     const html = `
       <style>
-        body {
-          font-size: 10px;
-        }
         table {
+          font-size: 6px;
           width: 100%;
           border: 1px solid #e1e6eb;
           border-collapse: collapse;
@@ -454,7 +452,7 @@ export class ReportService {
           border: 1px solid #e1e6eb;
         }
       </style>
-      <table style="font-size: 10px;">
+      <table>
         <tr>
           <th>Номер</th>
           <th>Владелец техники</th>
