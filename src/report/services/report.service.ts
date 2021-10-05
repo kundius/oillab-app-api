@@ -428,33 +428,33 @@ export class ReportService {
           <td>${item.lubricantMileage}</td>
           <td>${item.samplingNodes}</td>
           <td>${item.lubricant}</td>
-          <td>${item.sampledAt}</td>
+          <td>${item.sampledAt.toLocaleDateString()}</td>
           <td>${item.note}</td>
         </tr>
       `)
     }
     const html = `
       <style>
-        table {
+        body {
           font-size: 10px;
+        }
+        table {
           width: 100%;
           border: 1px solid #e1e6eb;
           border-collapse: collapse;
         }
         th {
-          font-size: 10px;
           text-align: left;
           background: #f3f4f7;
           padding: 5px;
           border: 1px solid #e1e6eb;
         }
         td {
-          font-size: 10px;
           padding: 5px;
           border: 1px solid #e1e6eb;
         }
       </style>
-      <table>
+      <table style="font-size: 10px;">
         <tr>
           <th>Номер</th>
           <th>Владелец техники</th>
