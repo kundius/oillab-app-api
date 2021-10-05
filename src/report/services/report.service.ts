@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, SelectQueryBuilder } from 'typeorm'
+import * as HtmlPdf from 'html-pdf'
 
 import { UserService } from '@app/user/services/user.service'
 import { VehicleService } from '@app/vehicle/services/vehicle.service'
@@ -23,13 +24,17 @@ export class ReportService {
     return await this.reportRepository.findOne(id)
   }
 
+  async findMany(): Promise<Report[]> {
+    return await this.reportRepository.find()
+  }
+
   async findByIdOrFail(id: string): Promise<Report> {
     return await this.reportRepository.findOneOrFail(id)
   }
 
   async create(input: dto.ReportCreateInput) {
     const record = await this.reportRepository.create()
-    record.number = await this.reportRepository.count() + 1
+    record.number = (await this.reportRepository.count()) + 1
     record.lubricant = input.lubricant
     record.totalMileage = input.totalMileage
     record.lubricantMileage = input.lubricantMileage
@@ -386,5 +391,84 @@ export class ReportService {
       }
     }
     return qb
+  }
+
+  async generatePDF(
+    filter?: dto.ReportFilter,
+    sort?: dto.ReportSort[],
+    customize?: (qb: SelectQueryBuilder<Report>) => void
+  ): Promise<Buffer> {
+    const qb = this.reportRepository.createQueryBuilder('report')
+
+    customize?.(qb)
+
+    if (filter) {
+      this.applyFilter(qb, filter)
+    }
+
+    if (sort) {
+      this.applySort(qb, sort)
+    }
+
+    const items = await qb.getMany()
+
+    const itemsHtml = []
+    for (const item of items) {
+      const client = await item.client
+      const vehicle = await item.vehicle
+      itemsHtml.push(`
+        <tr>
+          <td>${item.number}</td>
+          <td>${client?.name || '-'}</td>
+          <td>${vehicle?.model || '-'}</td>
+          <td>${vehicle?.stateNumber || '-'}</td>
+          <td>${item.totalMileage}</td>
+          <td>${item.lubricantMileage}</td>
+          <td>${item.samplingNodes}</td>
+          <td>${item.lubricant}</td>
+          <td>${item.sampledAt}</td>
+          <td>${item.note}</td>
+        </tr>
+      `)
+    }
+    const html = `
+      <style>
+        table {
+          font-size: 12px;
+          width: 100%;
+          border: 1px solid #e1e6eb;
+          border-collapse: collapse;
+        }
+        th { 
+          text-align: left;
+          background: #f3f4f7;
+          padding: 5px;
+          border: 1px solid #e1e6eb;
+        }
+        td { 
+          padding: 5px;
+          border: 1px solid #e1e6eb;
+        }
+      </style>
+      <table>
+        <tr>
+          <th>Номер</th>
+          <th>Владелец техники</th>
+          <th>Модель</th>
+          <th>Гос. номер</th>
+          <th>Общий пробег</th>
+          <th>Пробег на смазочном материале</th>
+          <th>Узел пробоотбора</th>
+          <th>Смазочный материал</th>
+          <th>Дата пробы</th>
+          <th>Примечание</th>
+        </tr>
+        ${itemsHtml.join('')}
+      </table>
+    `
+    const pdfBuffer: Buffer = await new Promise((resolve) => {
+      HtmlPdf.create(html).toBuffer((err, buffer) => resolve(buffer))
+    })
+    return pdfBuffer
   }
 }

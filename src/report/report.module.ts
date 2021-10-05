@@ -11,8 +11,10 @@ import {
 } from './entities/report.entity'
 import { ReportResolver } from './resolvers/report.resolver'
 import { ReportService } from './services/report.service'
+import { ReportController } from './controllers/report.controller'
 
 @Module({
+  controllers: [ReportController],
   imports: [
     ContextModule,
     UserModule,
