@@ -469,7 +469,10 @@ export class ReportService {
       </table>
     `
     const pdfBuffer: Buffer = await new Promise((resolve) => {
-      HtmlPdf.create(html).toBuffer((err, buffer) => resolve(buffer))
+      HtmlPdf.create(html, {
+        height: '1024',
+        width: '768'
+      }).toBuffer((err, buffer) => resolve(buffer))
     })
 
     const file = await this.fileService.uploadAndCreateFile({
