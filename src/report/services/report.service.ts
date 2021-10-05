@@ -436,18 +436,20 @@ export class ReportService {
     const html = `
       <style>
         table {
-          font-size: 12px;
+          font-size: 10px;
           width: 100%;
           border: 1px solid #e1e6eb;
           border-collapse: collapse;
         }
-        th { 
+        th {
+          font-size: 10px;
           text-align: left;
           background: #f3f4f7;
           padding: 5px;
           border: 1px solid #e1e6eb;
         }
-        td { 
+        td {
+          font-size: 10px;
           padding: 5px;
           border: 1px solid #e1e6eb;
         }
