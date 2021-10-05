@@ -49,6 +49,37 @@ export class ReportResolver {
     })
   }
 
+  @Mutation(() => dto.ReportGeneratePdfResponse)
+  async reportGeneratePdf(
+    @Args() args: dto.ReportGeneratePdfArgs
+  ): Promise<dto.ReportGeneratePdfResponse> {
+    const currentUser = this.contextService.getCurrentUser()
+
+    if (!currentUser) {
+      return {
+        error: new PermissionDeniedError('Forbidden'),
+        success: false
+      }
+    }
+
+    const file = await this.reportService.generatePdf(
+      args.filter,
+      args.sort,
+      (qb) => {
+        if (currentUser.role !== UserRole.Administrator) {
+          qb.andWhere('report.client = :onlySelfId', {
+            onlySelfId: currentUser.id
+          })
+        }
+      }
+    )
+
+    return {
+      record: file,
+      success: true
+    }
+  }
+
   @Mutation(() => dto.ReportCreateResponse)
   async reportCreate(
     @Args('input') input: dto.ReportCreateInput

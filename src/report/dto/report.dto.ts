@@ -7,6 +7,7 @@ import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
 import { StringFilter } from '@app/graphql/StringFilter'
 import { DateFilter } from '@app/graphql/DateFilter'
 import { NumberFilter } from '@app/graphql/NumberFilter'
+import { File } from '@app/file/file.entity'
 
 @InputType()
 export class ReportCreateInput {
@@ -163,4 +164,20 @@ export class ReportPaginateArgs {
 export class ReportPaginateResponse extends PaginatedResponse {
   @Field(() => [Report])
   items: Report[]
+}
+
+@ArgsType()
+export class ReportGeneratePdfArgs {
+  @Field(() => [ReportSort], { nullable: true })
+  sort?: ReportSort[]
+
+  @Field(() => ReportFilter, { nullable: true })
+  @Type(() => ReportFilter)
+  filter?: ReportFilter
+}
+
+@ObjectType()
+export class ReportGeneratePdfResponse extends DefaultMutationResponse {
+  @Field(() => File, { nullable: true })
+  record?: File
 }

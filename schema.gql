@@ -138,6 +138,12 @@ type ReportPaginateResponse {
   items: [Report!]!
 }
 
+type ReportGeneratePdfResponse {
+  success: Boolean!
+  error: DefaultError
+  record: File
+}
+
 type PermissionDeniedError implements DefaultError {
   message: String!
 }
@@ -262,6 +268,7 @@ type Mutation {
   vehicleCreate(input: VehicleCreateInput!): VehicleCreateResponse!
   vehicleUpdate(input: VehicleUpdateInput!, id: String!): VehicleUpdateResponse!
   vehicleDelete(id: String!): DefaultMutationResponse!
+  reportGeneratePdf(sort: [ReportSort!], filter: ReportFilter): ReportGeneratePdfResponse!
   reportCreate(input: ReportCreateInput!): ReportCreateResponse!
   reportUpdate(input: ReportUpdateInput!, id: String!): ReportUpdateResponse!
   reportDelete(id: String!): DefaultMutationResponse!

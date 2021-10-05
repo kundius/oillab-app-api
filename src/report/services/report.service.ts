@@ -6,9 +6,11 @@ import * as HtmlPdf from 'html-pdf'
 import { UserService } from '@app/user/services/user.service'
 import { VehicleService } from '@app/vehicle/services/vehicle.service'
 import { FileService } from '@app/file/file.service'
+import { nanoid } from '@app/utils/nanoid'
 
 import * as dto from '../dto/report.dto'
 import { Report } from '../entities/report.entity'
+import { File } from '@app/file/file.entity'
 
 @Injectable()
 export class ReportService {
@@ -393,11 +395,11 @@ export class ReportService {
     return qb
   }
 
-  async generatePDF(
+  async generatePdf(
     filter?: dto.ReportFilter,
     sort?: dto.ReportSort[],
     customize?: (qb: SelectQueryBuilder<Report>) => void
-  ): Promise<Buffer> {
+  ): Promise<File> {
     const qb = this.reportRepository.createQueryBuilder('report')
 
     customize?.(qb)
@@ -469,6 +471,13 @@ export class ReportService {
     const pdfBuffer: Buffer = await new Promise((resolve) => {
       HtmlPdf.create(html).toBuffer((err, buffer) => resolve(buffer))
     })
-    return pdfBuffer
+
+    const file = await this.fileService.uploadAndCreateFile({
+      buffer: pdfBuffer,
+      dir: 'report/pdf',
+      name: nanoid()
+    })
+
+    return file
   }
 }
