@@ -29,17 +29,17 @@ export class ReportCreateInput {
   @Field(() => Date)
   sampledAt: Date
 
-  @Field({ nullable: true })
+  @Field(() => Int, { nullable: true })
   client?: number
 
-  @Field({ nullable: true })
+  @Field(() => Int, { nullable: true })
   vehicle?: number
 
-  @Field({ nullable: true })
-  expressLaboratoryResult?: string | null
+  @Field(() => Int, { nullable: true })
+  expressLaboratoryResult?: number | null
 
-  @Field({ nullable: true })
-  laboratoryResult?: string | null
+  @Field(() => Int, { nullable: true })
+  laboratoryResult?: number | null
 }
 
 @ObjectType()
@@ -68,17 +68,17 @@ export class ReportUpdateInput {
   @Field(() => Date, { nullable: true })
   sampledAt?: Date
 
-  @Field({ nullable: true })
+  @Field(() => Int, { nullable: true })
   client?: number
 
-  @Field({ nullable: true })
+  @Field(() => Int, { nullable: true })
   vehicle?: number
 
-  @Field({ nullable: true })
-  expressLaboratoryResult?: string | null
+  @Field(() => Int, { nullable: true })
+  expressLaboratoryResult?: number | null
 
-  @Field({ nullable: true })
-  laboratoryResult?: string | null
+  @Field(() => Int, { nullable: true })
+  laboratoryResult?: number | null
 }
 
 @ObjectType()

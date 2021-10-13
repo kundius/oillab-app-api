@@ -23,11 +23,11 @@ export class FileService {
     return this.fileRepository.createQueryBuilder('file')
   }
 
-  async findById(id: string): Promise<File | undefined> {
+  async findById(id: number): Promise<File | undefined> {
     return await this.fileRepository.findOne(id)
   }
 
-  async findByIdOrFail(id: string): Promise<File> {
+  async findByIdOrFail(id: number): Promise<File> {
     return await this.fileRepository.findOneOrFail(id)
   }
 

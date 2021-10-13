@@ -212,8 +212,8 @@ input VehicleFilter {
 }
 
 input IdFilter {
-  eq: String
-  in: [String!]
+  eq: Float
+  in: [Int!]
 }
 
 enum ReportSort {
@@ -313,10 +313,10 @@ input ReportCreateInput {
   samplingNodes: String!
   note: String
   sampledAt: DateTime!
-  client: Float
-  vehicle: Float
-  expressLaboratoryResult: String
-  laboratoryResult: String
+  client: Int
+  vehicle: Int
+  expressLaboratoryResult: Int
+  laboratoryResult: Int
 }
 
 input ReportUpdateInput {
@@ -326,8 +326,8 @@ input ReportUpdateInput {
   samplingNodes: String
   note: String
   sampledAt: DateTime
-  client: Float
-  vehicle: Float
-  expressLaboratoryResult: String
-  laboratoryResult: String
+  client: Int
+  vehicle: Int
+  expressLaboratoryResult: Int
+  laboratoryResult: Int
 }
