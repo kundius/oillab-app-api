@@ -29,9 +29,8 @@ import { Report } from '@app/report/entities/report.entity'
 @Entity()
 @ObjectType()
 export class Vehicle {
-  @Field(() => String)
-  @PrimaryGeneratedColumn('uuid')
-  id: string
+  @PrimaryGeneratedColumn()
+  id: number
 
   @Field()
   @Column()

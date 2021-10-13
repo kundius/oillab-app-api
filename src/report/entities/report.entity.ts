@@ -30,12 +30,8 @@ import { File } from '@app/file/file.entity'
 @Entity()
 @ObjectType()
 export class Report {
-  @Field(() => String)
-  @PrimaryGeneratedColumn('uuid')
-  id: string
-
-  @Column()
-  number: number
+  @PrimaryGeneratedColumn()
+  id: number
 
   @Column()
   lubricant: string

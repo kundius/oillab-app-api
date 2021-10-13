@@ -22,7 +22,7 @@ export class ReportService {
     private readonly fileService: FileService
   ) {}
 
-  async findById(id: string): Promise<Report | undefined> {
+  async findById(id: number): Promise<Report | undefined> {
     return await this.reportRepository.findOne(id)
   }
 
@@ -30,13 +30,12 @@ export class ReportService {
     return await this.reportRepository.find()
   }
 
-  async findByIdOrFail(id: string): Promise<Report> {
+  async findByIdOrFail(id: number): Promise<Report> {
     return await this.reportRepository.findOneOrFail(id)
   }
 
   async create(input: dto.ReportCreateInput) {
     const record = await this.reportRepository.create()
-    record.number = (await this.reportRepository.count()) + 1
     record.lubricant = input.lubricant
     record.totalMileage = input.totalMileage
     record.lubricantMileage = input.lubricantMileage
@@ -203,11 +202,11 @@ export class ReportService {
         case dto.ReportSort.TOTAL_MILEAGE_DESC:
           qb.orderBy('report.totalMileage', 'DESC')
           break
-        case dto.ReportSort.NUMBER_ASC:
-          qb.orderBy('report.number', 'ASC')
+        case dto.ReportSort.ID_ASC:
+          qb.orderBy('report.id', 'ASC')
           break
-        case dto.ReportSort.NUMBER_DESC:
-          qb.orderBy('report.number', 'DESC')
+        case dto.ReportSort.ID_DESC:
+          qb.orderBy('report.id', 'DESC')
           break
         default:
           throw new Error('Not implemented')
@@ -285,20 +284,20 @@ export class ReportService {
         })
       }
     }
-    if (filter.number) {
-      if (filter.number.eq) {
-        qb.andWhere('report.number = :numberEq', {
-          numberEq: filter.number.eq
+    if (filter.id) {
+      if (filter.id.eq) {
+        qb.andWhere('report.id = :idEq', {
+          idEq: filter.id.eq
         })
       }
-      if (filter.number.lt) {
-        qb.andWhere('report.number < :numberLt', {
-          numberLt: filter.number.lt
+      if (filter.id.lt) {
+        qb.andWhere('report.id < :idLt', {
+          idLt: filter.id.lt
         })
       }
-      if (filter.number.gt) {
-        qb.andWhere('report.number > :numberGt', {
-          numberGt: filter.number.gt
+      if (filter.id.gt) {
+        qb.andWhere('report.id > :idGt', {
+          idGt: filter.id.gt
         })
       }
     }
@@ -420,7 +419,7 @@ export class ReportService {
       const vehicle = await item.vehicle
       itemsHtml.push(`
         <tr>
-          <td>${item.number}</td>
+          <td>${item.id}</td>
           <td>${client?.name || '-'}</td>
           <td>${vehicle?.model || '-'}</td>
           <td>${vehicle?.stateNumber || '-'}</td>

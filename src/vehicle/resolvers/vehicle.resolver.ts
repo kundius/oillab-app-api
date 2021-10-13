@@ -18,7 +18,7 @@ export class VehicleResolver {
 
   @Query(() => Vehicle, { nullable: true })
   async vehicle (
-    @Args('id', { type: () => String }) id: string
+    @Args('id', { type: () => Int }) id: number
   ): Promise<Vehicle | undefined> {
     return this.vehicleService.findById(id)
   }
@@ -44,7 +44,7 @@ export class VehicleResolver {
 
   @Mutation(() => dto.VehicleUpdateResponse)
   async vehicleUpdate (
-    @Args('id', { type: () => String }) id: string,
+    @Args('id', { type: () => Int }) id: number,
     @Args('input') input: dto.VehicleUpdateInput
   ): Promise<dto.VehicleUpdateResponse> {
     const record = await this.vehicleService.findById(id)
@@ -67,7 +67,7 @@ export class VehicleResolver {
   
   @Mutation(() => DefaultMutationResponse)
   async vehicleDelete (
-    @Args('id') id: string
+    @Args('id', { type: () => Int }) id: number
   ): Promise<DefaultMutationResponse> {
     const record = await this.vehicleService.findById(id)
 

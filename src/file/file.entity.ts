@@ -6,9 +6,8 @@ import { User } from '@app/user/entities/user.entity'
 @Entity()
 @ObjectType()
 export class File {
-  @Field(() => String)
-  @PrimaryGeneratedColumn('uuid')
-  id: string
+  @PrimaryGeneratedColumn()
+  id: number
 
   @Field(() => String)
   @Column()

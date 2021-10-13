@@ -30,7 +30,7 @@ export class ReportResolver {
 
   @Query(() => Report, { nullable: true })
   async report(
-    @Args('id', { type: () => String }) id: string
+    @Args('id', { type: () => Int }) id: number
   ): Promise<Report | undefined> {
     return this.reportService.findById(id)
   }
@@ -111,7 +111,7 @@ export class ReportResolver {
 
   @Mutation(() => dto.ReportUpdateResponse)
   async reportUpdate(
-    @Args('id', { type: () => String }) id: string,
+    @Args('id', { type: () => Int }) id: number,
     @Args('input') input: dto.ReportUpdateInput
   ): Promise<dto.ReportUpdateResponse> {
     const currentUser = this.contextService.getCurrentUser()
@@ -145,7 +145,9 @@ export class ReportResolver {
   }
 
   @Mutation(() => DefaultMutationResponse)
-  async reportDelete(@Args('id') id: string): Promise<DefaultMutationResponse> {
+  async reportDelete(
+    @Args('id', { type: () => Int }) id: number
+  ): Promise<DefaultMutationResponse> {
     const record = await this.reportService.findById(id)
 
     if (!record) {

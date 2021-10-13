@@ -22,7 +22,7 @@ export class VehicleCreateInput {
   engineModel: string
 
   @Field()
-  owner: string
+  owner: number
 }
 
 @ObjectType()
@@ -46,7 +46,7 @@ export class VehicleUpdateInput {
   engineModel?: string
 
   @Field({ nullable: true })
-  owner?: string
+  owner?: number
 }
 
 @ObjectType()

@@ -30,10 +30,10 @@ export class ReportCreateInput {
   sampledAt: Date
 
   @Field({ nullable: true })
-  client?: string
+  client?: number
 
   @Field({ nullable: true })
-  vehicle?: string
+  vehicle?: number
 
   @Field({ nullable: true })
   expressLaboratoryResult?: string | null
@@ -69,10 +69,10 @@ export class ReportUpdateInput {
   sampledAt?: Date
 
   @Field({ nullable: true })
-  client?: string
+  client?: number
 
   @Field({ nullable: true })
-  vehicle?: string
+  vehicle?: number
 
   @Field({ nullable: true })
   expressLaboratoryResult?: string | null
@@ -100,8 +100,8 @@ export enum ReportSort {
   SAMPLING_NODES_DESC,
   SAMPLED_AT_ASC,
   SAMPLED_AT_DESC,
-  NUMBER_ASC,
-  NUMBER_DESC
+  ID_ASC,
+  ID_DESC
 }
 
 registerEnumType(ReportSort, {
@@ -141,7 +141,7 @@ export class ReportFilter {
   sampledAt?: DateFilter
 
   @Field({ nullable: true })
-  number?: NumberFilter
+  id?: NumberFilter
 }
 
 @ArgsType()

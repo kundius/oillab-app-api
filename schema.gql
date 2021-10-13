@@ -7,7 +7,6 @@ interface DefaultError {
 }
 
 type File {
-  id: String!
   name: String!
   path: String!
   url: String!
@@ -16,6 +15,7 @@ type File {
   createdAt: DateTime!
   updatedAt: DateTime!
   user: User
+  id: Float!
 }
 
 """
@@ -24,7 +24,6 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Report {
-  id: String!
   note: String
   sampledAt: DateTime!
   createdAt: DateTime!
@@ -33,7 +32,7 @@ type Report {
   vehicle: Vehicle
   laboratoryResult: File
   expressLaboratoryResult: File
-  number: Float!
+  id: Float!
   lubricant: String!
   totalMileage: String!
   lubricantMileage: String!
@@ -41,19 +40,18 @@ type Report {
 }
 
 type Vehicle {
-  id: String!
   model: String!
   createdAt: DateTime!
   updatedAt: DateTime!
   owner: User!
   reports: [Report!]!
+  id: Float!
   releaseYear: String!
   stateNumber: String!
   engineModel: String!
 }
 
 type User {
-  id: String!
   name: String!
   email: String
   isActive: Boolean!
@@ -63,6 +61,7 @@ type User {
   vehicles: [Vehicle!]!
   reports: [Report!]!
   files: [File]!
+  id: Float!
   role: UserRole!
   password: String!
 }
@@ -161,13 +160,13 @@ type SignInResponse {
 }
 
 type Query {
-  user(id: String!): User
+  user(id: Int!): User
   currentUser: User
   userPaginate(perPage: Int = 12, page: Int = 1, sort: [UserSort!], filter: UserFilter): UserPaginateResponse!
   file(id: ID!): File
-  vehicle(id: String!): Vehicle
+  vehicle(id: Int!): Vehicle
   vehiclePaginate(perPage: Int = 12, page: Int = 1, sort: [VehicleSort!], filter: VehicleFilter): VehiclePaginateResponse!
-  report(id: String!): Report
+  report(id: Int!): Report
   reportPaginate(perPage: Int = 12, page: Int = 1, sort: [ReportSort!], filter: ReportFilter): ReportPaginateResponse!
 }
 
@@ -230,8 +229,8 @@ enum ReportSort {
   SAMPLING_NODES_DESC
   SAMPLED_AT_ASC
   SAMPLED_AT_DESC
-  NUMBER_ASC
-  NUMBER_DESC
+  ID_ASC
+  ID_DESC
 }
 
 input ReportFilter {
@@ -245,7 +244,7 @@ input ReportFilter {
   vehicleEngineModel: StringFilter
   samplingNodes: StringFilter
   sampledAt: DateFilter
-  number: NumberFilter
+  id: NumberFilter
 }
 
 input DateFilter {
@@ -263,15 +262,15 @@ input NumberFilter {
 type Mutation {
   signIn(input: SignInInput!): SignInResponse!
   userCreate(input: UserCreateInput!): UserCreateResponse!
-  userUpdate(input: UserUpdateInput!, id: String!): UserUpdateResponse!
-  userDelete(id: String!): DefaultMutationResponse!
+  userUpdate(input: UserUpdateInput!, id: Int!): UserUpdateResponse!
+  userDelete(id: Int!): DefaultMutationResponse!
   vehicleCreate(input: VehicleCreateInput!): VehicleCreateResponse!
-  vehicleUpdate(input: VehicleUpdateInput!, id: String!): VehicleUpdateResponse!
-  vehicleDelete(id: String!): DefaultMutationResponse!
+  vehicleUpdate(input: VehicleUpdateInput!, id: Int!): VehicleUpdateResponse!
+  vehicleDelete(id: Int!): DefaultMutationResponse!
   reportGeneratePdf(sort: [ReportSort!], filter: ReportFilter): ReportGeneratePdfResponse!
   reportCreate(input: ReportCreateInput!): ReportCreateResponse!
-  reportUpdate(input: ReportUpdateInput!, id: String!): ReportUpdateResponse!
-  reportDelete(id: String!): DefaultMutationResponse!
+  reportUpdate(input: ReportUpdateInput!, id: Int!): ReportUpdateResponse!
+  reportDelete(id: Int!): DefaultMutationResponse!
 }
 
 input SignInInput {
@@ -296,7 +295,7 @@ input VehicleCreateInput {
   releaseYear: String!
   stateNumber: String!
   engineModel: String!
-  owner: String!
+  owner: Float!
 }
 
 input VehicleUpdateInput {
@@ -304,7 +303,7 @@ input VehicleUpdateInput {
   releaseYear: String
   stateNumber: String
   engineModel: String
-  owner: String
+  owner: Float
 }
 
 input ReportCreateInput {
@@ -314,8 +313,8 @@ input ReportCreateInput {
   samplingNodes: String!
   note: String
   sampledAt: DateTime!
-  client: String
-  vehicle: String
+  client: Float
+  vehicle: Float
   expressLaboratoryResult: String
   laboratoryResult: String
 }
@@ -327,8 +326,8 @@ input ReportUpdateInput {
   samplingNodes: String
   note: String
   sampledAt: DateTime
-  client: String
-  vehicle: String
+  client: Float
+  vehicle: Float
   expressLaboratoryResult: String
   laboratoryResult: String
 }

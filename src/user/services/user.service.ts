@@ -13,11 +13,11 @@ export class UserService {
     private readonly userRepository: Repository<User>
   ) {}
 
-  async findById (id: string): Promise<User | undefined> {
+  async findById (id: number): Promise<User | undefined> {
     return await this.userRepository.findOne(id)
   }
 
-  async findByIdOrFail (id: string): Promise<User> {
+  async findByIdOrFail (id: number): Promise<User> {
     return await this.userRepository.findOneOrFail(id)
   }
 

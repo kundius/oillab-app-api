@@ -39,9 +39,8 @@ registerEnumType(UserRole, {
 @Entity()
 @ObjectType()
 export class User {
-  @Field(() => String)
-  @PrimaryGeneratedColumn('uuid')
-  id: string
+  @PrimaryGeneratedColumn()
+  id: number
 
   @Field(() => String)
   @Column()

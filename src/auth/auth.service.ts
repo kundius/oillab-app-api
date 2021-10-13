@@ -7,7 +7,7 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  async encodeAuthToken (id: string): Promise<ReturnType<JwtService['sign']>> {
+  async encodeAuthToken (id: number): Promise<ReturnType<JwtService['sign']>> {
     return this.jwtService.sign({ id })
   }
 }

@@ -15,11 +15,11 @@ export class VehicleService {
     private readonly userService: UserService
   ) {}
 
-  async findById(id: string): Promise<Vehicle | undefined> {
+  async findById(id: number): Promise<Vehicle | undefined> {
     return await this.vehicleRepository.findOne(id)
   }
 
-  async findByIdOrFail(id: string): Promise<Vehicle> {
+  async findByIdOrFail(id: number): Promise<Vehicle> {
     return await this.vehicleRepository.findOneOrFail(id)
   }
 

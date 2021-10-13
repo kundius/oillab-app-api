@@ -20,7 +20,7 @@ export class UserResolver {
 
   @Query(() => User, { nullable: true })
   async user (
-    @Args('id', { type: () => String }) id: string
+    @Args('id', { type: () => Int }) id: number
   ): Promise<User | undefined> {
     return this.userService.findById(id)
   }
@@ -55,7 +55,7 @@ export class UserResolver {
 
   @Mutation(() => dto.UserUpdateResponse)
   async userUpdate (
-    @Args('id', { type: () => String }) id: string,
+    @Args('id', { type: () => Int }) id: number,
     @Args('input') input: dto.UserUpdateInput
   ): Promise<dto.UserUpdateResponse> {
     const record = await this.userService.findById(id)
@@ -78,7 +78,7 @@ export class UserResolver {
   
   @Mutation(() => DefaultMutationResponse)
   async userDelete (
-    @Args('id') id: string
+    @Args('id', { type: () => Int }) id: number
   ): Promise<DefaultMutationResponse> {
     const record = await this.userService.findById(id)
 
