@@ -41,7 +41,7 @@ export class ReportResolver {
   ): Promise<dto.ReportPaginateResponse> {
     return this.reportService.paginate(args, (qb) => {
       const currentUser = this.contextService.getCurrentUser()
-      if (currentUser.role !== UserRole.Administrator) {
+      if (currentUser?.role !== UserRole.Administrator) {
         qb.andWhere('report.client = :onlySelfId', {
           onlySelfId: currentUser.id
         })
