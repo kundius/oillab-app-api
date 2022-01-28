@@ -1,32 +1,16 @@
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Args,
-  Int,
-  ResolveField,
-  Parent
-} from '@nestjs/graphql'
+import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 
 import { GqlAuthGuard } from '@app/auth/auth.guard'
-import { NotFoundError } from '@app/graphql/NotFoundError'
-import { ContextService } from '@app/context/context.service'
 
 import { ReportService } from '../services/report.service'
 import { Report } from '../entities/report.entity'
-import * as dto from '../dto/report.dto'
-import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
-import { UserRole } from '@app/user/entities/user.entity'
-import { PermissionDeniedError } from '@app/graphql/PermissionDeniedError'
+import * as objects from '../report.objects'
 
 @Resolver(() => Report)
 @UseGuards(GqlAuthGuard)
 export class ReportResolver {
-  constructor(
-    private readonly reportService: ReportService,
-    private readonly contextService: ContextService
-  ) {}
+  constructor(private readonly reportService: ReportService) {}
 
   @Query(() => Report, { nullable: true })
   async report(
@@ -35,132 +19,82 @@ export class ReportResolver {
     return this.reportService.findById(id)
   }
 
-  @Query(() => dto.ReportPaginateResponse)
+  @Query(() => objects.ReportPaginateResponse)
   async reportPaginate(
-    @Args() args: dto.ReportPaginateArgs
-  ): Promise<dto.ReportPaginateResponse> {
-    return this.reportService.paginate(args, (qb) => {
-      const currentUser = this.contextService.getCurrentUser()
-      if (currentUser?.role !== UserRole.Administrator) {
-        qb.andWhere('report.client = :onlySelfId', {
-          onlySelfId: currentUser.id
-        })
-      }
-    })
+    @Args() args: objects.ReportPaginateArgs
+  ): Promise<objects.ReportPaginateResponse> {
+    return this.reportService.paginate(args)
   }
 
-  @Mutation(() => dto.ReportGeneratePdfResponse)
+  @Mutation(() => objects.ReportGeneratePdfResponse)
   async reportGeneratePdf(
-    @Args() args: dto.ReportGeneratePdfArgs
-  ): Promise<dto.ReportGeneratePdfResponse> {
-    const currentUser = this.contextService.getCurrentUser()
+    @Args() args: objects.ReportGeneratePdfArgs
+  ): Promise<objects.ReportGeneratePdfResponse> {
+    const result = await this.reportService.generatePdf(args.filter, args.sort)
 
-    if (!currentUser) {
-      return {
-        error: new PermissionDeniedError('Forbidden'),
+    return result.match<objects.ReportGeneratePdfResponse>(
+      (record) => ({
+        record,
+        success: true
+      }),
+      (error) => ({
+        error,
         success: false
-      }
-    }
-
-    const file = await this.reportService.generatePdf(
-      args.filter,
-      args.sort,
-      (qb) => {
-        if (currentUser.role !== UserRole.Administrator) {
-          qb.andWhere('report.client = :onlySelfId', {
-            onlySelfId: currentUser.id
-          })
-        }
-      }
+      })
     )
-
-    return {
-      record: file,
-      success: true
-    }
   }
 
-  @Mutation(() => dto.ReportCreateResponse)
+  @Mutation(() => objects.ReportCreateResponse)
   async reportCreate(
-    @Args('input') input: dto.ReportCreateInput
-  ): Promise<dto.ReportCreateResponse> {
-    const currentUser = this.contextService.getCurrentUser()
+    @Args('input') input: objects.ReportCreateInput
+  ): Promise<objects.ReportCreateResponse> {
+    const result = await this.reportService.create(input)
 
-    if (
-      typeof input.client !== 'undefined' &&
-      currentUser.role !== UserRole.Administrator &&
-      input.client !== currentUser.id
-    ) {
-      return {
-        error: new PermissionDeniedError('Вам не разрешено изменять клиента'),
+    return result.match<objects.ReportCreateResponse>(
+      (record) => ({
+        record,
+        success: true
+      }),
+      (error) => ({
+        error,
         success: false
-      }
-    }
-
-    if (currentUser.role === UserRole.Member) {
-      input.client = currentUser.id
-    }
-
-    const record = await this.reportService.create(input)
-
-    return {
-      record,
-      success: true
-    }
+      })
+    )
   }
 
-  @Mutation(() => dto.ReportUpdateResponse)
+  @Mutation(() => objects.ReportUpdateResponse)
   async reportUpdate(
     @Args('id', { type: () => Int }) id: number,
-    @Args('input') input: dto.ReportUpdateInput
-  ): Promise<dto.ReportUpdateResponse> {
-    const currentUser = this.contextService.getCurrentUser()
-    const record = await this.reportService.findById(id)
+    @Args('input') input: objects.ReportUpdateInput
+  ): Promise<objects.ReportUpdateResponse> {
+    const result = await this.reportService.update(id, input)
 
-    if (!record) {
-      return {
-        error: new NotFoundError(),
+    return result.match<objects.ReportUpdateResponse>(
+      (record) => ({
+        record,
+        success: true
+      }),
+      (error) => ({
+        error,
         success: false
-      }
-    }
-
-    if (
-      typeof input.client !== 'undefined' &&
-      currentUser.role !== UserRole.Administrator &&
-      input.client !== (await record.client).id &&
-      input.client !== currentUser.id
-    ) {
-      return {
-        error: new PermissionDeniedError('Вам не разрешено изменять клиента'),
-        success: false
-      }
-    }
-
-    await this.reportService.update(record, input)
-
-    return {
-      record,
-      success: true
-    }
+      })
+    )
   }
 
-  @Mutation(() => DefaultMutationResponse)
+  @Mutation(() => objects.ReportDeleteResponse)
   async reportDelete(
     @Args('id', { type: () => Int }) id: number
-  ): Promise<DefaultMutationResponse> {
-    const record = await this.reportService.findById(id)
+  ): Promise<objects.ReportDeleteResponse> {
+    const result = await this.reportService.delete(id)
 
-    if (!record) {
-      return {
-        error: new NotFoundError(),
+    return result.match<objects.ReportDeleteResponse>(
+      () => ({
+        success: true
+      }),
+      (error) => ({
+        error,
         success: false
-      }
-    }
-
-    await this.reportService.delete(record)
-
-    return {
-      success: true
-    }
+      })
+    )
   }
 }

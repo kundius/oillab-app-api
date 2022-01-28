@@ -1,87 +1,88 @@
-import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent } from '@nestjs/graphql'
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int
+} from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 
 import { GqlAuthGuard } from '@app/auth/auth.guard'
-import { NotFoundError } from '@app/graphql/NotFoundError'
 
 import { VehicleService } from '../services/vehicle.service'
 import { Vehicle } from '../entities/vehicle.entity'
-import * as dto from '../dto/vehicle.dto'
-import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
+import * as objects from '../vehicle.objects'
 
 @Resolver(() => Vehicle)
 @UseGuards(GqlAuthGuard)
 export class VehicleResolver {
-  constructor (
-    private readonly vehicleService: VehicleService
-  ) {}
+  constructor(private readonly vehicleService: VehicleService) {}
 
   @Query(() => Vehicle, { nullable: true })
-  async vehicle (
+  async vehicle(
     @Args('id', { type: () => Int }) id: number
   ): Promise<Vehicle | undefined> {
     return this.vehicleService.findById(id)
   }
 
-  @Query(() => dto.VehiclePaginateResponse)
-  async vehiclePaginate (
-    @Args() args: dto.VehiclePaginateArgs
-  ): Promise<dto.VehiclePaginateResponse> {
+  @Query(() => objects.VehiclePaginateResponse)
+  async vehiclePaginate(
+    @Args() args: objects.VehiclePaginateArgs
+  ): Promise<objects.VehiclePaginateResponse> {
     return this.vehicleService.paginate(args)
   }
 
-  @Mutation(() => dto.VehicleCreateResponse)
-  async vehicleCreate (
-    @Args('input') input: dto.VehicleCreateInput
-  ): Promise<dto.VehicleCreateResponse> {
-    const record = await this.vehicleService.create(input)
+  @Mutation(() => objects.VehicleCreateResponse)
+  async vehicleCreate(
+    @Args('input') input: objects.VehicleCreateInput
+  ): Promise<objects.VehicleCreateResponse> {
+    const result = await this.vehicleService.create(input)
 
-    return {
-      record,
-      success: true
-    }
+    return result.match<objects.VehicleCreateResponse>(
+      (record) => ({
+        record,
+        success: true
+      }),
+      (error) => ({
+        error,
+        success: false
+      })
+    )
   }
 
-  @Mutation(() => dto.VehicleUpdateResponse)
-  async vehicleUpdate (
+  @Mutation(() => objects.VehicleUpdateResponse)
+  async vehicleUpdate(
     @Args('id', { type: () => Int }) id: number,
-    @Args('input') input: dto.VehicleUpdateInput
-  ): Promise<dto.VehicleUpdateResponse> {
-    const record = await this.vehicleService.findById(id)
+    @Args('input') input: objects.VehicleUpdateInput
+  ): Promise<objects.VehicleUpdateResponse> {
+    const result = await this.vehicleService.update(id, input)
 
-    if (!record) {
-      return {
-        error: new NotFoundError(),
+    return result.match<objects.VehicleUpdateResponse>(
+      (record) => ({
+        record,
+        success: true
+      }),
+      (error) => ({
+        error,
         success: false
-      }
-    }
-
-    await this.vehicleService.update(record, input)
-
-    return {
-      record,
-      success: true
-    }
+      })
+    )
   }
 
-  
-  @Mutation(() => DefaultMutationResponse)
-  async vehicleDelete (
+  @Mutation(() => objects.VehicleDeleteResponse)
+  async vehicleDelete(
     @Args('id', { type: () => Int }) id: number
-  ): Promise<DefaultMutationResponse> {
-    const record = await this.vehicleService.findById(id)
+  ): Promise<objects.VehicleDeleteResponse> {
+    const result = await this.vehicleService.delete(id)
 
-    if (!record) {
-      return {
-        error: new NotFoundError(),
+    return result.match<objects.VehicleDeleteResponse>(
+      () => ({
+        success: true
+      }),
+      (error) => ({
+        error,
         success: false
-      }
-    }
-
-    await this.vehicleService.delete(record)
-
-    return {
-      success: true
-    }
+      })
+    )
   }
 }

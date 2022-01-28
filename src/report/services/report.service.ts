@@ -2,15 +2,19 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, SelectQueryBuilder } from 'typeorm'
 import * as HtmlPdf from 'html-pdf'
+import { ok, err, Result } from 'neverthrow'
 
 import { UserService } from '@app/user/services/user.service'
 import { VehicleService } from '@app/vehicle/services/vehicle.service'
 import { FileService } from '@app/file/file.service'
 import { nanoid } from '@app/utils/nanoid'
-
-import * as dto from '../dto/report.dto'
-import { Report } from '../entities/report.entity'
 import { File } from '@app/file/file.entity'
+import { ContextService } from '@app/context/context.service'
+import { UserRole } from '@app/user/entities/user.entity'
+
+import * as types from '../report.types'
+import * as errors from '../report.errors'
+import { Report } from '../entities/report.entity'
 
 @Injectable()
 export class ReportService {
@@ -19,7 +23,8 @@ export class ReportService {
     private readonly reportRepository: Repository<Report>,
     private readonly userService: UserService,
     private readonly vehicleService: VehicleService,
-    private readonly fileService: FileService
+    private readonly fileService: FileService,
+    private readonly contextService: ContextService
   ) {}
 
   async findById(id: number): Promise<Report | undefined> {
@@ -34,58 +39,91 @@ export class ReportService {
     return await this.reportRepository.findOneOrFail(id)
   }
 
-  async create(input: dto.ReportCreateInput) {
+  async create(
+    input: types.ReportCreateInput
+  ): Promise<Result<Report, types.ReportCreateErrors>> {
+    const currentUser = this.contextService.getCurrentUser()
+    if (currentUser.role !== UserRole.Administrator) {
+      return err(new errors.ReportCreateNotAllowedError())
+    }
+
     const record = await this.reportRepository.create()
+    
     record.lubricant = input.lubricant
     record.totalMileage = input.totalMileage
     record.lubricantMileage = input.lubricantMileage
     record.samplingNodes = input.samplingNodes
     record.note = input.note || null
     record.sampledAt = input.sampledAt
+
     if (!!input.vehicle) {
       const vehicle = await this.vehicleService.findByIdOrFail(input.vehicle)
       record.vehicle = Promise.resolve(vehicle)
     }
+
     if (!!input.client) {
       record.client = Promise.resolve(
         await this.userService.findByIdOrFail(input.client)
       )
     }
+
     if (!!input.expressLaboratoryResult) {
       const expressLaboratoryResult = await this.fileService.findByIdOrFail(
         input.expressLaboratoryResult
       )
       record.expressLaboratoryResult = Promise.resolve(expressLaboratoryResult)
     }
+
     if (!!input.laboratoryResult) {
       const laboratoryResult = await this.fileService.findByIdOrFail(
         input.laboratoryResult
       )
       record.laboratoryResult = Promise.resolve(laboratoryResult)
     }
+
     await this.reportRepository.save(record)
-    return record
+
+    return ok(record)
   }
 
-  async update(record: Report, input: dto.ReportUpdateInput) {
+  async update(
+    recordId: number,
+    input: types.ReportUpdateInput
+  ): Promise<Result<Report, types.ReportUpdateErrors>> {
+    const record = await this.findById(recordId)
+    if (!record) {
+      return err(new errors.ReportNotFoundError(record.id))
+    }
+
+    const currentUser = this.contextService.getCurrentUser()
+    if (currentUser?.role !== UserRole.Administrator) {
+      return err(new errors.ReportUpdateNotAllowedError(record.id))
+    }
+
     if (typeof input.lubricant !== 'undefined') {
       record.lubricant = input.lubricant
     }
+
     if (typeof input.totalMileage !== 'undefined') {
       record.totalMileage = input.totalMileage
     }
+
     if (typeof input.lubricantMileage !== 'undefined') {
       record.lubricantMileage = input.lubricantMileage
     }
+
     if (typeof input.samplingNodes !== 'undefined') {
       record.samplingNodes = input.samplingNodes
     }
+
     if (typeof input.note !== 'undefined') {
       record.note = input.note
     }
+
     if (typeof input.sampledAt !== 'undefined') {
       record.sampledAt = input.sampledAt
     }
+
     if (typeof input.client !== 'undefined') {
       if (input.client === null) {
         record.client = Promise.resolve(null)
@@ -94,6 +132,7 @@ export class ReportService {
         record.client = Promise.resolve(client)
       }
     }
+
     if (typeof input.vehicle !== 'undefined') {
       if (input.vehicle === null) {
         record.vehicle = Promise.resolve(null)
@@ -102,6 +141,7 @@ export class ReportService {
         record.vehicle = Promise.resolve(vehicle)
       }
     }
+
     if (typeof input.expressLaboratoryResult !== 'undefined') {
       if (input.expressLaboratoryResult === null) {
         record.expressLaboratoryResult = Promise.resolve(null)
@@ -114,6 +154,7 @@ export class ReportService {
         )
       }
     }
+
     if (typeof input.laboratoryResult !== 'undefined') {
       if (input.laboratoryResult === null) {
         record.laboratoryResult = Promise.resolve(null)
@@ -124,23 +165,42 @@ export class ReportService {
         record.laboratoryResult = Promise.resolve(laboratoryResult)
       }
     }
+
     await this.reportRepository.save(record)
-    return record
+
+    return ok(record)
   }
 
-  async delete(record: Report) {
+  async delete(
+    recordId: number
+  ): Promise<Result<void, types.ReportDeleteErrors>> {
+    const record = await this.findById(recordId)
+    if (!record) {
+      return err(new errors.ReportNotFoundError(record.id))
+    }
+
+    const currentUser = this.contextService.getCurrentUser()
+    if (currentUser?.role !== UserRole.Administrator) {
+      return err(new errors.ReportDeleteNotAllowedError(record.id))
+    }
+
     await this.reportRepository.remove(record)
+
+    return ok(undefined)
   }
 
   async paginate(
-    args: dto.ReportPaginateArgs,
-    customize?: (qb: SelectQueryBuilder<Report>) => void
-  ): Promise<dto.ReportPaginateResponse> {
+    args: types.ReportPaginateArgs
+  ): Promise<types.ReportPaginatedResult> {
     const { page, perPage, filter, sort } = args
-
+    const currentUser = this.contextService.getCurrentUser()
     const qb = this.reportRepository.createQueryBuilder('report')
 
-    customize?.(qb)
+    if (currentUser?.role !== UserRole.Administrator) {
+      qb.andWhere('report.client = :onlySelfId', {
+        onlySelfId: currentUser.id
+      })
+    }
 
     if (filter) {
       this.applyFilter(qb, filter)
@@ -168,44 +228,44 @@ export class ReportService {
 
   applySort(
     qb: SelectQueryBuilder<Report>,
-    sort: dto.ReportSort[]
+    sort: types.ReportSort[]
   ): SelectQueryBuilder<Report> {
     for (const value of sort) {
       switch (value) {
-        case dto.ReportSort.LUBRICANT_ASC:
+        case types.ReportSort.LUBRICANT_ASC:
           qb.orderBy('report.lubricant', 'ASC')
           break
-        case dto.ReportSort.LUBRICANT_DESC:
+        case types.ReportSort.LUBRICANT_DESC:
           qb.orderBy('report.lubricant', 'DESC')
           break
-        case dto.ReportSort.LUBRICANT_MILEAGE_ASC:
+        case types.ReportSort.LUBRICANT_MILEAGE_ASC:
           qb.orderBy('report.lubricantMileage', 'ASC')
           break
-        case dto.ReportSort.LUBRICANT_MILEAGE_DESC:
+        case types.ReportSort.LUBRICANT_MILEAGE_DESC:
           qb.orderBy('report.lubricantMileage', 'DESC')
           break
-        case dto.ReportSort.SAMPLED_AT_ASC:
+        case types.ReportSort.SAMPLED_AT_ASC:
           qb.orderBy('report.sampledAt', 'ASC')
           break
-        case dto.ReportSort.SAMPLED_AT_DESC:
+        case types.ReportSort.SAMPLED_AT_DESC:
           qb.orderBy('report.sampledAt', 'DESC')
           break
-        case dto.ReportSort.SAMPLING_NODES_ASC:
+        case types.ReportSort.SAMPLING_NODES_ASC:
           qb.orderBy('report.samplingNodes', 'ASC')
           break
-        case dto.ReportSort.SAMPLING_NODES_DESC:
+        case types.ReportSort.SAMPLING_NODES_DESC:
           qb.orderBy('report.samplingNodes', 'DESC')
           break
-        case dto.ReportSort.TOTAL_MILEAGE_ASC:
+        case types.ReportSort.TOTAL_MILEAGE_ASC:
           qb.orderBy('report.totalMileage', 'ASC')
           break
-        case dto.ReportSort.TOTAL_MILEAGE_DESC:
+        case types.ReportSort.TOTAL_MILEAGE_DESC:
           qb.orderBy('report.totalMileage', 'DESC')
           break
-        case dto.ReportSort.ID_ASC:
+        case types.ReportSort.ID_ASC:
           qb.orderBy('report.id', 'ASC')
           break
-        case dto.ReportSort.ID_DESC:
+        case types.ReportSort.ID_DESC:
           qb.orderBy('report.id', 'DESC')
           break
         default:
@@ -217,7 +277,7 @@ export class ReportService {
 
   applyFilter(
     qb: SelectQueryBuilder<Report>,
-    filter: dto.ReportFilter
+    filter: types.ReportFilter
   ): SelectQueryBuilder<Report> {
     if (filter.lubricant) {
       if (filter.lubricant.eq) {
@@ -395,13 +455,22 @@ export class ReportService {
   }
 
   async generatePdf(
-    filter?: dto.ReportFilter,
-    sort?: dto.ReportSort[],
-    customize?: (qb: SelectQueryBuilder<Report>) => void
-  ): Promise<File> {
+    filter?: types.ReportFilter,
+    sort?: types.ReportSort[]
+  ): Promise<Result<File, types.ReportGeneratePdfErrors>> {
+    const currentUser = this.contextService.getCurrentUser()
+
+    if (!currentUser) {
+      return err(new errors.ReportGeneratePdfNotAllowedError())
+    }
+
     const qb = this.reportRepository.createQueryBuilder('report')
 
-    customize?.(qb)
+    if (currentUser.role !== UserRole.Administrator) {
+      qb.andWhere('report.client = :onlySelfId', {
+        onlySelfId: currentUser.id
+      })
+    }
 
     if (filter) {
       this.applyFilter(qb, filter)
@@ -477,6 +546,6 @@ export class ReportService {
       name: nanoid()
     })
 
-    return file
+    return ok(file)
   }
 }

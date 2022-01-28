@@ -1,26 +1,17 @@
 import {
-  OneToOne,
   OneToMany,
-  ManyToOne,
   Entity,
-  BeforeInsert,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  BaseEntity,
-  JoinTable,
-  TableInheritance,
-  ChildEntity,
-  ManyToMany,
-  JoinColumn
+  JoinTable
 } from 'typeorm'
 import {
   Field,
   ObjectType,
   registerEnumType,
-  Extensions,
-  Int
+  Extensions
 } from '@nestjs/graphql'
 
 import { Vehicle } from '@app/vehicle/entities/vehicle.entity'

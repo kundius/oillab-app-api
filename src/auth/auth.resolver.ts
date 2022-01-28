@@ -2,11 +2,11 @@ import { Resolver, Mutation, Args } from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 
 import { UserService } from '@app/user/services/user.service'
-import { ValidationError } from '@app/graphql/ValidationError'
 
-import { SignInInput, SignInResponse } from './auth.dto'
 import { GqlAuthGuard } from './auth.guard'
 import { AuthService } from './auth.service'
+import * as errors from './auth.errors'
+import * as objects from './auth.objects'
 
 @Resolver()
 @UseGuards(GqlAuthGuard)
@@ -16,13 +16,13 @@ export class AuthResolver {
     private readonly userService: UserService
   ) {}
 
-  @Mutation(() => SignInResponse)
-  async signIn(@Args('input') input: SignInInput): Promise<SignInResponse> {
+  @Mutation(() => objects.SignInResponse)
+  async signIn(@Args('input') input: objects.SignInInput): Promise<objects.SignInResponse> {
     const user = await this.userService.findByEmail(input.email)
 
     if (!user) {
       return {
-        error: new ValidationError(
+        error: new errors.AuthValidationError(
           'email',
           'Пользователя с таким e-mail не существует!'
         ),
@@ -34,7 +34,7 @@ export class AuthResolver {
       !(await this.userService.checkPasswordHash(input.password, user.password))
     ) {
       return {
-        error: new ValidationError('password', 'Неверный пароль!'),
+        error: new errors.AuthValidationError('password', 'Неверный пароль!'),
         success: false
       }
     }

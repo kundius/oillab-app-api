@@ -1,16 +1,26 @@
-import { InputType, Field, Int, ArgsType, ObjectType, registerEnumType } from '@nestjs/graphql'
+import {
+  InputType,
+  Field,
+  Int,
+  ArgsType,
+  ObjectType,
+  registerEnumType,
+  createUnionType
+} from '@nestjs/graphql'
 import { Type } from 'class-transformer'
 
-import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
-import { Report } from '@app/report/entities/report.entity'
-import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
-import { StringFilter } from '@app/graphql/StringFilter'
-import { DateFilter } from '@app/graphql/DateFilter'
-import { NumberFilter } from '@app/graphql/NumberFilter'
+import { PaginatedResponse } from '@app/core/graphql/PaginatedResponse'
+import { StringFilter } from '@app/core/graphql/StringFilter'
+import { DateFilter } from '@app/core/graphql/DateFilter'
+import { NumberFilter } from '@app/core/graphql/NumberFilter'
 import { File } from '@app/file/file.entity'
 
+import { Report } from './entities/report.entity'
+import * as types from './report.types'
+import * as errors from './report.errors'
+
 @InputType()
-export class ReportCreateInput {
+export class ReportCreateInput implements types.ReportCreateInput {
   @Field()
   lubricant: string
 
@@ -42,14 +52,25 @@ export class ReportCreateInput {
   laboratoryResult?: number | null
 }
 
+export const ReportCreateError = createUnionType({
+  name: 'ReportCreateError',
+  types: () => [errors.ReportCreateNotAllowedError]
+})
+
 @ObjectType()
-export class ReportCreateResponse extends DefaultMutationResponse {
+export class ReportCreateResponse {
+  @Field()
+  success: boolean
+
   @Field(() => Report, { nullable: true })
   record?: Report
+
+  @Field(() => ReportCreateError, { nullable: true })
+  error?: typeof ReportCreateError
 }
 
 @InputType()
-export class ReportUpdateInput {
+export class ReportUpdateInput implements types.ReportUpdateInput {
   @Field({ nullable: true })
   lubricant?: string
 
@@ -81,35 +102,43 @@ export class ReportUpdateInput {
   laboratoryResult?: number | null
 }
 
+export const ReportUpdateError = createUnionType({
+  name: 'ReportUpdateError',
+  types: () => [errors.ReportUpdateNotAllowedError, errors.ReportNotFoundError]
+})
+
 @ObjectType()
-export class ReportUpdateResponse extends DefaultMutationResponse {
+export class ReportUpdateResponse {
+  @Field()
+  success: boolean
+
   @Field(() => Report, { nullable: true })
   record?: Report
+
+  @Field(() => ReportUpdateError, { nullable: true })
+  error?: typeof ReportUpdateError
 }
 
-export enum ReportSort {
-  LUBRICANT_ASC,
-  LUBRICANT_DESC,
-  STATE_NUMBER_ASC,
-  STATE_NUMBER_DESC,
-  TOTAL_MILEAGE_ASC,
-  TOTAL_MILEAGE_DESC,
-  LUBRICANT_MILEAGE_ASC,
-  LUBRICANT_MILEAGE_DESC,
-  SAMPLING_NODES_ASC,
-  SAMPLING_NODES_DESC,
-  SAMPLED_AT_ASC,
-  SAMPLED_AT_DESC,
-  ID_ASC,
-  ID_DESC
+export const ReportDeleteError = createUnionType({
+  name: 'ReportDeleteError',
+  types: () => [errors.ReportDeleteNotAllowedError, errors.ReportNotFoundError]
+})
+
+@ObjectType()
+export class ReportDeleteResponse {
+  @Field()
+  success: boolean
+
+  @Field(() => ReportDeleteError, { nullable: true })
+  error?: typeof ReportDeleteError
 }
 
-registerEnumType(ReportSort, {
+registerEnumType(types.ReportSort, {
   name: 'ReportSort'
 })
 
 @InputType()
-export class ReportFilter {
+export class ReportFilter implements types.ReportFilter {
   @Field({ nullable: true })
   lubricant?: StringFilter
 
@@ -145,15 +174,15 @@ export class ReportFilter {
 }
 
 @ArgsType()
-export class ReportPaginateArgs {
+export class ReportPaginateArgs implements types.ReportPaginateArgs {
   @Field(() => Int, { defaultValue: 12 })
   perPage: number = 12
 
   @Field(() => Int, { defaultValue: 1 })
   page: number = 1
 
-  @Field(() => [ReportSort], { nullable: true })
-  sort?: ReportSort[]
+  @Field(() => [types.ReportSort], { nullable: true })
+  sort?: types.ReportSort[]
 
   @Field(() => ReportFilter, { nullable: true })
   @Type(() => ReportFilter)
@@ -161,23 +190,37 @@ export class ReportPaginateArgs {
 }
 
 @ObjectType()
-export class ReportPaginateResponse extends PaginatedResponse {
+export class ReportPaginateResponse
+  extends PaginatedResponse
+  implements types.ReportPaginatedResult
+{
   @Field(() => [Report])
   items: Report[]
 }
 
 @ArgsType()
-export class ReportGeneratePdfArgs {
-  @Field(() => [ReportSort], { nullable: true })
-  sort?: ReportSort[]
+export class ReportGeneratePdfArgs implements types.ReportGeneratePdfArgs {
+  @Field(() => [types.ReportSort], { nullable: true })
+  sort?: types.ReportSort[]
 
   @Field(() => ReportFilter, { nullable: true })
   @Type(() => ReportFilter)
   filter?: ReportFilter
 }
 
+export const ReportGeneratePdfError = createUnionType({
+  name: 'ReportGeneratePdfError',
+  types: () => [errors.ReportGeneratePdfNotAllowedError]
+})
+
 @ObjectType()
-export class ReportGeneratePdfResponse extends DefaultMutationResponse {
+export class ReportGeneratePdfResponse {
   @Field(() => File, { nullable: true })
   record?: File
+
+  @Field()
+  success: boolean
+
+  @Field(() => ReportGeneratePdfError, { nullable: true })
+  error?: typeof ReportGeneratePdfError
 }
