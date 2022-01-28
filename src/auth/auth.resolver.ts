@@ -17,7 +17,9 @@ export class AuthResolver {
   ) {}
 
   @Mutation(() => objects.SignInResponse)
-  async signIn(@Args('input') input: objects.SignInInput): Promise<objects.SignInResponse> {
+  async signIn(
+    @Args('input') input: objects.SignInInput
+  ): Promise<objects.SignInResponse> {
     const user = await this.userService.findByEmail(input.email)
 
     if (!user) {

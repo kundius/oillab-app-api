@@ -1,6 +1,5 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { MikroOrmModule } from '@mikro-orm/nestjs'
 import { GraphQLModule } from '@nestjs/graphql'
 
 import { configService } from './config/config.service'

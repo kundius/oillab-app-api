@@ -8,16 +8,15 @@ import { UserService } from '@app/user/services/user.service'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor (
-    private readonly userService: UserService
-  ) {
+  constructor(private readonly userService: UserService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
       secretOrKey: configService.getSecret()
     })
   }
 
-  async validate (payload: any): Promise<User | undefined> {
+  async validate(payload: any): Promise<User | undefined> {
     try {
       return await this.userService.findById(payload.id)
     } catch {

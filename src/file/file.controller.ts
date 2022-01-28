@@ -14,6 +14,14 @@ export class FileController {
   ) {}
 
   @UseGuards(AuthGuard('jwt'))
+  @Get('test')
+  async test () {
+    return {
+      success: 1
+    }
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Post('uploadFile')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile (

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { S3 } from 'aws-sdk'
-import { fromBuffer } from 'file-type'
+// import { fileTypeFromBuffer } from 'file-type/core'
 
 import { configService } from '@app/config/config.service'
 import { ContextService } from '@app/context/context.service'
@@ -125,7 +125,8 @@ export class FileService {
     size: number
     type?: string | null
   }> {
-    const type = await fromBuffer(command.buffer)
+    const { fileTypeFromBuffer } = await import('file-type')
+    const type = await fileTypeFromBuffer(command.buffer)
 
     const s3 = new S3(configService.getS3ClientConfig())
 
