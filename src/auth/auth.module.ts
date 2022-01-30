@@ -16,10 +16,7 @@ import { JwtStrategy } from './jwt.strategy'
     UserModule,
     ContextModule,
     PassportModule,
-    JwtModule.register({
-      secret: configService.getSecret(),
-      signOptions: { expiresIn: '60s' }
-    })
+    JwtModule.register({ secret: configService.getSecret() })
   ],
   providers: [AuthService, GqlAuthGuard, JwtStrategy, AuthResolver],
   exports: [AuthService, AuthResolver]
