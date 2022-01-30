@@ -24,8 +24,10 @@ export class ReportService {
     private readonly userService: UserService,
     private readonly vehicleService: VehicleService,
     private readonly fileService: FileService,
-    private readonly contextService: ContextService
-  ) {}
+    // private readonly contextService: ContextService
+  ) {
+    console.log('init ReportService')
+  }
 
   async findById(id: number): Promise<Report | undefined> {
     return await this.reportRepository.findOne(id)
@@ -42,10 +44,10 @@ export class ReportService {
   async create(
     input: types.ReportCreateInput
   ): Promise<Result<Report, types.ReportCreateErrors>> {
-    const currentUser = this.contextService.getCurrentUser()
-    if (currentUser.role !== UserRole.Administrator) {
-      return err(new errors.ReportCreateNotAllowedError())
-    }
+    // const currentUser = this.contextService.getCurrentUser()
+    // if (currentUser.role !== UserRole.Administrator) {
+    //   return err(new errors.ReportCreateNotAllowedError())
+    // }
 
     const record = await this.reportRepository.create()
     
@@ -95,10 +97,10 @@ export class ReportService {
       return err(new errors.ReportNotFoundError(record.id))
     }
 
-    const currentUser = this.contextService.getCurrentUser()
-    if (currentUser?.role !== UserRole.Administrator) {
-      return err(new errors.ReportUpdateNotAllowedError(record.id))
-    }
+    // const currentUser = this.contextService.getCurrentUser()
+    // if (currentUser?.role !== UserRole.Administrator) {
+    //   return err(new errors.ReportUpdateNotAllowedError(record.id))
+    // }
 
     if (typeof input.lubricant !== 'undefined') {
       record.lubricant = input.lubricant
@@ -179,10 +181,10 @@ export class ReportService {
       return err(new errors.ReportNotFoundError(record.id))
     }
 
-    const currentUser = this.contextService.getCurrentUser()
-    if (currentUser?.role !== UserRole.Administrator) {
-      return err(new errors.ReportDeleteNotAllowedError(record.id))
-    }
+    // const currentUser = this.contextService.getCurrentUser()
+    // if (currentUser?.role !== UserRole.Administrator) {
+    //   return err(new errors.ReportDeleteNotAllowedError(record.id))
+    // }
 
     await this.reportRepository.remove(record)
 
@@ -193,14 +195,14 @@ export class ReportService {
     args: types.ReportPaginateArgs
   ): Promise<types.ReportPaginatedResult> {
     const { page, perPage, filter, sort } = args
-    const currentUser = this.contextService.getCurrentUser()
+    // const currentUser = this.contextService.getCurrentUser()
     const qb = this.reportRepository.createQueryBuilder('report')
 
-    if (currentUser?.role !== UserRole.Administrator) {
-      qb.andWhere('report.client = :onlySelfId', {
-        onlySelfId: currentUser.id
-      })
-    }
+    // if (currentUser?.role !== UserRole.Administrator) {
+    //   qb.andWhere('report.client = :onlySelfId', {
+    //     onlySelfId: currentUser.id
+    //   })
+    // }
 
     if (filter) {
       this.applyFilter(qb, filter)
@@ -458,19 +460,18 @@ export class ReportService {
     filter?: types.ReportFilter,
     sort?: types.ReportSort[]
   ): Promise<Result<File, types.ReportGeneratePdfErrors>> {
-    const currentUser = this.contextService.getCurrentUser()
-
-    if (!currentUser) {
-      return err(new errors.ReportGeneratePdfNotAllowedError())
-    }
+    // const currentUser = this.contextService.getCurrentUser()
+    // if (!currentUser) {
+    //   return err(new errors.ReportGeneratePdfNotAllowedError())
+    // }
 
     const qb = this.reportRepository.createQueryBuilder('report')
 
-    if (currentUser.role !== UserRole.Administrator) {
-      qb.andWhere('report.client = :onlySelfId', {
-        onlySelfId: currentUser.id
-      })
-    }
+    // if (currentUser.role !== UserRole.Administrator) {
+    //   qb.andWhere('report.client = :onlySelfId', {
+    //     onlySelfId: currentUser.id
+    //   })
+    // }
 
     if (filter) {
       this.applyFilter(qb, filter)

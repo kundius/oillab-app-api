@@ -16,8 +16,10 @@ export class FileService {
   constructor(
     @InjectRepository(File)
     private readonly fileRepository: Repository<File>,
-    private readonly contextService: ContextService
-  ) {}
+    // private readonly contextService: ContextService
+  ) {
+    console.log('init FileService')
+  }
 
   createQueryBuilder(): SelectQueryBuilder<File> {
     return this.fileRepository.createQueryBuilder('file')
@@ -63,9 +65,9 @@ export class FileService {
     fileEntity.url = command.url
     fileEntity.size = command.size
     fileEntity.type = command.type || null
-    fileEntity.user = Promise.resolve(
-      command.user || this.contextService.getCurrentUser() || null
-    )
+    // fileEntity.user = Promise.resolve(
+    //   command.user || this.contextService.getCurrentUser() || null
+    // )
     await this.fileRepository.save(fileEntity)
     return fileEntity
   }
@@ -125,8 +127,8 @@ export class FileService {
     size: number
     type?: string | null
   }> {
-    const { fileTypeFromBuffer } = await import('file-type')
-    const type = await fileTypeFromBuffer(command.buffer)
+    const { fromBuffer } = await import('file-type')
+    const type = await fromBuffer(command.buffer)
 
     const s3 = new S3(configService.getS3ClientConfig())
 
