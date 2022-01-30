@@ -15,10 +15,8 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    // private readonly contextService: ContextService
-  ) {
-    console.log('init UserService')
-  }
+    private readonly contextService: ContextService
+  ) {}
 
   async findById(id: number): Promise<User | undefined> {
     return await this.userRepository.findOne(id)
@@ -72,10 +70,10 @@ export class UserService {
   async create(
     input: types.UserCreateInput
   ): Promise<Result<User, types.UserCreateErrors>> {
-    // const currentUser = this.contextService.getCurrentUser()
-    // if (currentUser.role !== UserRole.Administrator) {
-    //   return err(new errors.UserCreateNotAllowedError())
-    // }
+    const currentUser = this.contextService.getCurrentUser()
+    if (currentUser.role !== UserRole.Administrator) {
+      return err(new errors.UserCreateNotAllowedError())
+    }
 
     const record = await this.userRepository.create()
     record.name = input.name
@@ -96,10 +94,10 @@ export class UserService {
       return err(new errors.UserNotFoundError(record.id))
     }
 
-    // const currentUser = this.contextService.getCurrentUser()
-    // if (currentUser?.role !== UserRole.Administrator) {
-    //   return err(new errors.UserUpdateNotAllowedError(record.id))
-    // }
+    const currentUser = this.contextService.getCurrentUser()
+    if (currentUser?.role !== UserRole.Administrator) {
+      return err(new errors.UserUpdateNotAllowedError(record.id))
+    }
 
     if (typeof input.name !== 'undefined') {
       record.name = input.name
@@ -126,10 +124,10 @@ export class UserService {
       return err(new errors.UserNotFoundError(record.id))
     }
 
-    // const currentUser = this.contextService.getCurrentUser()
-    // if (currentUser?.role !== UserRole.Administrator) {
-    //   return err(new errors.UserDeleteNotAllowedError(record.id))
-    // }
+    const currentUser = this.contextService.getCurrentUser()
+    if (currentUser?.role !== UserRole.Administrator) {
+      return err(new errors.UserDeleteNotAllowedError(record.id))
+    }
 
     await this.userRepository.remove(record)
 

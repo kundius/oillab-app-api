@@ -1,8 +1,5 @@
 {
   "compilerOptions": {
-    "paths": {
-      "@app/*": ["./src/*"]
-    },
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -12,6 +9,9 @@
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
+    "paths": {
+      "@app/*": ["./src/*"]
+    },
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,

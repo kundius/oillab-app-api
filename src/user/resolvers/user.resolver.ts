@@ -1,20 +1,25 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int
+} from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 
 import { GqlAuthGuard } from '@app/auth/auth.guard'
-import { Action, CaslAbilityFactory } from '@app/casl/casl-ability.factory'
+import { ContextService } from '@app/context/context.service'
 
 import { UserService } from '../services/user.service'
 import { User } from '../entities/user.entity'
 import * as objects from '../user.objects'
-import { CurrentUser } from '@app/auth/CurrentUser'
 
 @Resolver(() => User)
 @UseGuards(GqlAuthGuard)
 export class UserResolver {
   constructor(
     private readonly userService: UserService,
-    private readonly caslAbilityFactory: CaslAbilityFactory
+    private readonly contextService: ContextService
   ) {}
 
   @Query(() => User, { nullable: true })
@@ -25,9 +30,8 @@ export class UserResolver {
   }
 
   @Query(() => User, { nullable: true })
-  async currentUser(
-    @CurrentUser() currentUser: User
-  ): Promise<User | undefined> {
+  async currentUser(): Promise<User | undefined> {
+    const currentUser = this.contextService.getCurrentUser()
     if (currentUser) {
       await this.userService.updateLastActivity(currentUser)
     }
@@ -43,14 +47,8 @@ export class UserResolver {
 
   @Mutation(() => objects.UserCreateResponse)
   async userCreate(
-    @CurrentUser() currentUser: User,
     @Args('input') input: objects.UserCreateInput
   ): Promise<objects.UserCreateResponse> {
-    const ability = this.caslAbilityFactory.createForUser(currentUser)
-    if (ability.can(Action.Read, 'all')) {
-      // "user" has read access to everything
-    }
-
     const result = await this.userService.create(input)
 
     return result.match<objects.UserCreateResponse>(

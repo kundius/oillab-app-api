@@ -17,10 +17,8 @@ export class VehicleService {
     @InjectRepository(Vehicle)
     private readonly vehicleRepository: Repository<Vehicle>,
     private readonly userService: UserService,
-    // private readonly contextService: ContextService
-  ) {
-    console.log('init VehicleService')
-  }
+    private readonly contextService: ContextService
+  ) {}
 
   async findById(id: number): Promise<Vehicle | undefined> {
     return await this.vehicleRepository.findOne(id)
@@ -33,10 +31,10 @@ export class VehicleService {
   async create(
     input: types.VehicleCreateInput
   ): Promise<Result<Vehicle, types.VehicleCreateErrors>> {
-    // const currentUser = this.contextService.getCurrentUser()
-    // if (currentUser.role !== UserRole.Administrator) {
-    //   return err(new errors.VehicleCreateNotAllowedError())
-    // }
+    const currentUser = this.contextService.getCurrentUser()
+    if (currentUser.role !== UserRole.Administrator) {
+      return err(new errors.VehicleCreateNotAllowedError())
+    }
 
     const owner = await this.userService.findByIdOrFail(input.owner)
     const record = await this.vehicleRepository.create()
@@ -61,10 +59,10 @@ export class VehicleService {
       return err(new errors.VehicleNotFoundError(record.id))
     }
 
-    // const currentUser = this.contextService.getCurrentUser()
-    // if (currentUser?.role !== UserRole.Administrator) {
-    //   return err(new errors.VehicleUpdateNotAllowedError(record.id))
-    // }
+    const currentUser = this.contextService.getCurrentUser()
+    if (currentUser?.role !== UserRole.Administrator) {
+      return err(new errors.VehicleUpdateNotAllowedError(record.id))
+    }
 
     if (typeof input.engineModel !== 'undefined') {
       record.engineModel = input.engineModel
@@ -100,10 +98,10 @@ export class VehicleService {
       return err(new errors.VehicleNotFoundError(record.id))
     }
 
-    // const currentUser = this.contextService.getCurrentUser()
-    // if (currentUser?.role !== UserRole.Administrator) {
-    //   return err(new errors.VehicleDeleteNotAllowedError(record.id))
-    // }
+    const currentUser = this.contextService.getCurrentUser()
+    if (currentUser?.role !== UserRole.Administrator) {
+      return err(new errors.VehicleDeleteNotAllowedError(record.id))
+    }
 
     await this.vehicleRepository.remove(record)
 
