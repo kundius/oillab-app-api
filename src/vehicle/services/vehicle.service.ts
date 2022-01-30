@@ -1,23 +1,18 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, SelectQueryBuilder } from 'typeorm'
-import { ok, err, Result } from 'neverthrow'
 
 import { UserService } from '@app/user/services/user.service'
-import { ContextService } from '@app/context/context.service'
-import { UserRole } from '@app/user/entities/user.entity'
 
+import * as dto from '../dto/vehicle.dto'
 import { Vehicle } from '../entities/vehicle.entity'
-import * as types from '../vehicle.types'
-import * as errors from '../vehicle.errors'
 
 @Injectable()
 export class VehicleService {
   constructor(
     @InjectRepository(Vehicle)
     private readonly vehicleRepository: Repository<Vehicle>,
-    private readonly userService: UserService,
-    private readonly contextService: ContextService
+    private readonly userService: UserService
   ) {}
 
   async findById(id: number): Promise<Vehicle | undefined> {
@@ -28,89 +23,46 @@ export class VehicleService {
     return await this.vehicleRepository.findOneOrFail(id)
   }
 
-  async create(
-    input: types.VehicleCreateInput
-  ): Promise<Result<Vehicle, types.VehicleCreateErrors>> {
-    const currentUser = this.contextService.getCurrentUser()
-    if (currentUser.role !== UserRole.Administrator) {
-      return err(new errors.VehicleCreateNotAllowedError())
-    }
-
+  async create(input: dto.VehicleCreateInput) {
     const owner = await this.userService.findByIdOrFail(input.owner)
     const record = await this.vehicleRepository.create()
-
     record.engineModel = input.engineModel
     record.model = input.model
     record.owner = Promise.resolve(owner)
     record.releaseYear = input.releaseYear
     record.stateNumber = input.stateNumber
-
     await this.vehicleRepository.save(record)
-
-    return ok(record)
+    return record
   }
 
-  async update(
-    recordId: number,
-    input: types.VehicleUpdateInput
-  ): Promise<Result<Vehicle, types.VehicleUpdateErrors>> {
-    const record = await this.findById(recordId)
-    if (!record) {
-      return err(new errors.VehicleNotFoundError(record.id))
-    }
-
-    const currentUser = this.contextService.getCurrentUser()
-    if (currentUser?.role !== UserRole.Administrator) {
-      return err(new errors.VehicleUpdateNotAllowedError(record.id))
-    }
-
+  async update(record: Vehicle, input: dto.VehicleUpdateInput) {
     if (typeof input.engineModel !== 'undefined') {
       record.engineModel = input.engineModel
     }
-
     if (typeof input.model !== 'undefined') {
       record.model = input.model
     }
-
     if (typeof input.releaseYear !== 'undefined') {
       record.releaseYear = input.releaseYear
     }
-
     if (typeof input.stateNumber !== 'undefined') {
       record.stateNumber = input.stateNumber
     }
-
     if (typeof input.owner !== 'undefined') {
       const owner = await this.userService.findByIdOrFail(input.owner)
       record.owner = Promise.resolve(owner)
     }
-
     await this.vehicleRepository.save(record)
-
-    return ok(record)
+    return record
   }
 
-  async delete(
-    recordId: number
-  ): Promise<Result<void, types.VehicleDeleteErrors>> {
-    const record = await this.findById(recordId)
-    if (!record) {
-      return err(new errors.VehicleNotFoundError(record.id))
-    }
-
-    const currentUser = this.contextService.getCurrentUser()
-    if (currentUser?.role !== UserRole.Administrator) {
-      return err(new errors.VehicleDeleteNotAllowedError(record.id))
-    }
-
+  async delete(record: Vehicle) {
     await this.vehicleRepository.remove(record)
-
-    return ok(undefined)
   }
 
   async paginate(
-    args: types.VehiclePaginateArgs
-  ): Promise<types.VehiclePaginatedResult> {
+    args: dto.VehiclePaginateArgs
+  ): Promise<dto.VehiclePaginateResponse> {
     const { page, perPage, filter, sort } = args
 
     const qb = this.vehicleRepository.createQueryBuilder('vehicle')
@@ -141,32 +93,32 @@ export class VehicleService {
 
   async applySort(
     qb: SelectQueryBuilder<Vehicle>,
-    sort: types.VehicleSort[]
+    sort: dto.VehicleSort[]
   ): Promise<SelectQueryBuilder<Vehicle>> {
     for (const value of sort) {
       switch (value) {
-        case types.VehicleSort.MODEL_ASC:
+        case dto.VehicleSort.MODEL_ASC:
           qb.orderBy('vehicle.model', 'ASC')
           break
-        case types.VehicleSort.MODEL_DESC:
+        case dto.VehicleSort.MODEL_DESC:
           qb.orderBy('vehicle.model', 'DESC')
           break
-        case types.VehicleSort.ENGINE_MODEL_ASC:
+        case dto.VehicleSort.ENGINE_MODEL_ASC:
           qb.orderBy('vehicle.engineModel', 'ASC')
           break
-        case types.VehicleSort.ENGINE_MODEL_DESC:
+        case dto.VehicleSort.ENGINE_MODEL_DESC:
           qb.orderBy('vehicle.engineModel', 'DESC')
           break
-        case types.VehicleSort.RELEASE_YEAR_ASC:
+        case dto.VehicleSort.RELEASE_YEAR_ASC:
           qb.orderBy('vehicle.releaseYear', 'ASC')
           break
-        case types.VehicleSort.RELEASE_YEAR_DESC:
+        case dto.VehicleSort.RELEASE_YEAR_DESC:
           qb.orderBy('vehicle.releaseYear', 'DESC')
           break
-        case types.VehicleSort.STATE_NUMBER_ASC:
+        case dto.VehicleSort.STATE_NUMBER_ASC:
           qb.orderBy('vehicle.stateNumber', 'ASC')
           break
-        case types.VehicleSort.STATE_NUMBER_DESC:
+        case dto.VehicleSort.STATE_NUMBER_DESC:
           qb.orderBy('vehicle.stateNumber', 'DESC')
           break
         default:
@@ -178,7 +130,7 @@ export class VehicleService {
 
   async applyFilter(
     qb: SelectQueryBuilder<Vehicle>,
-    filter: types.VehicleFilter
+    filter: dto.VehicleFilter
   ): Promise<SelectQueryBuilder<Vehicle>> {
     if (filter.engineModel) {
       if (filter.engineModel.eq) {

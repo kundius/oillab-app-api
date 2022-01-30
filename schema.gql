@@ -2,6 +2,10 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+interface DefaultError {
+  message: String!
+}
+
 type File {
   name: String!
   path: String!
@@ -67,6 +71,15 @@ enum UserRole {
   Administrator
 }
 
+type NotFoundError implements DefaultError {
+  message: String!
+}
+
+type DefaultMutationResponse {
+  success: Boolean!
+  error: DefaultError
+}
+
 type PageInfo {
   total: Int!
   page: Int!
@@ -75,60 +88,14 @@ type PageInfo {
 
 type UserCreateResponse {
   success: Boolean!
+  error: DefaultError
   record: User
-  error: UserCreateError
-}
-
-union UserCreateError = UserCreateNotAllowedError
-
-type UserCreateNotAllowedError implements NotAllowedError & Error {
-  message: String!
-  type: String!
-}
-
-interface NotAllowedError implements Error {
-  message: String!
-  type: String!
-}
-
-interface Error {
-  message: String!
-  type: String!
 }
 
 type UserUpdateResponse {
   success: Boolean!
+  error: DefaultError
   record: User
-  error: UserUpdateError
-}
-
-union UserUpdateError = UserUpdateNotAllowedError | UserNotFoundError
-
-type UserUpdateNotAllowedError implements NotAllowedError & Error {
-  message: String!
-  type: String!
-}
-
-type UserNotFoundError implements NotFoundError & Error {
-  message: String!
-  type: String!
-}
-
-interface NotFoundError implements Error {
-  message: String!
-  type: String!
-}
-
-type UserDeleteResponse {
-  success: Boolean!
-  error: UserDeleteError
-}
-
-union UserDeleteError = UserDeleteNotAllowedError | UserNotFoundError
-
-type UserDeleteNotAllowedError implements NotAllowedError & Error {
-  message: String!
-  type: String!
 }
 
 type UserPaginateResponse {
@@ -138,45 +105,14 @@ type UserPaginateResponse {
 
 type VehicleCreateResponse {
   success: Boolean!
+  error: DefaultError
   record: Vehicle
-  error: VehicleCreateError
-}
-
-union VehicleCreateError = VehicleCreateNotAllowedError
-
-type VehicleCreateNotAllowedError implements NotAllowedError & Error {
-  message: String!
-  type: String!
 }
 
 type VehicleUpdateResponse {
   success: Boolean!
+  error: DefaultError
   record: Vehicle
-  error: VehicleUpdateError
-}
-
-union VehicleUpdateError = VehicleUpdateNotAllowedError | VehicleNotFoundError
-
-type VehicleUpdateNotAllowedError implements NotAllowedError & Error {
-  message: String!
-  type: String!
-}
-
-type VehicleNotFoundError implements NotFoundError & Error {
-  message: String!
-  type: String!
-}
-
-type VehicleDeleteResponse {
-  success: Boolean!
-  error: VehicleDeleteError
-}
-
-union VehicleDeleteError = VehicleDeleteNotAllowedError | VehicleNotFoundError
-
-type VehicleDeleteNotAllowedError implements NotAllowedError & Error {
-  message: String!
-  type: String!
 }
 
 type VehiclePaginateResponse {
@@ -186,45 +122,14 @@ type VehiclePaginateResponse {
 
 type ReportCreateResponse {
   success: Boolean!
+  error: DefaultError
   record: Report
-  error: ReportCreateError
-}
-
-union ReportCreateError = ReportCreateNotAllowedError
-
-type ReportCreateNotAllowedError implements NotAllowedError & Error {
-  message: String!
-  type: String!
 }
 
 type ReportUpdateResponse {
   success: Boolean!
+  error: DefaultError
   record: Report
-  error: ReportUpdateError
-}
-
-union ReportUpdateError = ReportUpdateNotAllowedError | ReportNotFoundError
-
-type ReportUpdateNotAllowedError implements NotAllowedError & Error {
-  message: String!
-  type: String!
-}
-
-type ReportNotFoundError implements NotFoundError & Error {
-  message: String!
-  type: String!
-}
-
-type ReportDeleteResponse {
-  success: Boolean!
-  error: ReportDeleteError
-}
-
-union ReportDeleteError = ReportDeleteNotAllowedError | ReportNotFoundError
-
-type ReportDeleteNotAllowedError implements NotAllowedError & Error {
-  message: String!
-  type: String!
 }
 
 type ReportPaginateResponse {
@@ -233,36 +138,25 @@ type ReportPaginateResponse {
 }
 
 type ReportGeneratePdfResponse {
+  success: Boolean!
+  error: DefaultError
   record: File
-  success: Boolean!
-  error: ReportGeneratePdfError
 }
 
-union ReportGeneratePdfError = ReportGeneratePdfNotAllowedError
-
-type ReportGeneratePdfNotAllowedError implements NotAllowedError & Error {
+type PermissionDeniedError implements DefaultError {
   message: String!
-  type: String!
 }
 
-type SignInResponse {
-  token: String
-  record: User
-  success: Boolean!
-  error: SignInError
-}
-
-union SignInError = AuthValidationError
-
-type AuthValidationError implements ClientError & Error {
+type ValidationError implements DefaultError {
   message: String!
-  type: String!
   field: String!
 }
 
-interface ClientError implements Error {
-  message: String!
-  type: String!
+type SignInResponse {
+  success: Boolean!
+  error: DefaultError
+  token: String
+  record: User
 }
 
 type Query {
@@ -369,14 +263,14 @@ type Mutation {
   signIn(input: SignInInput!): SignInResponse!
   userCreate(input: UserCreateInput!): UserCreateResponse!
   userUpdate(input: UserUpdateInput!, id: Int!): UserUpdateResponse!
-  userDelete(id: Int!): UserDeleteResponse!
+  userDelete(id: Int!): DefaultMutationResponse!
   vehicleCreate(input: VehicleCreateInput!): VehicleCreateResponse!
   vehicleUpdate(input: VehicleUpdateInput!, id: Int!): VehicleUpdateResponse!
-  vehicleDelete(id: Int!): VehicleDeleteResponse!
+  vehicleDelete(id: Int!): DefaultMutationResponse!
   reportGeneratePdf(sort: [ReportSort!], filter: ReportFilter): ReportGeneratePdfResponse!
   reportCreate(input: ReportCreateInput!): ReportCreateResponse!
   reportUpdate(input: ReportUpdateInput!, id: Int!): ReportUpdateResponse!
-  reportDelete(id: Int!): ReportDeleteResponse!
+  reportDelete(id: Int!): DefaultMutationResponse!
 }
 
 input SignInInput {

@@ -1,36 +1,32 @@
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Args,
-  Int
-} from '@nestjs/graphql'
+import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent } from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 
 import { GqlAuthGuard } from '@app/auth/auth.guard'
 import { ContextService } from '@app/context/context.service'
+import { NotFoundError } from '@app/graphql/NotFoundError'
 
 import { UserService } from '../services/user.service'
 import { User } from '../entities/user.entity'
-import * as objects from '../user.objects'
+import * as dto from '../dto/user.dto'
+import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 
 @Resolver(() => User)
 @UseGuards(GqlAuthGuard)
 export class UserResolver {
-  constructor(
+  constructor (
     private readonly userService: UserService,
     private readonly contextService: ContextService
   ) {}
 
   @Query(() => User, { nullable: true })
-  async user(
+  async user (
     @Args('id', { type: () => Int }) id: number
   ): Promise<User | undefined> {
     return this.userService.findById(id)
   }
 
   @Query(() => User, { nullable: true })
-  async currentUser(): Promise<User | undefined> {
+  async currentUser (): Promise<User | undefined> {
     const currentUser = this.contextService.getCurrentUser()
     if (currentUser) {
       await this.userService.updateLastActivity(currentUser)
@@ -38,64 +34,65 @@ export class UserResolver {
     return currentUser
   }
 
-  @Query(() => objects.UserPaginateResponse)
-  async userPaginate(
-    @Args() args: objects.UserPaginateArgs
-  ): Promise<objects.UserPaginateResponse> {
+  @Query(() => dto.UserPaginateResponse)
+  async userPaginate (
+    @Args() args: dto.UserPaginateArgs
+  ): Promise<dto.UserPaginateResponse> {
     return this.userService.paginate(args)
   }
 
-  @Mutation(() => objects.UserCreateResponse)
-  async userCreate(
-    @Args('input') input: objects.UserCreateInput
-  ): Promise<objects.UserCreateResponse> {
-    const result = await this.userService.create(input)
+  @Mutation(() => dto.UserCreateResponse)
+  async userCreate (
+    @Args('input') input: dto.UserCreateInput
+  ): Promise<dto.UserCreateResponse> {
+    const record = await this.userService.create(input)
 
-    return result.match<objects.UserCreateResponse>(
-      (record) => ({
-        record,
-        success: true
-      }),
-      (error) => ({
-        error,
-        success: false
-      })
-    )
+    return {
+      record,
+      success: true
+    }
   }
 
-  @Mutation(() => objects.UserUpdateResponse)
-  async userUpdate(
+  @Mutation(() => dto.UserUpdateResponse)
+  async userUpdate (
     @Args('id', { type: () => Int }) id: number,
-    @Args('input') input: objects.UserUpdateInput
-  ): Promise<objects.UserUpdateResponse> {
-    const result = await this.userService.update(id, input)
+    @Args('input') input: dto.UserUpdateInput
+  ): Promise<dto.UserUpdateResponse> {
+    const record = await this.userService.findById(id)
 
-    return result.match<objects.UserUpdateResponse>(
-      (record) => ({
-        record,
-        success: true
-      }),
-      (error) => ({
-        error,
+    if (!record) {
+      return {
+        error: new NotFoundError(),
         success: false
-      })
-    )
+      }
+    }
+
+    await this.userService.update(record, input)
+
+    return {
+      record,
+      success: true
+    }
   }
 
-  @Mutation(() => objects.UserDeleteResponse)
-  async userDelete(
+  
+  @Mutation(() => DefaultMutationResponse)
+  async userDelete (
     @Args('id', { type: () => Int }) id: number
-  ): Promise<objects.UserDeleteResponse> {
-    const result = await this.userService.delete(id)
+  ): Promise<DefaultMutationResponse> {
+    const record = await this.userService.findById(id)
 
-    return result.match<objects.UserDeleteResponse>(
-      () => ({
-        success: true
-      }),
-      (error) => ({
-        error,
+    if (!record) {
+      return {
+        error: new NotFoundError(),
         success: false
-      })
-    )
+      }
+    }
+
+    await this.userService.delete(record)
+
+    return {
+      success: true
+    }
   }
 }
