@@ -257,12 +257,18 @@ export class ReportService {
         case dto.ReportSort.TOTAL_MILEAGE_DESC:
           qb.orderBy('report.totalMileage', 'DESC')
           break
-        case dto.ReportSort.ID_ASC:
-          qb.orderBy('report.id', 'ASC')
-          break
-        case dto.ReportSort.ID_DESC:
-          qb.orderBy('report.id', 'DESC')
-          break
+          case dto.ReportSort.ID_ASC:
+            qb.orderBy('report.id', 'ASC')
+            break
+          case dto.ReportSort.ID_DESC:
+            qb.orderBy('report.id', 'DESC')
+            break
+          case dto.ReportSort.NUMBER_ASC:
+            qb.orderBy('report.number', 'ASC')
+            break
+          case dto.ReportSort.NUMBER_DESC:
+            qb.orderBy('report.number', 'DESC')
+            break
         default:
           throw new Error('Not implemented')
       }
