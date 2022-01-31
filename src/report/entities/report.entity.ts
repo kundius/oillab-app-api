@@ -33,6 +33,10 @@ export class Report {
   @PrimaryGeneratedColumn()
   id: number
 
+  @Field(() => Int, { nullable: true })
+  @Column({ type: 'integer', nullable: true })
+  number: number | null
+
   @Column()
   lubricant: string
 

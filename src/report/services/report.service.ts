@@ -35,6 +35,18 @@ export class ReportService {
     return await this.reportRepository.findOneOrFail(id)
   }
 
+  async getNewNumber(client: User): Promise<number> {
+    const lastReport = await this.reportRepository
+      .createQueryBuilder('report')
+      .andWhere('report.client = :client', {
+        client: client.id
+      })
+      .orderBy('report.number', 'DESC')
+      .getOne()
+
+    return (lastReport?.number || 0) + 1
+  }
+
   async create(input: dto.ReportCreateInput) {
     const record = await this.reportRepository.create()
     record.lubricant = input.lubricant
@@ -48,9 +60,9 @@ export class ReportService {
       record.vehicle = Promise.resolve(vehicle)
     }
     if (!!input.client) {
-      record.client = Promise.resolve(
-        await this.userService.findByIdOrFail(input.client)
-      )
+      const client = await this.userService.findByIdOrFail(input.client)
+      record.client = Promise.resolve(client)
+      record.number = await this.getNewNumber(client)
     }
     if (!!input.expressLaboratoryResult) {
       const expressLaboratoryResult = await this.fileService.findByIdOrFail(
@@ -90,9 +102,11 @@ export class ReportService {
     if (typeof input.client !== 'undefined') {
       if (input.client === null) {
         record.client = Promise.resolve(null)
+        record.number = null
       } else {
         const client = await this.userService.findByIdOrFail(input.client)
         record.client = Promise.resolve(client)
+        record.number = await this.getNewNumber(client)
       }
     }
     if (typeof input.vehicle !== 'undefined') {

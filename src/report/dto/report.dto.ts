@@ -101,7 +101,9 @@ export enum ReportSort {
   SAMPLED_AT_ASC,
   SAMPLED_AT_DESC,
   ID_ASC,
-  ID_DESC
+  ID_DESC,
+  NUMBER_ASC,
+  NUMBER_DESC
 }
 
 registerEnumType(ReportSort, {

@@ -24,6 +24,7 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Report {
+  number: Int
   note: String
   sampledAt: DateTime!
   createdAt: DateTime!
@@ -235,6 +236,8 @@ enum ReportSort {
   SAMPLED_AT_DESC
   ID_ASC
   ID_DESC
+  NUMBER_ASC
+  NUMBER_DESC
 }
 
 input ReportFilter {
