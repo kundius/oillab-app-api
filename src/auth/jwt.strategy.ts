@@ -4,8 +4,6 @@ import { Injectable } from '@nestjs/common'
 
 import { configService } from '@app/config/config.service'
 import { User } from '@app/user/entities/user.entity'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
 import { UserService } from '@app/user/services/user.service'
 
 @Injectable()

@@ -6,8 +6,8 @@ export class ValidationError extends DefaultError {
   @Field()
   field: string
 
-  constructor (field: string, message: string) {
-    super(message)
+  constructor (field: string, message?: string) {
+    super(message || 'Validation Error')
     this.field = field
   }
 }

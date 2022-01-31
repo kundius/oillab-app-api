@@ -2,7 +2,7 @@ import { Resolver, Mutation, Args } from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 
 import { UserService } from '@app/user/services/user.service'
-import { ValidationError } from '@app/graphql/ValidationError'
+import { ValidationError } from '@app/graphql/errors/ValidationError'
 
 import { SignInInput, SignInResponse } from './auth.dto'
 import { GqlAuthGuard } from './auth.guard'

@@ -6,7 +6,6 @@ import { S3 } from 'aws-sdk'
 import { fromBuffer } from 'file-type'
 
 import { configService } from '@app/config/config.service'
-import { ContextService } from '@app/context/context.service'
 
 import { File } from './file.entity'
 import { User } from '@app/user/entities/user.entity'
@@ -15,8 +14,7 @@ import { User } from '@app/user/entities/user.entity'
 export class FileService {
   constructor(
     @InjectRepository(File)
-    private readonly fileRepository: Repository<File>,
-    private readonly contextService: ContextService
+    private readonly fileRepository: Repository<File>
   ) {}
 
   createQueryBuilder(): SelectQueryBuilder<File> {
@@ -63,9 +61,7 @@ export class FileService {
     fileEntity.url = command.url
     fileEntity.size = command.size
     fileEntity.type = command.type || null
-    fileEntity.user = Promise.resolve(
-      command.user || this.contextService.getCurrentUser() || null
-    )
+    fileEntity.user = Promise.resolve(command.user || null)
     await this.fileRepository.save(fileEntity)
     return fileEntity
   }

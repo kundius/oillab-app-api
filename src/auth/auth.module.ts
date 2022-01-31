@@ -4,7 +4,6 @@ import { JwtModule } from '@nestjs/jwt'
 
 import { configService } from '@app/config/config.service'
 import { UserModule } from '@app/user/user.module'
-import { ContextModule } from '@app/context/context.module'
 
 import { AuthService } from './auth.service'
 import { AuthResolver } from './auth.resolver'
@@ -14,7 +13,6 @@ import { JwtStrategy } from './jwt.strategy'
 @Module({
   imports: [
     UserModule,
-    ContextModule,
     PassportModule,
     JwtModule.register({ secret: configService.getSecret() })
   ],

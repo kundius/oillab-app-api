@@ -80,6 +80,14 @@ type DefaultMutationResponse {
   error: DefaultError
 }
 
+type AuthenticationError implements DefaultError {
+  message: String!
+}
+
+type NotAllowedError implements DefaultError {
+  message: String!
+}
+
 type PageInfo {
   total: Int!
   page: Int!
@@ -141,10 +149,6 @@ type ReportGeneratePdfResponse {
   success: Boolean!
   error: DefaultError
   record: File
-}
-
-type PermissionDeniedError implements DefaultError {
-  message: String!
 }
 
 type ValidationError implements DefaultError {

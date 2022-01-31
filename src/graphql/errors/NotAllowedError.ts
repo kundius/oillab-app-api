@@ -2,9 +2,8 @@ import { ObjectType } from '@nestjs/graphql'
 import { DefaultError } from './DefaultError'
 
 @ObjectType({ implements: DefaultError })
-export class NotFoundError extends DefaultError {
-  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+export class NotAllowedError extends DefaultError {
   constructor (message?: string) {
-    super(message || 'Not Found')
+    super(message || 'Not Allowed Error')
   }
 }

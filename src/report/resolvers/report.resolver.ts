@@ -1,63 +1,66 @@
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Args,
-  Int,
-  ResolveField,
-  Parent
-} from '@nestjs/graphql'
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 
 import { GqlAuthGuard } from '@app/auth/auth.guard'
-import { NotFoundError } from '@app/graphql/NotFoundError'
-import { ContextService } from '@app/context/context.service'
+import { NotFoundError } from '@app/graphql/errors/NotFoundError'
+import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
+import { User, UserRole } from '@app/user/entities/user.entity'
+import { NotAllowedError } from '@app/graphql/errors/NotAllowedError'
+import { CurrentUser } from '@app/auth/CurrentUser'
+import { AuthenticationError } from '@app/graphql/errors/AuthenticationError'
 
 import { ReportService } from '../services/report.service'
 import { Report } from '../entities/report.entity'
 import * as dto from '../dto/report.dto'
-import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
-import { UserRole } from '@app/user/entities/user.entity'
-import { PermissionDeniedError } from '@app/graphql/PermissionDeniedError'
 
 @Resolver(() => Report)
 @UseGuards(GqlAuthGuard)
 export class ReportResolver {
-  constructor(
-    private readonly reportService: ReportService,
-    private readonly contextService: ContextService
-  ) {}
+  constructor(private readonly reportService: ReportService) {}
 
   @Query(() => Report, { nullable: true })
   async report(
-    @Args('id', { type: () => Int }) id: number
+    @Args('id', { type: () => Int }) id: number,
+    @CurrentUser() currentUser?: User
   ): Promise<Report | undefined> {
+    if (!currentUser) {
+      return undefined
+    }
+
     return this.reportService.findById(id)
   }
 
   @Query(() => dto.ReportPaginateResponse)
   async reportPaginate(
-    @Args() args: dto.ReportPaginateArgs
+    @Args() args: dto.ReportPaginateArgs,
+    @CurrentUser() currentUser?: User
   ): Promise<dto.ReportPaginateResponse> {
-    return this.reportService.paginate(args, (qb) => {
-      const currentUser = this.contextService.getCurrentUser()
-      if (currentUser.role !== UserRole.Administrator) {
-        qb.andWhere('report.client = :onlySelfId', {
-          onlySelfId: currentUser.id
-        })
+    if (!currentUser) {
+      return {
+        items: [],
+        pageInfo: {
+          total: 0,
+          page: args.page,
+          perPage: args.perPage
+        }
       }
-    })
+    }
+
+    if (currentUser.role !== UserRole.Administrator) {
+      return this.reportService.paginate(args, currentUser)
+    } else {
+      return this.reportService.paginate(args)
+    }
   }
 
   @Mutation(() => dto.ReportGeneratePdfResponse)
   async reportGeneratePdf(
-    @Args() args: dto.ReportGeneratePdfArgs
+    @Args() args: dto.ReportGeneratePdfArgs,
+    @CurrentUser() currentUser?: User
   ): Promise<dto.ReportGeneratePdfResponse> {
-    const currentUser = this.contextService.getCurrentUser()
-
     if (!currentUser) {
       return {
-        error: new PermissionDeniedError('Forbidden'),
+        error: new AuthenticationError(),
         success: false
       }
     }
@@ -65,13 +68,7 @@ export class ReportResolver {
     const file = await this.reportService.generatePdf(
       args.filter,
       args.sort,
-      (qb) => {
-        if (currentUser.role !== UserRole.Administrator) {
-          qb.andWhere('report.client = :onlySelfId', {
-            onlySelfId: currentUser.id
-          })
-        }
-      }
+      currentUser.role !== UserRole.Administrator ? currentUser : undefined
     )
 
     return {
@@ -82,23 +79,21 @@ export class ReportResolver {
 
   @Mutation(() => dto.ReportCreateResponse)
   async reportCreate(
-    @Args('input') input: dto.ReportCreateInput
+    @Args('input') input: dto.ReportCreateInput,
+    @CurrentUser() currentUser?: User
   ): Promise<dto.ReportCreateResponse> {
-    const currentUser = this.contextService.getCurrentUser()
-
-    if (
-      typeof input.client !== 'undefined' &&
-      currentUser.role !== UserRole.Administrator &&
-      input.client !== currentUser.id
-    ) {
+    if (!currentUser) {
       return {
-        error: new PermissionDeniedError('Вам не разрешено изменять клиента'),
+        error: new AuthenticationError(),
         success: false
       }
     }
 
-    if (currentUser.role === UserRole.Member) {
-      input.client = currentUser.id
+    if (currentUser.role !== UserRole.Administrator) {
+      return {
+        error: new NotAllowedError(),
+        success: false
+      }
     }
 
     const record = await this.reportService.create(input)
@@ -112,9 +107,16 @@ export class ReportResolver {
   @Mutation(() => dto.ReportUpdateResponse)
   async reportUpdate(
     @Args('id', { type: () => Int }) id: number,
-    @Args('input') input: dto.ReportUpdateInput
+    @Args('input') input: dto.ReportUpdateInput,
+    @CurrentUser() currentUser?: User
   ): Promise<dto.ReportUpdateResponse> {
-    const currentUser = this.contextService.getCurrentUser()
+    if (!currentUser) {
+      return {
+        error: new AuthenticationError(),
+        success: false
+      }
+    }
+
     const record = await this.reportService.findById(id)
 
     if (!record) {
@@ -124,14 +126,9 @@ export class ReportResolver {
       }
     }
 
-    if (
-      typeof input.client !== 'undefined' &&
-      currentUser.role !== UserRole.Administrator &&
-      input.client !== (await record.client).id &&
-      input.client !== currentUser.id
-    ) {
+    if (currentUser.role !== UserRole.Administrator) {
       return {
-        error: new PermissionDeniedError('Вам не разрешено изменять клиента'),
+        error: new NotAllowedError(),
         success: false
       }
     }
@@ -146,13 +143,28 @@ export class ReportResolver {
 
   @Mutation(() => DefaultMutationResponse)
   async reportDelete(
-    @Args('id', { type: () => Int }) id: number
+    @Args('id', { type: () => Int }) id: number,
+    @CurrentUser() currentUser?: User
   ): Promise<DefaultMutationResponse> {
+    if (!currentUser) {
+      return {
+        error: new AuthenticationError(),
+        success: false
+      }
+    }
+
     const record = await this.reportService.findById(id)
 
     if (!record) {
       return {
         error: new NotFoundError(),
+        success: false
+      }
+    }
+
+    if (currentUser.role !== UserRole.Administrator) {
+      return {
+        error: new NotAllowedError(),
         success: false
       }
     }

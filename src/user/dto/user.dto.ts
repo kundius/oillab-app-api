@@ -2,7 +2,7 @@ import { InputType, Field, Int, ID, ArgsType, ObjectType, registerEnumType, Floa
 import { Type } from 'class-transformer'
 
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
-import { StringFilter } from '@app/graphql/StringFilter'
+import { StringFilter } from '@app/graphql/filters/StringFilter'
 import { User } from '@app/user/entities/user.entity'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
 

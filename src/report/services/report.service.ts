@@ -11,6 +11,7 @@ import { nanoid } from '@app/utils/nanoid'
 import * as dto from '../dto/report.dto'
 import { Report } from '../entities/report.entity'
 import { File } from '@app/file/file.entity'
+import { User } from '@app/user/entities/user.entity'
 
 @Injectable()
 export class ReportService {
@@ -132,15 +133,55 @@ export class ReportService {
     await this.reportRepository.remove(record)
   }
 
-  async paginate(
+  async paginateForUser(
     args: dto.ReportPaginateArgs,
-    customize?: (qb: SelectQueryBuilder<Report>) => void
+    user: User
   ): Promise<dto.ReportPaginateResponse> {
     const { page, perPage, filter, sort } = args
 
     const qb = this.reportRepository.createQueryBuilder('report')
 
-    customize?.(qb)
+    qb.andWhere('report.client = :onlySelfId', {
+      onlySelfId: user.id
+    })
+
+    if (filter) {
+      this.applyFilter(qb, filter)
+    }
+
+    if (sort) {
+      this.applySort(qb, sort)
+    }
+
+    const total = await qb.getCount()
+    const items = await qb
+      .skip((page - 1) * perPage)
+      .take(perPage)
+      .getMany()
+
+    return {
+      items,
+      pageInfo: {
+        total,
+        page,
+        perPage
+      }
+    }
+  }
+
+  async paginate(
+    args: dto.ReportPaginateArgs,
+    forUser?: User
+  ): Promise<dto.ReportPaginateResponse> {
+    const { page, perPage, filter, sort } = args
+
+    const qb = this.reportRepository.createQueryBuilder('report')
+
+    if (forUser) {
+      qb.andWhere('report.client = :onlySelfId', {
+        onlySelfId: forUser.id
+      })
+    }
 
     if (filter) {
       this.applyFilter(qb, filter)
@@ -397,11 +438,15 @@ export class ReportService {
   async generatePdf(
     filter?: dto.ReportFilter,
     sort?: dto.ReportSort[],
-    customize?: (qb: SelectQueryBuilder<Report>) => void
+    forUser?: User
   ): Promise<File> {
     const qb = this.reportRepository.createQueryBuilder('report')
 
-    customize?.(qb)
+    if (forUser) {
+      qb.andWhere('report.client = :onlySelfId', {
+        onlySelfId: forUser.id
+      })
+    }
 
     if (filter) {
       this.applyFilter(qb, filter)
@@ -413,7 +458,7 @@ export class ReportService {
 
     const items = await qb.getMany()
 
-    const itemsHtml = []
+    const itemsHtml: string[] = []
     for (const item of items) {
       const client = await item.client
       const vehicle = await item.vehicle
@@ -471,12 +516,10 @@ export class ReportService {
       HtmlPdf.create(html).toBuffer((err, buffer) => resolve(buffer))
     })
 
-    const file = await this.fileService.uploadAndCreateFile({
+    return await this.fileService.uploadAndCreateFile({
       buffer: pdfBuffer,
       dir: 'report/pdf',
       name: nanoid()
     })
-
-    return file
   }
 }

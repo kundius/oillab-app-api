@@ -3,9 +3,9 @@ import { Type } from 'class-transformer'
 
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { Vehicle } from '@app/vehicle/entities/vehicle.entity'
-import { StringFilter } from '@app/graphql/StringFilter'
+import { StringFilter } from '@app/graphql/filters/StringFilter'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
-import { IdFilter } from '@app/graphql/IdFilter'
+import { IdFilter } from '@app/graphql/filters/IdFilter'
 
 @InputType()
 export class VehicleCreateInput {

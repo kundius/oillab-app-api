@@ -1,33 +1,46 @@
-import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent } from '@nestjs/graphql'
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int
+} from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 
 import { GqlAuthGuard } from '@app/auth/auth.guard'
-import { ContextService } from '@app/context/context.service'
-import { NotFoundError } from '@app/graphql/NotFoundError'
+import { NotFoundError } from '@app/graphql/errors/NotFoundError'
+import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
+import { CurrentUser } from '@app/auth/CurrentUser'
+import { AuthenticationError } from '@app/graphql/errors/AuthenticationError'
+import { NotAllowedError } from '@app/graphql/errors/NotAllowedError'
 
 import { UserService } from '../services/user.service'
-import { User } from '../entities/user.entity'
+import { User, UserRole } from '../entities/user.entity'
 import * as dto from '../dto/user.dto'
-import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 
 @Resolver(() => User)
 @UseGuards(GqlAuthGuard)
 export class UserResolver {
-  constructor (
-    private readonly userService: UserService,
-    private readonly contextService: ContextService
+  constructor(
+    private readonly userService: UserService
   ) {}
 
   @Query(() => User, { nullable: true })
-  async user (
-    @Args('id', { type: () => Int }) id: number
+  async user(
+    @Args('id', { type: () => Int }) id: number,
+    @CurrentUser() currentUser?: User
   ): Promise<User | undefined> {
+    if (!currentUser) {
+      return undefined
+    }
+
     return this.userService.findById(id)
   }
 
   @Query(() => User, { nullable: true })
-  async currentUser (): Promise<User | undefined> {
-    const currentUser = this.contextService.getCurrentUser()
+  async currentUser(
+    @CurrentUser() currentUser?: User
+  ): Promise<User | undefined> {
     if (currentUser) {
       await this.userService.updateLastActivity(currentUser)
     }
@@ -35,16 +48,43 @@ export class UserResolver {
   }
 
   @Query(() => dto.UserPaginateResponse)
-  async userPaginate (
-    @Args() args: dto.UserPaginateArgs
+  async userPaginate(
+    @Args() args: dto.UserPaginateArgs,
+    @CurrentUser() currentUser?: User
   ): Promise<dto.UserPaginateResponse> {
+    if (!currentUser) {
+      return {
+        items: [],
+        pageInfo: {
+          total: 0,
+          page: args.page,
+          perPage: args.perPage
+        }
+      }
+    }
+
     return this.userService.paginate(args)
   }
 
   @Mutation(() => dto.UserCreateResponse)
-  async userCreate (
-    @Args('input') input: dto.UserCreateInput
+  async userCreate(
+    @Args('input') input: dto.UserCreateInput,
+    @CurrentUser() currentUser?: User
   ): Promise<dto.UserCreateResponse> {
+    if (!currentUser) {
+      return {
+        error: new AuthenticationError(),
+        success: false
+      }
+    }
+
+    if (currentUser.role !== UserRole.Administrator) {
+      return {
+        error: new NotAllowedError(),
+        success: false
+      }
+    }
+
     const record = await this.userService.create(input)
 
     return {
@@ -54,15 +94,30 @@ export class UserResolver {
   }
 
   @Mutation(() => dto.UserUpdateResponse)
-  async userUpdate (
+  async userUpdate(
     @Args('id', { type: () => Int }) id: number,
-    @Args('input') input: dto.UserUpdateInput
+    @Args('input') input: dto.UserUpdateInput,
+    @CurrentUser() currentUser?: User
   ): Promise<dto.UserUpdateResponse> {
+    if (!currentUser) {
+      return {
+        error: new AuthenticationError(),
+        success: false
+      }
+    }
+
     const record = await this.userService.findById(id)
 
     if (!record) {
       return {
         error: new NotFoundError(),
+        success: false
+      }
+    }
+
+    if (currentUser.role !== UserRole.Administrator) {
+      return {
+        error: new NotAllowedError(),
         success: false
       }
     }
@@ -75,16 +130,30 @@ export class UserResolver {
     }
   }
 
-  
   @Mutation(() => DefaultMutationResponse)
-  async userDelete (
-    @Args('id', { type: () => Int }) id: number
+  async userDelete(
+    @Args('id', { type: () => Int }) id: number,
+    @CurrentUser() currentUser?: User
   ): Promise<DefaultMutationResponse> {
+    if (!currentUser) {
+      return {
+        error: new AuthenticationError(),
+        success: false
+      }
+    }
+
     const record = await this.userService.findById(id)
 
     if (!record) {
       return {
         error: new NotFoundError(),
+        success: false
+      }
+    }
+
+    if (currentUser.role !== UserRole.Administrator) {
+      return {
+        error: new NotAllowedError(),
         success: false
       }
     }

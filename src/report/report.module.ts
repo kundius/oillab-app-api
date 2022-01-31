@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { ContextModule } from '@app/context/context.module'
 import { UserModule } from '@app/user/user.module'
 import { VehicleModule } from '@app/vehicle/vehicle.module'
 import { FileModule } from '@app/file/file.module'
@@ -12,7 +11,6 @@ import { ReportService } from './services/report.service'
 
 @Module({
   imports: [
-    ContextModule,
     UserModule,
     VehicleModule,
     FileModule,

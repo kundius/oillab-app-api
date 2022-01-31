@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql'
 
-import { DefaultError } from './DefaultError'
+import { DefaultError } from './errors/DefaultError'
 
 @ObjectType()
 export class DefaultMutationResponse {

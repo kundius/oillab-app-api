@@ -4,9 +4,9 @@ import { Type } from 'class-transformer'
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { Report } from '@app/report/entities/report.entity'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
-import { StringFilter } from '@app/graphql/StringFilter'
-import { DateFilter } from '@app/graphql/DateFilter'
-import { NumberFilter } from '@app/graphql/NumberFilter'
+import { StringFilter } from '@app/graphql/filters/StringFilter'
+import { DateFilter } from '@app/graphql/filters/DateFilter'
+import { NumberFilter } from '@app/graphql/filters/NumberFilter'
 import { File } from '@app/file/file.entity'
 
 @InputType()
