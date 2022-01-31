@@ -105,8 +105,10 @@ export class ReportService {
         record.number = null
       } else {
         const client = await this.userService.findByIdOrFail(input.client)
-        record.client = Promise.resolve(client)
-        record.number = await this.getNewNumber(client)
+        if (client.id !== (await record.client)?.id) {
+          record.client = Promise.resolve(client)
+          record.number = await this.getNewNumber(client)
+        }
       }
     }
     if (typeof input.vehicle !== 'undefined') {
