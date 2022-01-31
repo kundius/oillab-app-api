@@ -1,10 +1,4 @@
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Args,
-  Int
-} from '@nestjs/graphql'
+import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 
 import { GqlAuthGuard } from '@app/auth/auth.guard'
@@ -21,9 +15,7 @@ import * as dto from '../dto/user.dto'
 @Resolver(() => User)
 @UseGuards(GqlAuthGuard)
 export class UserResolver {
-  constructor(
-    private readonly userService: UserService
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Query(() => User, { nullable: true })
   async user(
@@ -44,7 +36,7 @@ export class UserResolver {
     if (currentUser) {
       await this.userService.updateLastActivity(currentUser)
     }
-    return currentUser
+    return currentUser instanceof User ? currentUser : undefined
   }
 
   @Query(() => dto.UserPaginateResponse)
