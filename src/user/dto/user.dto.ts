@@ -3,7 +3,7 @@ import { Type } from 'class-transformer'
 
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { StringFilter } from '@app/graphql/filters/StringFilter'
-import { User } from '@app/user/entities/user.entity'
+import { User, UserRole } from '@app/user/entities/user.entity'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
 
 @InputType()
@@ -16,6 +16,9 @@ export class UserCreateInput {
 
   @Field()
   email: string
+
+  @Field()
+  role: UserRole
 }
 
 @ObjectType()
@@ -34,6 +37,9 @@ export class UserUpdateInput {
 
   @Field({ nullable: true })
   email?: string
+
+  @Field({ nullable: true })
+  role?: UserRole
 }
 
 @ObjectType()

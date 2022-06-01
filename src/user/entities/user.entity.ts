@@ -29,7 +29,8 @@ import { File } from '@app/file/file.entity'
 
 export enum UserRole {
   Member = 'Member',
-  Administrator = 'Administrator'
+  Administrator = 'Administrator',
+  Manager = 'Manager'
 }
 
 registerEnumType(UserRole, {

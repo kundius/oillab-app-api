@@ -46,10 +46,10 @@ export class ReportResolver {
       }
     }
 
-    if (currentUser.role !== UserRole.Administrator) {
-      return this.reportService.paginate(args, currentUser)
-    } else {
+    if ([UserRole.Administrator, UserRole.Manager].includes(currentUser.role)) {
       return this.reportService.paginate(args)
+    } else {
+      return this.reportService.paginate(args, currentUser)
     }
   }
 
@@ -68,7 +68,9 @@ export class ReportResolver {
     const file = await this.reportService.generatePdf(
       args.filter,
       args.sort,
-      currentUser.role !== UserRole.Administrator ? currentUser : undefined
+      [UserRole.Administrator, UserRole.Manager].includes(currentUser.role)
+        ? undefined
+        : currentUser
     )
 
     return {
@@ -172,6 +174,43 @@ export class ReportResolver {
     await this.reportService.delete(record)
 
     return {
+      success: true
+    }
+  }
+
+  @Mutation(() => dto.ReportUpdateApplicationFormResponse)
+  async reportUpdateApplicationForm(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('input') input: dto.ReportUpdateApplicationFormInput,
+    @CurrentUser() currentUser?: User
+  ): Promise<dto.ReportUpdateApplicationFormResponse> {
+    if (!currentUser) {
+      return {
+        error: new AuthenticationError(),
+        success: false
+      }
+    }
+
+    const record = await this.reportService.findById(id)
+
+    if (!record) {
+      return {
+        error: new NotFoundError(),
+        success: false
+      }
+    }
+
+    if (currentUser.role !== UserRole.Administrator) {
+      return {
+        error: new NotAllowedError(),
+        success: false
+      }
+    }
+
+    await this.reportService.updateApplicationForm(record, input)
+
+    return {
+      record,
       success: true
     }
   }

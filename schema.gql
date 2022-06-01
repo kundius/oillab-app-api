@@ -23,6 +23,34 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type ReportApplicationForm {
+  customerOrganization: String
+  customerPhone: String
+  customerPerson: String
+  customerEmail: String
+  vehicleEquipmentManufacturer: String
+  vehicleRegistrationNumber: String
+  vehicleEquipmentModel: String
+  vehicleTotalOperatingTime: String
+  vehicleSamplingPoint: String
+  vehicleTotalOperatingTimeLubricant: String
+  vehicleLiquidVolume: String
+  vehicleToppingUpLubricant: String
+  lubricantBrand: String
+  lubricantViscosity: String
+  lubricantModel: String
+  lubricantState: String
+  selectionType: String
+  selectionBrand: String
+  selectionVolume: String
+  selectionPlace: String
+  note: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  report: Report
+  id: Float!
+}
+
 type Report {
   number: Int
   note: String
@@ -33,6 +61,7 @@ type Report {
   vehicle: Vehicle
   laboratoryResult: File
   expressLaboratoryResult: File
+  applicationForm: ReportApplicationForm
   id: Float!
   lubricant: String!
   totalMileage: String!
@@ -70,6 +99,7 @@ type User {
 enum UserRole {
   Member
   Administrator
+  Manager
 }
 
 type NotFoundError implements DefaultError {
@@ -150,6 +180,12 @@ type ReportGeneratePdfResponse {
   success: Boolean!
   error: DefaultError
   record: File
+}
+
+type ReportUpdateApplicationFormResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Report
 }
 
 type ValidationError implements DefaultError {
@@ -278,6 +314,7 @@ type Mutation {
   reportCreate(input: ReportCreateInput!): ReportCreateResponse!
   reportUpdate(input: ReportUpdateInput!, id: Int!): ReportUpdateResponse!
   reportDelete(id: Int!): DefaultMutationResponse!
+  reportUpdateApplicationForm(input: ReportUpdateApplicationFormInput!, id: Int!): ReportUpdateApplicationFormResponse!
 }
 
 input SignInInput {
@@ -289,12 +326,14 @@ input UserCreateInput {
   password: String!
   name: String!
   email: String!
+  role: String!
 }
 
 input UserUpdateInput {
   password: String
   name: String
   email: String
+  role: String
 }
 
 input VehicleCreateInput {
@@ -337,4 +376,28 @@ input ReportUpdateInput {
   vehicle: Int
   expressLaboratoryResult: Int
   laboratoryResult: Int
+}
+
+input ReportUpdateApplicationFormInput {
+  customerOrganization: String
+  customerPhone: String
+  customerPerson: String
+  customerEmail: String
+  vehicleEquipmentManufacturer: String
+  vehicleRegistrationNumber: String
+  vehicleEquipmentModel: String
+  vehicleTotalOperatingTime: String
+  vehicleSamplingPoint: String
+  vehicleTotalOperatingTimeLubricant: String
+  vehicleLiquidVolume: String
+  vehicleToppingUpLubricant: String
+  lubricantBrand: String
+  lubricantViscosity: String
+  lubricantModel: String
+  lubricantState: String
+  selectionType: String
+  selectionBrand: String
+  selectionVolume: String
+  selectionPlace: String
+  note: String
 }

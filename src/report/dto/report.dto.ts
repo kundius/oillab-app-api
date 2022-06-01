@@ -183,3 +183,75 @@ export class ReportGeneratePdfResponse extends DefaultMutationResponse {
   @Field(() => File, { nullable: true })
   record?: File
 }
+
+@InputType()
+export class ReportUpdateApplicationFormInput {
+  @Field({ nullable: true })
+  customerOrganization?: string
+
+  @Field({ nullable: true })
+  customerPhone?: string
+
+  @Field({ nullable: true })
+  customerPerson?: string
+
+  @Field({ nullable: true })
+  customerEmail?: string
+
+  @Field({ nullable: true })
+  vehicleEquipmentManufacturer?: string
+
+  @Field({ nullable: true })
+  vehicleRegistrationNumber?: string
+
+  @Field({ nullable: true })
+  vehicleEquipmentModel?: string
+
+  @Field({ nullable: true })
+  vehicleTotalOperatingTime?: string
+  
+  @Field({ nullable: true })
+  vehicleSamplingPoint?: string
+
+  @Field({ nullable: true })
+  vehicleTotalOperatingTimeLubricant?: string
+
+  @Field({ nullable: true })
+  vehicleLiquidVolume?: string
+
+  @Field({ nullable: true })
+  vehicleToppingUpLubricant?: string
+
+  @Field({ nullable: true })
+  lubricantBrand?: string
+
+  @Field({ nullable: true })
+  lubricantViscosity?: string
+
+  @Field({ nullable: true })
+  lubricantModel?: string
+
+  @Field({ nullable: true })
+  lubricantState?: string
+
+  @Field({ nullable: true })
+  selectionType?: string
+
+  @Field({ nullable: true })
+  selectionBrand?: string
+
+  @Field({ nullable: true })
+  selectionVolume?: string
+
+  @Field({ nullable: true })
+  selectionPlace?: string
+
+  @Field({ nullable: true })
+  note?: string
+}
+
+@ObjectType()
+export class ReportUpdateApplicationFormResponse extends DefaultMutationResponse {
+  @Field(() => Report, { nullable: true })
+  record?: Report
+}

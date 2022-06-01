@@ -10,6 +10,7 @@ import { nanoid } from '@app/utils/nanoid'
 
 import * as dto from '../dto/report.dto'
 import { Report } from '../entities/report.entity'
+import { ReportApplicationForm } from '../entities/reportApplicationForm.entity'
 import { File } from '@app/file/file.entity'
 import { User } from '@app/user/entities/user.entity'
 
@@ -18,6 +19,8 @@ export class ReportService {
   constructor(
     @InjectRepository(Report)
     private readonly reportRepository: Repository<Report>,
+    @InjectRepository(ReportApplicationForm)
+    private readonly applicationFormRepository: Repository<ReportApplicationForm>,
     private readonly userService: UserService,
     private readonly vehicleService: VehicleService,
     private readonly fileService: FileService
@@ -259,18 +262,18 @@ export class ReportService {
         case dto.ReportSort.TOTAL_MILEAGE_DESC:
           qb.orderBy('report.totalMileage', 'DESC')
           break
-          case dto.ReportSort.ID_ASC:
-            qb.orderBy('report.id', 'ASC')
-            break
-          case dto.ReportSort.ID_DESC:
-            qb.orderBy('report.id', 'DESC')
-            break
-          case dto.ReportSort.NUMBER_ASC:
-            qb.orderBy('report.number', 'ASC')
-            break
-          case dto.ReportSort.NUMBER_DESC:
-            qb.orderBy('report.number', 'DESC')
-            break
+        case dto.ReportSort.ID_ASC:
+          qb.orderBy('report.id', 'ASC')
+          break
+        case dto.ReportSort.ID_DESC:
+          qb.orderBy('report.id', 'DESC')
+          break
+        case dto.ReportSort.NUMBER_ASC:
+          qb.orderBy('report.number', 'ASC')
+          break
+        case dto.ReportSort.NUMBER_DESC:
+          qb.orderBy('report.number', 'DESC')
+          break
         default:
           throw new Error('Not implemented')
       }
@@ -543,5 +546,23 @@ export class ReportService {
       dir: 'report/pdf',
       name: nanoid()
     })
+  }
+
+  async updateApplicationForm(
+    report: Report,
+    input: dto.ReportUpdateApplicationFormInput
+  ): Promise<Report> {
+    let applicationForm = await report.applicationForm
+    if (!applicationForm) {
+      applicationForm = await this.applicationFormRepository.create()
+      // report.applicationForm = Promise.resolve(applicationForm)
+      applicationForm.report = Promise.resolve(report)
+      // await this.reportRepository.save(report)
+    }
+    for (let key of Object.keys(input)) {
+      applicationForm[key] = input[key]
+    }
+    await this.applicationFormRepository.save(applicationForm)
+    return report
   }
 }

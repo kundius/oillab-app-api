@@ -41,6 +41,7 @@
     "passport-jwt": "^4.0.0",
     "pg": "^8.7.1",
     "phantomjs": "^2.1.7",
+    "phantomjs-prebuilt": "^2.1.16",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.3.0",
     "typeorm": "^0.2.37",

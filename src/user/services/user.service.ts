@@ -4,7 +4,7 @@ import { Repository, SelectQueryBuilder } from 'typeorm'
 import * as argon2 from 'argon2'
 
 import * as dto from '../dto/user.dto'
-import { User } from '../entities/user.entity'
+import { User, UserRole } from '../entities/user.entity'
 
 @Injectable()
 export class UserService {
@@ -66,6 +66,7 @@ export class UserService {
     const record = await this.userRepository.create()
     record.name = input.name
     record.email = input.email
+    record.role = input.role
     record.password = await this.generatePasswordHash(input.password)
     await this.userRepository.save(record)
     return record
@@ -80,6 +81,9 @@ export class UserService {
     }
     if (typeof input.password !== 'undefined') {
       record.password = await this.generatePasswordHash(input.password)
+    }
+    if (typeof input.role !== 'undefined') {
+      record.role = input.role
     }
     await this.userRepository.save(record)
     return record
