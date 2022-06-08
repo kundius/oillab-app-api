@@ -52,6 +52,7 @@ export class User {
   @Column({ unique: true })
   email: string
 
+  @Field(() => UserRole)
   @Column({
     type: 'enum',
     enum: UserRole,

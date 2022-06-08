@@ -3,6 +3,7 @@ import { Type } from 'class-transformer'
 
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { Report } from '@app/report/entities/report.entity'
+import { ProductType } from '@app/report/entities/reportApplicationForm.entity'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
 import { StringFilter } from '@app/graphql/filters/StringFilter'
 import { DateFilter } from '@app/graphql/filters/DateFilter'
@@ -187,6 +188,9 @@ export class ReportGeneratePdfResponse extends DefaultMutationResponse {
 @InputType()
 export class ReportUpdateApplicationFormInput {
   @Field({ nullable: true })
+  productType?: ProductType
+
+  @Field({ nullable: true })
   customerOrganization?: string
 
   @Field({ nullable: true })
@@ -233,9 +237,6 @@ export class ReportUpdateApplicationFormInput {
 
   @Field({ nullable: true })
   lubricantState?: string
-
-  @Field({ nullable: true })
-  selectionType?: string
 
   @Field({ nullable: true })
   selectionBrand?: string

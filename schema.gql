@@ -24,6 +24,7 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type ReportApplicationForm {
+  productType: ProductType
   customerOrganization: String
   customerPhone: String
   customerPerson: String
@@ -40,7 +41,6 @@ type ReportApplicationForm {
   lubricantViscosity: String
   lubricantModel: String
   lubricantState: String
-  selectionType: String
   selectionBrand: String
   selectionVolume: String
   selectionPlace: String
@@ -49,6 +49,12 @@ type ReportApplicationForm {
   updatedAt: DateTime!
   report: Report
   id: Float!
+}
+
+enum ProductType {
+  Fuel
+  Oil
+  Coolant
 }
 
 type Report {
@@ -84,6 +90,7 @@ type Vehicle {
 type User {
   name: String!
   email: String
+  role: UserRole!
   isActive: Boolean!
   lastActivityAt: DateTime!
   createdAt: DateTime!
@@ -92,7 +99,6 @@ type User {
   reports: [Report!]!
   files: [File]!
   id: Float!
-  role: UserRole!
   password: String!
 }
 
@@ -379,6 +385,7 @@ input ReportUpdateInput {
 }
 
 input ReportUpdateApplicationFormInput {
+  productType: String
   customerOrganization: String
   customerPhone: String
   customerPerson: String
@@ -395,7 +402,6 @@ input ReportUpdateApplicationFormInput {
   lubricantViscosity: String
   lubricantModel: String
   lubricantState: String
-  selectionType: String
   selectionBrand: String
   selectionVolume: String
   selectionPlace: String

@@ -10,7 +10,7 @@ import { nanoid } from '@app/utils/nanoid'
 
 import * as dto from '../dto/report.dto'
 import { Report } from '../entities/report.entity'
-import { ReportApplicationForm } from '../entities/reportApplicationForm.entity'
+import { ProductType, ReportApplicationForm } from '../entities/reportApplicationForm.entity'
 import { File } from '@app/file/file.entity'
 import { User } from '@app/user/entities/user.entity'
 
@@ -564,5 +564,35 @@ export class ReportService {
     }
     await this.applicationFormRepository.save(applicationForm)
     return report
+  }
+
+
+  getProductTypeLabel(type?: ProductType | null) {
+    if (type === ProductType.Coolant) {
+      return 'Т'
+    }
+    if (type === ProductType.Fuel) {
+      return 'ОЖ'
+    }
+    if (type === ProductType.Oil) {
+      return 'СМ'
+    }
+    return type
+  }
+
+  async getApplicationFormNumber(report: Report): Promise<string | undefined> {
+    const applicationForm = await report.applicationForm
+    const client = await report.client
+    const vehicle = await report.vehicle
+    const productType = this.getProductTypeLabel(applicationForm?.productType)
+    const numberArr = [
+      productType || 'X',
+      client?.name || 'X',
+      vehicle?.model || 'X',
+      report?.totalMileage || 'X',
+      report?.sampledAt.toLocaleDateString('ru-RU') || 'X'
+    ]
+    const number = numberArr.join(' - ')
+    return number
   }
 }

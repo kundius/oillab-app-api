@@ -28,11 +28,29 @@ import { Vehicle } from '@app/vehicle/entities/vehicle.entity'
 import { File } from '@app/file/file.entity'
 import { Report } from './report.entity'
 
+export enum ProductType {
+  Fuel = 'Fuel',
+  Oil = 'Oil',
+  Coolant = 'Coolant'
+}
+
+registerEnumType(ProductType, {
+  name: 'ProductType'
+})
+
 @Entity()
 @ObjectType()
 export class ReportApplicationForm {
   @PrimaryGeneratedColumn()
   id: number
+
+  @Field(() => ProductType, { nullable: true })
+  @Column({
+    type: 'enum',
+    enum: ProductType,
+    nullable: true
+  })
+  productType: ProductType | null
 
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
@@ -97,10 +115,6 @@ export class ReportApplicationForm {
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
   lubricantState: string | null
-
-  @Field(() => String, { nullable: true })
-  @Column({ type: 'text', nullable: true })
-  selectionType: string | null
 
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })

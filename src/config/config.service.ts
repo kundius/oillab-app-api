@@ -15,6 +15,10 @@ class ConfigService {
     return this
   }
 
+  public getOrigin (): string {
+    return this.getValue('APP_ORIGIN', true)
+  }
+
   public getPort (): string {
     return this.getValue('APP_PORT', true)
   }
