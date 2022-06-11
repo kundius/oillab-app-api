@@ -28,11 +28,29 @@ import { Vehicle } from '@app/vehicle/entities/vehicle.entity'
 import { File } from '@app/file/file.entity'
 import { ReportApplicationForm } from './reportApplicationForm.entity'
 
+export enum ReportColor {
+  Red = 'Red',
+  Yellow = 'Yellow',
+  LightGreen = 'LightGreen'
+}
+
+registerEnumType(ReportColor, {
+  name: 'ReportColor'
+})
+
 @Entity()
 @ObjectType()
 export class Report {
   @PrimaryGeneratedColumn()
   id: number
+
+  @Field(() => ReportColor, { nullable: true })
+  @Column({
+    type: 'enum',
+    enum: ReportColor,
+    nullable: true
+  })
+  color: ReportColor | null
 
   @Field(() => Int, { nullable: true })
   @Column({ type: 'integer', nullable: true })

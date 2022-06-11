@@ -2,7 +2,7 @@ import { InputType, Field, Int, ArgsType, ObjectType, registerEnumType } from '@
 import { Type } from 'class-transformer'
 
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
-import { Report } from '@app/report/entities/report.entity'
+import { Report, ReportColor } from '@app/report/entities/report.entity'
 import { ProductType } from '@app/report/entities/reportApplicationForm.entity'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
 import { StringFilter } from '@app/graphql/filters/StringFilter'
@@ -12,6 +12,9 @@ import { File } from '@app/file/file.entity'
 
 @InputType()
 export class ReportCreateInput {
+  @Field({ nullable: true })
+  color?: ReportColor
+
   @Field()
   lubricant: string
 
@@ -51,6 +54,9 @@ export class ReportCreateResponse extends DefaultMutationResponse {
 
 @InputType()
 export class ReportUpdateInput {
+  @Field({ nullable: true })
+  color?: ReportColor
+
   @Field({ nullable: true })
   lubricant?: string
 
@@ -104,7 +110,9 @@ export enum ReportSort {
   ID_ASC,
   ID_DESC,
   NUMBER_ASC,
-  NUMBER_DESC
+  NUMBER_DESC,
+  COLOR_ASC,
+  COLOR_DESC
 }
 
 registerEnumType(ReportSort, {
@@ -113,6 +121,9 @@ registerEnumType(ReportSort, {
 
 @InputType()
 export class ReportFilter {
+  @Field({ nullable: true })
+  color?: StringFilter
+
   @Field({ nullable: true })
   lubricant?: StringFilter
 

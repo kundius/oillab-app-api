@@ -58,6 +58,7 @@ enum ProductType {
 }
 
 type Report {
+  color: ReportColor
   number: Int
   note: String
   sampledAt: DateTime!
@@ -73,6 +74,12 @@ type Report {
   totalMileage: String!
   lubricantMileage: String!
   samplingNodes: String!
+}
+
+enum ReportColor {
+  Red
+  Yellow
+  LightGreen
 }
 
 type Vehicle {
@@ -280,9 +287,12 @@ enum ReportSort {
   ID_DESC
   NUMBER_ASC
   NUMBER_DESC
+  COLOR_ASC
+  COLOR_DESC
 }
 
 input ReportFilter {
+  color: StringFilter
   lubricant: StringFilter
   totalMileage: StringFilter
   lubricantMileage: StringFilter
@@ -359,6 +369,7 @@ input VehicleUpdateInput {
 }
 
 input ReportCreateInput {
+  color: String
   lubricant: String!
   totalMileage: String!
   lubricantMileage: String!
@@ -372,6 +383,7 @@ input ReportCreateInput {
 }
 
 input ReportUpdateInput {
+  color: String
   lubricant: String
   totalMileage: String
   lubricantMileage: String

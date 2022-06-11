@@ -57,6 +57,7 @@ export class ReportService {
     record.lubricantMileage = input.lubricantMileage
     record.samplingNodes = input.samplingNodes
     record.note = input.note || null
+    record.color = input.color || null
     record.sampledAt = input.sampledAt
     if (!!input.vehicle) {
       const vehicle = await this.vehicleService.findByIdOrFail(input.vehicle)
@@ -98,6 +99,9 @@ export class ReportService {
     }
     if (typeof input.note !== 'undefined') {
       record.note = input.note
+    }
+    if (typeof input.color !== 'undefined') {
+      record.color = input.color
     }
     if (typeof input.sampledAt !== 'undefined') {
       record.sampledAt = input.sampledAt
@@ -274,6 +278,12 @@ export class ReportService {
         case dto.ReportSort.NUMBER_DESC:
           qb.orderBy('report.number', 'DESC')
           break
+        case dto.ReportSort.COLOR_ASC:
+          qb.orderBy('report.color', 'ASC')
+          break
+        case dto.ReportSort.COLOR_DESC:
+          qb.orderBy('report.color', 'DESC')
+          break
         default:
           throw new Error('Not implemented')
       }
@@ -285,6 +295,18 @@ export class ReportService {
     qb: SelectQueryBuilder<Report>,
     filter: dto.ReportFilter
   ): SelectQueryBuilder<Report> {
+    if (filter.color) {
+      if (filter.color.eq) {
+        qb.andWhere('report.color LIKE :colorEq', {
+          colorEq: filter.color.eq
+        })
+      }
+      if (filter.color.contains) {
+        qb.andWhere('report.color LIKE :colorContains', {
+          colorContains: `%${filter.color.contains}%`
+        })
+      }
+    }
     if (filter.lubricant) {
       if (filter.lubricant.eq) {
         qb.andWhere('report.lubricant LIKE :lubricantEq', {
