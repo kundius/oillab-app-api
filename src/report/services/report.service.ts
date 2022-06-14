@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, SelectQueryBuilder } from 'typeorm'
-import * as HtmlPdf from 'html-pdf'
+import puppeteer from 'puppeteer'
 
 import { UserService } from '@app/user/services/user.service'
 import { VehicleService } from '@app/vehicle/services/vehicle.service'
@@ -527,7 +527,7 @@ export class ReportService {
     const html = `
       <style>
         table {
-          font-size: 6px;
+          font-size: 12px;
           width: 100%;
           border: 1px solid #e1e6eb;
           border-collapse: collapse;
@@ -559,12 +559,18 @@ export class ReportService {
         ${itemsHtml.join('')}
       </table>
     `
-    const pdfBuffer: Buffer = await new Promise((resolve) => {
-      HtmlPdf.create(html).toBuffer((err, buffer) => resolve(buffer))
+
+    const browser = await puppeteer.launch()
+    const page = await browser.newPage()
+    await page.setContent(html)
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true
     })
+    await browser.close()
 
     return await this.fileService.uploadAndCreateFile({
-      buffer: pdfBuffer,
+      buffer: pdf,
       dir: 'report/pdf',
       name: nanoid()
     })

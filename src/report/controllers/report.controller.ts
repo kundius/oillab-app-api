@@ -9,16 +9,13 @@ import {
   NotFoundException,
   Param
 } from '@nestjs/common'
-import { createReadStream } from 'fs'
-import { join } from 'path'
 import { AuthGuard } from '@nestjs/passport'
-import * as HtmlPdf from 'html-pdf'
 import { configService } from '@app/config/config.service'
 import { CurrentUser } from '@app/auth/CurrentUser'
 import { User, UserRole } from '@app/user/entities/user.entity'
-import { Report } from '../entities/report.entity'
 import { ProductType } from '../entities/reportApplicationForm.entity'
 import { ReportService } from '../services/report.service'
+import puppeteer from 'puppeteer'
 
 @Controller('report')
 export class ReportController {
@@ -468,11 +465,17 @@ export class ReportController {
         </div>
       </div>
     `
-    const pdfBuffer: Buffer = await new Promise((resolve) => {
-      HtmlPdf.create(html).toBuffer((err, buffer) => resolve(buffer))
-    })
 
-    return new StreamableFile(pdfBuffer)
+    const browser = await puppeteer.launch()
+    const page = await browser.newPage()
+    await page.setContent(html)
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true
+    })
+    await browser.close()
+
+    return new StreamableFile(pdf)
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -622,10 +625,16 @@ export class ReportController {
       </tr>
     </table>
     `
-    const pdfBuffer: Buffer = await new Promise((resolve) => {
-      HtmlPdf.create(html).toBuffer((err, buffer) => resolve(buffer))
-    })
 
-    return new StreamableFile(pdfBuffer)
+    const browser = await puppeteer.launch()
+    const page = await browser.newPage()
+    await page.setContent(html)
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true
+    })
+    await browser.close()
+
+    return new StreamableFile(pdf)
   }
 }
