@@ -531,7 +531,7 @@ export class ReportService {
     const html = `
       <style>
         table {
-          font-size: 10px;
+          font-size: 8px;
           width: 100%;
           border: 1px solid #e1e6eb;
           border-collapse: collapse;
