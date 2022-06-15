@@ -676,6 +676,7 @@ export class ReportController {
       marginRight: 0,
       marginBottom: 0,
       encoding: 'utf8',
+      dpi: 300,
       disableSmartShrinking: true
     }).pipe(response)
   }
