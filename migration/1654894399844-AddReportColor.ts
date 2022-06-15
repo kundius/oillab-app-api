@@ -4,11 +4,11 @@ export class AddReportColor1654894399844 implements MigrationInterface {
     name = 'AddReportColor1654894399844'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE \`oillab\`.\`report\` ADD \`color\` enum ('Red', 'Yellow', 'LightGreen') NULL`);
+        await queryRunner.query(`ALTER TABLE \`report\` ADD \`color\` enum ('Red', 'Yellow', 'LightGreen') NULL`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE \`oillab\`.\`report\` DROP COLUMN \`color\``);
+        await queryRunner.query(`ALTER TABLE \`report\` DROP COLUMN \`color\``);
     }
 
 }
