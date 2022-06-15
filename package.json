@@ -33,15 +33,16 @@
     "file-type": "^16.5.3",
     "graphql": "^15.5.3",
     "graphql-fields-to-relations": "^1.0.4",
+    "html-pdf-node": "^1.0.8",
     "mysql": "^2.18.1",
     "nanoid": "^3.1.25",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
-    "puppeteer": "^14.4.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.3.0",
     "typeorm": "^0.2.37",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "wkhtmltopdf": "^0.4.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.1.1",

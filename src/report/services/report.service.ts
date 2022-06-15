@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, SelectQueryBuilder } from 'typeorm'
-import puppeteer from 'puppeteer'
+
+const wkhtmltopdf = require('wkhtmltopdf')
 
 import { UserService } from '@app/user/services/user.service'
 import { VehicleService } from '@app/vehicle/services/vehicle.service'
@@ -10,7 +11,10 @@ import { nanoid } from '@app/utils/nanoid'
 
 import * as dto from '../dto/report.dto'
 import { Report } from '../entities/report.entity'
-import { ProductType, ReportApplicationForm } from '../entities/reportApplicationForm.entity'
+import {
+  ProductType,
+  ReportApplicationForm
+} from '../entities/reportApplicationForm.entity'
 import { File } from '@app/file/file.entity'
 import { User } from '@app/user/entities/user.entity'
 
@@ -527,7 +531,7 @@ export class ReportService {
     const html = `
       <style>
         table {
-          font-size: 12px;
+          font-size: 10px;
           width: 100%;
           border: 1px solid #e1e6eb;
           border-collapse: collapse;
@@ -560,17 +564,30 @@ export class ReportService {
       </table>
     `
 
-    const browser = await puppeteer.launch()
-    const page = await browser.newPage()
-    await page.setContent(html)
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true
-    })
-    await browser.close()
+    async function getPdf(html: string): Promise<Buffer> {
+      return new Promise<Buffer>((resolve, reject) => {
+        wkhtmltopdf(
+          html,
+          {
+            marginLeft: 0,
+            marginTop: 0,
+            marginRight: 0,
+            marginBottom: 0,
+            encoding: 'utf8',
+            disableSmartShrinking: true
+          },
+          function (err, stream) {
+            const _buf = Array<any>()
+            stream.on('data', (chunk) => _buf.push(chunk))
+            stream.on('end', () => resolve(Buffer.concat(_buf)))
+            stream.on('error', (err) => reject(`error converting stream - ${err}`))
+          }
+        )
+      })
+    }
 
     return await this.fileService.uploadAndCreateFile({
-      buffer: pdf,
+      buffer: await getPdf(html),
       dir: 'report/pdf',
       name: nanoid()
     })
@@ -593,7 +610,6 @@ export class ReportService {
     await this.applicationFormRepository.save(applicationForm)
     return report
   }
-
 
   getProductTypeLabel(type?: ProductType | null) {
     if (type === ProductType.Coolant) {

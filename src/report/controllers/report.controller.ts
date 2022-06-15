@@ -2,20 +2,22 @@ import {
   Controller,
   Get,
   Header,
-  StreamableFile,
   UseGuards,
   ForbiddenException,
   UnauthorizedException,
   NotFoundException,
-  Param
+  Param,
+  Res
 } from '@nestjs/common'
+import { Response } from 'express'
 import { AuthGuard } from '@nestjs/passport'
 import { configService } from '@app/config/config.service'
 import { CurrentUser } from '@app/auth/CurrentUser'
 import { User, UserRole } from '@app/user/entities/user.entity'
 import { ProductType } from '../entities/reportApplicationForm.entity'
 import { ReportService } from '../services/report.service'
-import puppeteer from 'puppeteer'
+
+const wkhtmltopdf = require('wkhtmltopdf')
 
 @Controller('report')
 export class ReportController {
@@ -27,8 +29,9 @@ export class ReportController {
   // @Header('Content-Disposition', 'attachment; filename=applicationForm.pdf')
   async applicationForm(
     @Param('id') id: string,
+    @Res() response: Response,
     @CurrentUser() currentUser?: User
-  ): Promise<StreamableFile> {
+  ): Promise<void> {
     if (!currentUser) {
       throw new UnauthorizedException()
     }
@@ -57,7 +60,9 @@ export class ReportController {
     }
 
     const applicationForm = await report.applicationForm
-    const productType = this.reportService.getProductTypeLabel(applicationForm?.productType)
+    const productType = this.reportService.getProductTypeLabel(
+      applicationForm?.productType
+    )
     const number = await this.reportService.getApplicationFormNumber(report)
 
     const html = `
@@ -116,12 +121,33 @@ export class ReportController {
           -webkit-flex-grow: 1;
           font-size: 1rem;
           line-height: 1.5rem;
-          background-image: repeating-linear-gradient(
-            #fff -0.075rem,
-            #fff calc(1.5rem - 0.15rem),
-            black calc(1.5rem - 0.15rem),
-            black calc(1.5rem - 0.075rem)
-          );
+          min-height: 1.5rem;
+          position: relative;
+          overflow: hidden;
+        }
+        .field__input::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 1.5rem;
+          margin-top: -1px;
+          width: 100%;
+          height: 1.5rem;
+          border-top: 1px solid currentColor;
+          border-bottom: 1px solid currentColor;
+          box-sizing: border-box;
+        }
+        .field__input::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 4.5rem;
+          margin-top: -1px;
+          width: 100%;
+          height: 1.5rem;
+          border-top: 1px solid currentColor;
+          border-bottom: 1px solid currentColor;
+          box-sizing: border-box;
         }
         .fields {
           margin-left: -1.5rem;
@@ -134,12 +160,12 @@ export class ReportController {
           border-spacing: 1.5rem 0.75rem;
         }
       </style>
-      <table>
+      <table style="font-size: 1rem">
         <tr>
           <td>
             <img src="${configService.getOrigin()}/images/logo.png" width="200" height="90" />
           </td>
-          <td style="text-align: center; vertical-align: middle;">
+          <td style="text-align: center; vertical-align: middle">
             Испытательная лаборатория (центр)<br />
             Общество с Ограниченной Ответственностью<br />
             <strong>«OILLAB»</strong>
@@ -234,7 +260,7 @@ export class ReportController {
       <div class="title-normal">
         Техника / точка отбора образца
       </div>
-      
+
       <div class="fields">
         <table>
           <tr>
@@ -466,16 +492,14 @@ export class ReportController {
       </div>
     `
 
-    const browser = await puppeteer.launch()
-    const page = await browser.newPage()
-    await page.setContent(html)
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true
-    })
-    await browser.close()
-
-    return new StreamableFile(pdf)
+    wkhtmltopdf(html, {
+      marginLeft: 0,
+      marginTop: 0,
+      marginRight: 0,
+      marginBottom: 0,
+      encoding: 'utf8',
+      disableSmartShrinking: true
+    }).pipe(response)
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -484,8 +508,9 @@ export class ReportController {
   // @Header('Content-Disposition', 'attachment; filename=registrationSticker.pdf')
   async registrationSticker(
     @Param('id') id: string,
+    @Res() response: Response,
     @CurrentUser() currentUser?: User
-  ): Promise<StreamableFile> {
+  ): Promise<void> {
     if (!currentUser) {
       throw new UnauthorizedException()
     }
@@ -524,7 +549,7 @@ export class ReportController {
         border: 1px solid #000000;
         width: 340px;
         height: 170px;
-        
+
         display: flex;
         display: -webkit-box;
         display: -webkit-flex;
@@ -562,12 +587,32 @@ export class ReportController {
       .field__input {
         font-size: 1rem;
         line-height: 1.5rem;
-        background-image: repeating-linear-gradient(
-          #fff -0.075rem,
-          #fff calc(1.5rem - 0.15rem),
-          black calc(1.5rem - 0.15rem),
-          black calc(1.5rem - 0.075rem)
-        );
+        position: relative;
+        overflow: hidden;
+      }
+      .field__input::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 1.5rem;
+        margin-top: -1px;
+        width: 100%;
+        height: 1.5rem;
+        border-top: 1px solid currentColor;
+        border-bottom: 1px solid currentColor;
+        box-sizing: border-box;
+      }
+      .field__input::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 4.5rem;
+        margin-top: -1px;
+        width: 100%;
+        height: 1.5rem;
+        border-top: 1px solid currentColor;
+        border-bottom: 1px solid currentColor;
+        box-sizing: border-box;
       }
     </style>
     `
@@ -626,15 +671,13 @@ export class ReportController {
     </table>
     `
 
-    const browser = await puppeteer.launch()
-    const page = await browser.newPage()
-    await page.setContent(html)
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true
-    })
-    await browser.close()
-
-    return new StreamableFile(pdf)
+    wkhtmltopdf(html, {
+      marginLeft: 0,
+      marginTop: 0,
+      marginRight: 0,
+      marginBottom: 0,
+      encoding: 'utf8',
+      disableSmartShrinking: true
+    }).pipe(response)
   }
 }
