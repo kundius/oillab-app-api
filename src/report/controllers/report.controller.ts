@@ -68,7 +68,7 @@ export class ReportController {
     const html = `
       <style>
         html, body {
-          font-size: 14px;
+          font-size: 13px;
           font-family: serif;
         }
         body {
