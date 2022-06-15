@@ -534,12 +534,6 @@ export class ReportController {
     html, body {
       font-size: 12px;
       padding: 0;
-      font-family: 'DejaVu Serif', serif;
-
-    }
-    * {
-      font-family: 'DejaVu Serif', serif;
-
     }
       table {
         width: 100%;
