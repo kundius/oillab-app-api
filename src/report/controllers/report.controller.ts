@@ -530,21 +530,15 @@ export class ReportController {
     const number = await this.reportService.getApplicationFormNumber(report)
 
     const style = `
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Serif:opsz,wght@8..144,400;8..144,700&display=swap" rel="stylesheet">
-
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto+Serif:opsz,wght@8..144,400;8..144,700&display=swap');
-
     html, body {
       font-size: 12px;
       padding: 0;
-      font-family: 'Roboto Serif', serif;
+      font-family: 'DejaVu Serif', serif;
 
     }
     * {
-      font-family: 'Roboto Serif', serif;
+      font-family: 'DejaVu Serif', serif;
 
     }
       table {
