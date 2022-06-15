@@ -69,6 +69,7 @@ export class ReportController {
       <style>
         html, body {
           font-size: 14px;
+          font-family: sans-serif;
         }
         body {
           padding: 1rem;
