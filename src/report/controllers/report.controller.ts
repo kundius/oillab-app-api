@@ -68,8 +68,7 @@ export class ReportController {
     const html = `
       <style>
         html, body {
-          font-size: 13px;
-          font-family: serif;
+          font-size: 12px;
         }
         body {
           padding: 1rem;
@@ -533,7 +532,7 @@ export class ReportController {
     const style = `
     <style>
       html, body {
-        font-size: 14px;
+        font-size: 12px;
         padding: 0;
         font-family: sans-serif;
       }
