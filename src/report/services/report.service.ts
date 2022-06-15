@@ -532,7 +532,7 @@ export class ReportService {
       <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
       <style>
         table {
-          font-size: 12px;
+          font-size: 10px;
           font-family: 'PT Serif', serif;
           width: 100%;
           border: 1px solid #e1e6eb;
