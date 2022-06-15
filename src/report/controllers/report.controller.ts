@@ -66,9 +66,11 @@ export class ReportController {
     const number = await this.reportService.getApplicationFormNumber(report)
 
     const html = `
+    <link href='http://fonts.googleapis.com/css?family=Jolly+Lodger' rel='stylesheet' type='text/css'>
       <style>
         html, body {
           font-size: 12px;
+          font-family: 'Jolly Lodger', cursive;
         }
         body {
           padding: 1rem;
@@ -530,13 +532,11 @@ export class ReportController {
     const number = await this.reportService.getApplicationFormNumber(report)
 
     const style = `
-    <link href='http://fonts.googleapis.com/css?family=Jolly+Lodger' rel='stylesheet' type='text/css'>
 
     <style>
     html, body {
       font-size: 12px;
       padding: 0;
-      font-family: 'Jolly Lodger', cursive;
     }
       table {
         width: 100%;
