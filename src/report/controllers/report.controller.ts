@@ -535,6 +535,8 @@ export class ReportController {
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Serif:opsz,wght@8..144,400;8..144,700&display=swap" rel="stylesheet">
 
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Serif:opsz,wght@8..144,400;8..144,700&display=swap');
+
     html, body {
       font-size: 12px;
       padding: 0;
