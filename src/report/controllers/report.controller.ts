@@ -531,9 +531,14 @@ export class ReportController {
 
     const style = `
     <style>
+    @font-face {
+      font-family: 'Sample Name';
+      src: url(file:///home/o/oillabg9/api.oillabvrn.ru/RobotoSerif-Regular.ttf) format('truetype');
+      }
     html, body {
       font-size: 12px;
       padding: 0;
+      font-family: 'Sample Name';
     }
       table {
         width: 100%;
