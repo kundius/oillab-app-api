@@ -541,11 +541,11 @@ export class ReportService {
         th {
           text-align: left;
           background: #f3f4f7;
-          padding: 5px;
+          padding: 2px;
           border: 1px solid #e1e6eb;
         }
         td {
-          padding: 5px;
+          padding: 2px;
           border: 1px solid #e1e6eb;
         }
       </style>
