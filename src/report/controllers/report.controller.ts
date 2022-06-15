@@ -70,7 +70,7 @@ export class ReportController {
       <style>
         html, body {
           font-size: 12px;
-          font-family: 'Jolly Lodger', cursive;
+          font-family: 'Roboto Serif', serif;
         }
         body {
           padding: 1rem;
