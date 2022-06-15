@@ -66,12 +66,12 @@ export class ReportController {
     const number = await this.reportService.getApplicationFormNumber(report)
 
     const html = `
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Serif:opsz,wght@8..144,400;8..144,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
 
       <style>
         html, body {
           font-size: 12px;
-          font-family: 'Roboto Serif', serif;
+          font-family: 'PT Serif', serif;
         }
         body {
           padding: 1rem;
