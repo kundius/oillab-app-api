@@ -66,8 +66,7 @@ export class ReportController {
     const number = await this.reportService.getApplicationFormNumber(report)
 
     const html = `
-    <link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
-
+      <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
       <style>
         html, body {
           font-size: 16px;
@@ -196,7 +195,7 @@ export class ReportController {
 
       <div class="field">
         <div class="field__label field__label_large">
-          № образца
+          №&nbsp;образца
         </div>
         <div class="field__input">
           ${number}
@@ -535,9 +534,11 @@ export class ReportController {
     const style = `
 
     <style>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
     html, body {
-      font-size: 12px;
+      font-size: 16px;
       padding: 0;
+      font-family: 'PT Sans', sans-serif;
     }
       table {
         width: 100%;
