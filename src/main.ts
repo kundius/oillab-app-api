@@ -1,4 +1,4 @@
-// import { ValidationPipe } from '@nestjs/common'
+import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { configService } from './config/config.service'
@@ -7,7 +7,7 @@ import { configService } from './config/config.service'
 async function bootstrap (): Promise<void> {
   const app = await NestFactory.create(AppModule)
   // app.useGlobalPipes(new ValidationPipe({
-  //   transform: true
+  //   transform: false
   // }))
   // app.use(graphqlUploadExpress())
   app.enableCors(configService.getCorsConfig())

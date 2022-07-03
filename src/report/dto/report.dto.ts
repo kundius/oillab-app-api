@@ -4,10 +4,11 @@ import { Type } from 'class-transformer'
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { Report, ReportColor } from '@app/report/entities/report.entity'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
-import { StringFilter } from '@app/graphql/filters/StringFilter'
-import { DateFilter } from '@app/graphql/filters/DateFilter'
-import { NumberFilter } from '@app/graphql/filters/NumberFilter'
+import { StringFilterOperator } from '@app/graphql/filters/StringFilterOperator'
+import { DateFilterOperator } from '@app/graphql/filters/DateFilterOperator'
+import { NumberFilterOperator } from '@app/graphql/filters/NumberFilterOperator'
 import { File } from '@app/file/file.entity'
+import { BaseFilter } from '@app/graphql/filters/BaseFilter'
 
 @InputType()
 export class ReportCreateInput {
@@ -125,42 +126,54 @@ registerEnumType(ReportSort, {
 })
 
 @InputType()
-export class ReportFilter {
+export class ReportFilter extends BaseFilter {
   @Field({ nullable: true })
-  color?: StringFilter
+  @Type(() => StringFilterOperator)
+  color?: StringFilterOperator
 
   @Field({ nullable: true })
-  lubricant?: StringFilter
+  @Type(() => StringFilterOperator)
+  lubricant?: StringFilterOperator
 
   @Field({ nullable: true })
-  totalMileage?: StringFilter
+  @Type(() => StringFilterOperator)
+  totalMileage?: StringFilterOperator
 
   @Field({ nullable: true })
-  lubricantMileage?: StringFilter
+  @Type(() => StringFilterOperator)
+  lubricantMileage?: StringFilterOperator
 
   @Field({ nullable: true })
-  clientName?: StringFilter
+  @Type(() => StringFilterOperator)
+  clientName?: StringFilterOperator
 
   @Field({ nullable: true })
-  vehicleModel?: StringFilter
+  @Type(() => StringFilterOperator)
+  vehicleModel?: StringFilterOperator
 
   @Field({ nullable: true })
-  vehicleStateNumber?: StringFilter
+  @Type(() => StringFilterOperator)
+  vehicleStateNumber?: StringFilterOperator
 
   @Field({ nullable: true })
-  vehicleReleaseYear?: StringFilter
+  @Type(() => StringFilterOperator)
+  vehicleReleaseYear?: StringFilterOperator
 
   @Field({ nullable: true })
-  vehicleEngineModel?: StringFilter
+  @Type(() => StringFilterOperator)
+  vehicleEngineModel?: StringFilterOperator
 
   @Field({ nullable: true })
-  samplingNodes?: StringFilter
+  @Type(() => StringFilterOperator)
+  samplingNodes?: StringFilterOperator
 
   @Field({ nullable: true })
-  sampledAt?: DateFilter
+  @Type(() => DateFilterOperator)
+  sampledAt?: DateFilterOperator
 
   @Field({ nullable: true })
-  id?: NumberFilter
+  @Type(() => NumberFilterOperator)
+  id?: NumberFilterOperator
 }
 
 @ArgsType()
@@ -203,26 +216,26 @@ export class ReportGeneratePdfResponse extends DefaultMutationResponse {
 
 @InputType()
 export class ReportUpdateApplicationFormInput {
-  @Field({ nullable: true })
-  vehicleEquipmentManufacturer?: string
+  // @Field({ nullable: true })
+  // vehicleEquipmentManufacturer?: string
 
-  @Field({ nullable: true })
-  vehicleRegistrationNumber?: string
+  // @Field({ nullable: true })
+  // vehicleRegistrationNumber?: string
 
-  @Field({ nullable: true })
-  vehicleEquipmentModel?: string
+  // @Field({ nullable: true })
+  // vehicleEquipmentModel?: string
 
-  @Field({ nullable: true })
-  vehicleTotalOperatingTime?: string
+  // @Field({ nullable: true })
+  // vehicleTotalOperatingTime?: string
   
   @Field({ nullable: true })
   vehicleSamplingPoint?: string
 
-  @Field({ nullable: true })
-  vehicleTotalOperatingTimeLubricant?: string
+  // @Field({ nullable: true })
+  // vehicleTotalOperatingTimeLubricant?: string
 
-  @Field({ nullable: true })
-  vehicleLiquidVolume?: string
+  // @Field({ nullable: true })
+  // vehicleLiquidVolume?: string
 
   @Field({ nullable: true })
   vehicleToppingUpLubricant?: string
@@ -230,14 +243,14 @@ export class ReportUpdateApplicationFormInput {
   @Field({ nullable: true })
   lubricantState?: string
 
-  @Field({ nullable: true })
-  selectionBrand?: string
+  // @Field({ nullable: true })
+  // selectionBrand?: string
 
   @Field({ nullable: true })
   selectionVolume?: string
 
-  @Field({ nullable: true })
-  selectionPlace?: string
+  // @Field({ nullable: true })
+  // selectionPlace?: string
 
   @Field({ nullable: true })
   note?: string

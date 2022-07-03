@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { plainToClass } from 'class-transformer'
 import { Repository, SelectQueryBuilder } from 'typeorm'
 
 import * as dto from '../dto/lubricant.dto'
@@ -89,22 +90,12 @@ export class LubricantService {
     return qb
   }
 
-  async applyFilter(
+  applyFilter(
     qb: SelectQueryBuilder<Lubricant>,
     filter: dto.LubricantFilter
-  ): Promise<SelectQueryBuilder<Lubricant>> {
-    for (let key of Object.keys(filter)) {
-      if (filter[key].eq) {
-        qb.andWhere(`${this.tableName}.${key} LIKE :${key}Eq`, {
-          [`${key}Eq`]: filter[key].eq
-        })
-      }
-      if (filter[key].contains) {
-        qb.andWhere(`${this.tableName}.${key} LIKE :${key}Contains`, {
-          [`${key}Contains`]: `%${filter[key].contains}%`
-        })
-      }
-    }
+  ): SelectQueryBuilder<Lubricant> {
+    let classFilter = plainToClass(dto.LubricantFilter, filter)
+    classFilter.applyFilter(this.tableName, qb)
     return qb
   }
 }

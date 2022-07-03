@@ -13,6 +13,7 @@ import {
 } from '@nestjs/graphql'
 
 import { Report } from '@app/report/entities/report.entity'
+import { Maybe } from 'graphql/jsutils/Maybe'
 
 export enum ProductType {
   Fuel = 'Fuel',
@@ -38,9 +39,9 @@ export class Lubricant {
   @Column()
   brand: string
 
-  @Field()
-  @Column()
-  viscosity: string
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
+  viscosity: Maybe<string>
 
   @Field(() => ProductType, { nullable: true })
   @Column({

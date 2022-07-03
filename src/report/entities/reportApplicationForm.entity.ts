@@ -35,33 +35,33 @@ export class ReportApplicationForm {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Field(() => String, { nullable: true })
-  @Column({ type: 'text', nullable: true })
-  vehicleEquipmentManufacturer: string | null
+  // @Field(() => String, { nullable: true })
+  // @Column({ type: 'text', nullable: true })
+  // vehicleEquipmentManufacturer: string | null
 
-  @Field(() => String, { nullable: true })
-  @Column({ type: 'text', nullable: true })
-  vehicleRegistrationNumber: string | null
+  // @Field(() => String, { nullable: true })
+  // @Column({ type: 'text', nullable: true })
+  // vehicleRegistrationNumber: string | null
 
-  @Field(() => String, { nullable: true })
-  @Column({ type: 'text', nullable: true })
-  vehicleEquipmentModel: string | null
+  // @Field(() => String, { nullable: true })
+  // @Column({ type: 'text', nullable: true })
+  // vehicleEquipmentModel: string | null
 
-  @Field(() => String, { nullable: true })
-  @Column({ type: 'text', nullable: true })
-  vehicleTotalOperatingTime: string | null
+  // @Field(() => String, { nullable: true })
+  // @Column({ type: 'text', nullable: true })
+  // vehicleTotalOperatingTime: string | null
   
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
   vehicleSamplingPoint: string | null
 
-  @Field(() => String, { nullable: true })
-  @Column({ type: 'text', nullable: true })
-  vehicleTotalOperatingTimeLubricant: string | null
+  // @Field(() => String, { nullable: true })
+  // @Column({ type: 'text', nullable: true })
+  // vehicleTotalOperatingTimeLubricant: string | null
 
-  @Field(() => String, { nullable: true })
-  @Column({ type: 'text', nullable: true })
-  vehicleLiquidVolume: string | null
+  // @Field(() => String, { nullable: true })
+  // @Column({ type: 'text', nullable: true })
+  // vehicleLiquidVolume: string | null
 
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
@@ -71,17 +71,17 @@ export class ReportApplicationForm {
   @Column({ type: 'text', nullable: true })
   lubricantState: string | null
 
-  @Field(() => String, { nullable: true })
-  @Column({ type: 'text', nullable: true })
-  selectionBrand: string | null
+  // @Field(() => String, { nullable: true })
+  // @Column({ type: 'text', nullable: true })
+  // selectionBrand: string | null
 
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
   selectionVolume: string | null
 
-  @Field(() => String, { nullable: true })
-  @Column({ type: 'text', nullable: true })
-  selectionPlace: string | null
+  // @Field(() => String, { nullable: true })
+  // @Column({ type: 'text', nullable: true })
+  // selectionPlace: string | null
 
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })

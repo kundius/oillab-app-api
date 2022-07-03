@@ -1,11 +1,13 @@
 import { InputType, Field, Int, ArgsType, ObjectType, registerEnumType } from '@nestjs/graphql'
-import { Type } from 'class-transformer'
+import { Type } from 'class-transformer';
 
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
+import { UserFilter } from '@app/user/dto/user.dto'
 import { Vehicle } from '@app/vehicle/entities/vehicle.entity'
-import { StringFilter } from '@app/graphql/filters/StringFilter'
+import { StringFilterOperator } from '@app/graphql/filters/StringFilterOperator'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
-import { IdFilter } from '@app/graphql/filters/IdFilter'
+import { IdFilterOperator } from '@app/graphql/filters/IdFilterOperator'
+import { BaseFilter } from '@app/graphql/filters/BaseFilter';
 
 @InputType()
 export class VehicleCreateInput {
@@ -20,6 +22,9 @@ export class VehicleCreateInput {
 
   @Field()
   engineModel: string
+
+  @Field({ nullable: true })
+  liquidVolume?: string
 
   @Field()
   owner: number
@@ -46,6 +51,9 @@ export class VehicleUpdateInput {
   engineModel?: string
 
   @Field({ nullable: true })
+  liquidVolume?: string
+
+  @Field({ nullable: true })
   owner?: number
 }
 
@@ -56,16 +64,18 @@ export class VehicleUpdateResponse extends DefaultMutationResponse {
 }
 
 export enum VehicleSort {
-  MODEL_ASC,
-  MODEL_DESC,
-  RELEASE_YEAR_ASC,
-  RELEASE_YEAR_DESC,
-  STATE_NUMBER_ASC,
-  STATE_NUMBER_DESC,
-  ENGINE_MODEL_ASC,
-  ENGINE_MODEL_DESC,
-  GENERAL_OPERATING_TIME_ASC,
-  GENERAL_OPERATING_TIME_DESC
+  MODEL_ASC = "model_ASC",
+  MODEL_DESC = "model_DESC",
+  RELEASE_YEAR_ASC = "releaseYear_ASC",
+  RELEASE_YEAR_DESC = "releaseYear_DESC",
+  STATE_NUMBER_ASC = "stateNumber_ASC",
+  STATE_NUMBER_DESC = "stateNumber_DESC",
+  ENGINE_MODEL_ASC = "engineModel_ASC",
+  ENGINE_MODEL_DESC = "engineModel_DESC",
+  LIQUID_VOLUME_ASC = "liquidVolume_ASC",
+  LIQUID_VOLUME_DESC = "liquidVolume_DESC",
+  GENERAL_OPERATING_TIME_ASC = "generalOperatingTime_ASC",
+  GENERAL_OPERATING_TIME_DESC = "generalOperatingTime_DESC"
 }
 
 registerEnumType(VehicleSort, {
@@ -73,24 +83,38 @@ registerEnumType(VehicleSort, {
 })
 
 @InputType()
-export class VehicleFilter {
+export class VehicleFilter extends BaseFilter {
   @Field({ nullable: true })
-  model?: StringFilter
+  @Type(() => StringFilterOperator)
+  model?: StringFilterOperator
 
   @Field({ nullable: true })
-  releaseYear?: StringFilter
+  @Type(() => StringFilterOperator)
+  releaseYear?: StringFilterOperator
 
   @Field({ nullable: true })
-  stateNumber?: StringFilter
+  @Type(() => StringFilterOperator)
+  stateNumber?: StringFilterOperator
 
   @Field({ nullable: true })
-  engineModel?: StringFilter
+  @Type(() => StringFilterOperator)
+  engineModel?: StringFilterOperator
 
   @Field({ nullable: true })
-  ownerName?: StringFilter
+  @Type(() => StringFilterOperator)
+  liquidVolume?: StringFilterOperator
 
   @Field({ nullable: true })
-  ownerId?: IdFilter
+  @Type(() => StringFilterOperator)
+  ownerName?: StringFilterOperator
+
+  @Field({ nullable: true })
+  @Type(() => UserFilter)
+  owner?: UserFilter
+
+  @Field({ nullable: true })
+  @Type(() => IdFilterOperator)
+  ownerId?: IdFilterOperator
 }
 
 @ArgsType()

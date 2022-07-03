@@ -25,6 +25,7 @@ import {
 
 import { User } from '@app/user/entities/user.entity'
 import { Report } from '@app/report/entities/report.entity'
+import { Maybe } from 'graphql/jsutils/Maybe'
 
 @Entity()
 @ObjectType()
@@ -44,6 +45,10 @@ export class Vehicle {
 
   @Column()
   engineModel: string
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
+  liquidVolume: Maybe<string>
 
   @Field(() => Date)
   @CreateDateColumn()

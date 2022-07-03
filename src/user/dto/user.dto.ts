@@ -2,9 +2,10 @@ import { InputType, Field, Int, ID, ArgsType, ObjectType, registerEnumType, Floa
 import { Type } from 'class-transformer'
 
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
-import { StringFilter } from '@app/graphql/filters/StringFilter'
+import { StringFilterOperator } from '@app/graphql/filters/StringFilterOperator'
 import { User, UserRole } from '@app/user/entities/user.entity'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
+import { BaseFilter } from '@app/graphql/filters/BaseFilter'
 
 @InputType()
 export class UserCreateInput {
@@ -78,18 +79,22 @@ registerEnumType(UserSort, {
 })
 
 @InputType()
-export class UserFilter {
-  @Field(() => StringFilter, { nullable: true })
-  name?: StringFilter
+export class UserFilter extends BaseFilter {
+  @Field(() => StringFilterOperator, { nullable: true })
+  @Type(() => StringFilterOperator)
+  name?: StringFilterOperator
 
-  @Field(() => StringFilter, { nullable: true })
-  email?: StringFilter
+  @Field(() => StringFilterOperator, { nullable: true })
+  @Type(() => StringFilterOperator)
+  email?: StringFilterOperator
 
-  @Field(() => StringFilter, { nullable: true })
-  organization?: StringFilter
+  @Field(() => StringFilterOperator, { nullable: true })
+  @Type(() => StringFilterOperator)
+  organization?: StringFilterOperator
 
-  @Field(() => StringFilter, { nullable: true })
-  phone?: StringFilter
+  @Field(() => StringFilterOperator, { nullable: true })
+  @Type(() => StringFilterOperator)
+  phone?: StringFilterOperator
 }
 
 @ArgsType()

@@ -16,6 +16,7 @@ import { ReportApplicationForm } from '../entities/reportApplicationForm.entity'
 import { File } from '@app/file/file.entity'
 import { User } from '@app/user/entities/user.entity'
 import { ProductType } from '@app/lubricant/entities/lubricant.entity'
+import { plainToClass } from 'class-transformer'
 
 @Injectable()
 export class ReportService {
@@ -230,28 +231,8 @@ export class ReportService {
     qb: SelectQueryBuilder<Report>,
     filter: dto.ReportFilter
   ): SelectQueryBuilder<Report> {
-    for (let key of Object.keys(filter)) {
-      if (filter[key].eq) {
-        qb.andWhere(`${this.tableName}.${key} LIKE :${key}Eq`, {
-          [`${key}Eq`]: filter[key].eq
-        })
-      }
-      if (filter[key].contains) {
-        qb.andWhere(`${this.tableName}.${key} LIKE :${key}Contains`, {
-          [`${key}Contains`]: `%${filter[key].contains}%`
-        })
-      }
-      if (filter[key].lt) {
-        qb.andWhere(`${this.tableName}.${key} < :${key}Lt`, {
-          [`${key}Lt`]: filter[key].lt
-        })
-      }
-      if (filter[key].gt) {
-        qb.andWhere(`${this.tableName}.${key} < :${key}Gt`, {
-          [`${key}Gt`]: filter[key].gt
-        })
-      }
-    }
+    let classFilter = plainToClass(dto.ReportFilter, filter)
+    classFilter.applyFilter(this.tableName, qb)
     return qb
   }
 

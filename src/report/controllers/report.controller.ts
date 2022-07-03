@@ -61,6 +61,7 @@ export class ReportController {
 
     const applicationForm = await report.applicationForm
     const lubricant = await report?.lubricantEntity
+    const vehicle = await report?.vehicle
     const customer = await report?.client
     const productType = this.reportService.getProductTypeLabel(
       lubricant?.productType
@@ -274,7 +275,7 @@ export class ReportController {
                 Производитель оборудования
                 </div>
                 <div class="field__input">
-                  ${applicationForm?.vehicleEquipmentManufacturer || ''}
+                  ${vehicle?.model || ''}
                 </div>
               </div>
             </td>
@@ -284,7 +285,7 @@ export class ReportController {
               Регистрационный номер
               </div>
               <div class="field__input">
-                ${applicationForm?.vehicleRegistrationNumber || ''}
+                ${vehicle?.stateNumber || ''}
               </div>
             </div>
             </td>
@@ -296,7 +297,7 @@ export class ReportController {
               Модель оборудования
               </div>
               <div class="field__input">
-                ${applicationForm?.vehicleEquipmentModel || ''}
+                ${vehicle?.engineModel || ''}
               </div>
             </div>
             </td>
@@ -323,7 +324,7 @@ export class ReportController {
                 Общая наработка узла
                 </div>
                 <div class="field__input">
-                  ${applicationForm?.vehicleTotalOperatingTime || ''}
+                  ${report?.totalMileage || ''}
                 </div>
               </div>
             </td>
@@ -333,7 +334,7 @@ export class ReportController {
               Объём жидкости в оборудовании
               </div>
               <div class="field__input">
-                ${applicationForm?.vehicleLiquidVolume || ''}
+                ${vehicle?.liquidVolume || ''}
               </div>
             </div>
             </td>
@@ -345,7 +346,7 @@ export class ReportController {
               Общая наработка на СМ
               </div>
               <div class="field__input">
-                ${applicationForm?.vehicleTotalOperatingTimeLubricant || ''}
+                ${report?.totalMileage || ''}
               </div>
             </div>
             </td>
@@ -467,7 +468,7 @@ export class ReportController {
               Бренд
               </div>
               <div class="field__input">
-                ${applicationForm?.selectionBrand || ''}
+                ${lubricant?.brand || ''}
               </div>
             </div>
             </td>
@@ -477,7 +478,7 @@ export class ReportController {
               Место отбора пробы
               </div>
               <div class="field__input">
-                ${applicationForm?.selectionPlace || ''}
+                ${applicationForm?.vehicleSamplingPoint || ''}
               </div>
             </div>
             </td>

@@ -26,7 +26,7 @@ scalar DateTime
 type Lubricant {
   model: String!
   brand: String!
-  viscosity: String!
+  viscosity: String
   productType: ProductType
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -41,18 +41,10 @@ enum ProductType {
 }
 
 type ReportApplicationForm {
-  vehicleEquipmentManufacturer: String
-  vehicleRegistrationNumber: String
-  vehicleEquipmentModel: String
-  vehicleTotalOperatingTime: String
   vehicleSamplingPoint: String
-  vehicleTotalOperatingTimeLubricant: String
-  vehicleLiquidVolume: String
   vehicleToppingUpLubricant: String
   lubricantState: String
-  selectionBrand: String
   selectionVolume: String
-  selectionPlace: String
   note: String
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -88,6 +80,7 @@ enum ReportColor {
 
 type Vehicle {
   model: String!
+  liquidVolume: String
   createdAt: DateTime!
   updatedAt: DateTime!
   owner: User!
@@ -263,13 +256,13 @@ enum UserSort {
 }
 
 input UserFilter {
-  name: StringFilter
-  email: StringFilter
-  organization: StringFilter
-  phone: StringFilter
+  name: StringFilterOperator
+  email: StringFilterOperator
+  organization: StringFilterOperator
+  phone: StringFilterOperator
 }
 
-input StringFilter {
+input StringFilterOperator {
   eq: String
   contains: String
 }
@@ -283,20 +276,24 @@ enum VehicleSort {
   STATE_NUMBER_DESC
   ENGINE_MODEL_ASC
   ENGINE_MODEL_DESC
+  LIQUID_VOLUME_ASC
+  LIQUID_VOLUME_DESC
   GENERAL_OPERATING_TIME_ASC
   GENERAL_OPERATING_TIME_DESC
 }
 
 input VehicleFilter {
-  model: StringFilter
-  releaseYear: StringFilter
-  stateNumber: StringFilter
-  engineModel: StringFilter
-  ownerName: StringFilter
-  ownerId: IdFilter
+  model: StringFilterOperator
+  releaseYear: StringFilterOperator
+  stateNumber: StringFilterOperator
+  engineModel: StringFilterOperator
+  liquidVolume: StringFilterOperator
+  ownerName: StringFilterOperator
+  owner: UserFilter
+  ownerId: IdFilterOperator
 }
 
-input IdFilter {
+input IdFilterOperator {
   eq: Float
   in: [Int!]
 }
@@ -323,27 +320,27 @@ enum ReportSort {
 }
 
 input ReportFilter {
-  color: StringFilter
-  lubricant: StringFilter
-  totalMileage: StringFilter
-  lubricantMileage: StringFilter
-  clientName: StringFilter
-  vehicleModel: StringFilter
-  vehicleStateNumber: StringFilter
-  vehicleReleaseYear: StringFilter
-  vehicleEngineModel: StringFilter
-  samplingNodes: StringFilter
-  sampledAt: DateFilter
-  id: NumberFilter
+  color: StringFilterOperator
+  lubricant: StringFilterOperator
+  totalMileage: StringFilterOperator
+  lubricantMileage: StringFilterOperator
+  clientName: StringFilterOperator
+  vehicleModel: StringFilterOperator
+  vehicleStateNumber: StringFilterOperator
+  vehicleReleaseYear: StringFilterOperator
+  vehicleEngineModel: StringFilterOperator
+  samplingNodes: StringFilterOperator
+  sampledAt: DateFilterOperator
+  id: NumberFilterOperator
 }
 
-input DateFilter {
+input DateFilterOperator {
   eq: DateTime
   lt: DateTime
   gt: DateTime
 }
 
-input NumberFilter {
+input NumberFilterOperator {
   eq: Float
   lt: Float
   gt: Float
@@ -359,9 +356,9 @@ enum LubricantSort {
 }
 
 input LubricantFilter {
-  model: StringFilter
-  brand: StringFilter
-  viscosity: StringFilter
+  model: StringFilterOperator
+  brand: StringFilterOperator
+  viscosity: StringFilterOperator
 }
 
 type Mutation {
@@ -410,6 +407,7 @@ input VehicleCreateInput {
   releaseYear: String!
   stateNumber: String!
   engineModel: String!
+  liquidVolume: String
   owner: Float!
 }
 
@@ -418,6 +416,7 @@ input VehicleUpdateInput {
   releaseYear: String
   stateNumber: String
   engineModel: String
+  liquidVolume: String
   owner: Float
 }
 
@@ -452,18 +451,10 @@ input ReportUpdateInput {
 }
 
 input ReportUpdateApplicationFormInput {
-  vehicleEquipmentManufacturer: String
-  vehicleRegistrationNumber: String
-  vehicleEquipmentModel: String
-  vehicleTotalOperatingTime: String
   vehicleSamplingPoint: String
-  vehicleTotalOperatingTimeLubricant: String
-  vehicleLiquidVolume: String
   vehicleToppingUpLubricant: String
   lubricantState: String
-  selectionBrand: String
   selectionVolume: String
-  selectionPlace: String
   note: String
 }
 
@@ -471,7 +462,7 @@ input LubricantCreateInput {
   productType: String
   model: String!
   brand: String!
-  viscosity: String!
+  viscosity: String
 }
 
 input LubricantUpdateInput {

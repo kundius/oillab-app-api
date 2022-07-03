@@ -5,6 +5,7 @@ import * as argon2 from 'argon2'
 
 import * as dto from '../dto/user.dto'
 import { User, UserRole } from '../entities/user.entity'
+import { plainToClass } from 'class-transformer'
 
 @Injectable()
 export class UserService {
@@ -129,22 +130,12 @@ export class UserService {
     return qb
   }
 
-  async applyFilter (
+  applyFilter(
     qb: SelectQueryBuilder<User>,
     filter: dto.UserFilter
-  ): Promise<SelectQueryBuilder<User>> {
-    for (let key of Object.keys(filter)) {
-      if (filter[key].eq) {
-        qb.andWhere(`${this.tableName}.${key} LIKE :${key}Eq`, {
-          [`${key}Eq`]: filter[key].eq
-        })
-      }
-      if (filter[key].contains) {
-        qb.andWhere(`${this.tableName}.${key} LIKE :${key}Contains`, {
-          [`${key}Contains`]: `%${filter[key].contains}%`
-        })
-      }
-    }
+  ): SelectQueryBuilder<User> {
+    let classFilter = plainToClass(dto.UserFilter, filter)
+    classFilter.applyFilter(this.tableName, qb)
     return qb
   }
 }

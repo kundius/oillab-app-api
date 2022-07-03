@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, SelectQueryBuilder } from 'typeorm'
+import { plainToClass } from 'class-transformer';
+
 
 import { UserService } from '@app/user/services/user.service'
 
@@ -9,6 +11,8 @@ import { Vehicle } from '../entities/vehicle.entity'
 
 @Injectable()
 export class VehicleService {
+  tableName = "vehicle"
+
   constructor(
     @InjectRepository(Vehicle)
     private readonly vehicleRepository: Repository<Vehicle>,
@@ -24,35 +28,28 @@ export class VehicleService {
   }
 
   async create(input: dto.VehicleCreateInput) {
-    const owner = await this.userService.findByIdOrFail(input.owner)
     const record = await this.vehicleRepository.create()
-    record.engineModel = input.engineModel
-    record.model = input.model
-    record.owner = Promise.resolve(owner)
-    record.releaseYear = input.releaseYear
-    record.stateNumber = input.stateNumber
-    await this.vehicleRepository.save(record)
-    return record
+
+    return this.update(record, input)
   }
 
   async update(record: Vehicle, input: dto.VehicleUpdateInput) {
-    if (typeof input.engineModel !== 'undefined') {
-      record.engineModel = input.engineModel
+    const {
+      owner,
+      ...data
+    } = input
+
+    for (let key of Object.keys(data)) {
+      record[key] = data[key]
     }
-    if (typeof input.model !== 'undefined') {
-      record.model = input.model
+
+    if (typeof owner !== 'undefined') {
+      const ownerEntity = await this.userService.findByIdOrFail(owner)
+      record.owner = Promise.resolve(ownerEntity)
     }
-    if (typeof input.releaseYear !== 'undefined') {
-      record.releaseYear = input.releaseYear
-    }
-    if (typeof input.stateNumber !== 'undefined') {
-      record.stateNumber = input.stateNumber
-    }
-    if (typeof input.owner !== 'undefined') {
-      const owner = await this.userService.findByIdOrFail(input.owner)
-      record.owner = Promise.resolve(owner)
-    }
+
     await this.vehicleRepository.save(record)
+
     return record
   }
 
@@ -91,125 +88,23 @@ export class VehicleService {
     }
   }
 
-  async applySort(
+  applySort(
     qb: SelectQueryBuilder<Vehicle>,
     sort: dto.VehicleSort[]
-  ): Promise<SelectQueryBuilder<Vehicle>> {
+  ): SelectQueryBuilder<Vehicle> {
     for (const value of sort) {
-      switch (value) {
-        case dto.VehicleSort.MODEL_ASC:
-          qb.orderBy('vehicle.model', 'ASC')
-          break
-        case dto.VehicleSort.MODEL_DESC:
-          qb.orderBy('vehicle.model', 'DESC')
-          break
-        case dto.VehicleSort.ENGINE_MODEL_ASC:
-          qb.orderBy('vehicle.engineModel', 'ASC')
-          break
-        case dto.VehicleSort.ENGINE_MODEL_DESC:
-          qb.orderBy('vehicle.engineModel', 'DESC')
-          break
-        case dto.VehicleSort.RELEASE_YEAR_ASC:
-          qb.orderBy('vehicle.releaseYear', 'ASC')
-          break
-        case dto.VehicleSort.RELEASE_YEAR_DESC:
-          qb.orderBy('vehicle.releaseYear', 'DESC')
-          break
-        case dto.VehicleSort.STATE_NUMBER_ASC:
-          qb.orderBy('vehicle.stateNumber', 'ASC')
-          break
-        case dto.VehicleSort.STATE_NUMBER_DESC:
-          qb.orderBy('vehicle.stateNumber', 'DESC')
-          break
-        default:
-          throw new Error('Not implemented')
-      }
+      let arr = value.split('_') as [string, 'ASC' | 'DESC']
+      qb.orderBy(`${this.tableName}.${arr[0]}`, arr[1])
     }
     return qb
   }
 
-  async applyFilter(
+  applyFilter(
     qb: SelectQueryBuilder<Vehicle>,
     filter: dto.VehicleFilter
-  ): Promise<SelectQueryBuilder<Vehicle>> {
-    if (filter.engineModel) {
-      if (filter.engineModel.eq) {
-        qb.andWhere('vehicle.engineModel LIKE :engineModelEq', {
-          engineModelEq: filter.engineModel.eq
-        })
-      }
-      if (filter.engineModel.contains) {
-        qb.andWhere('vehicle.engineModel LIKE :engineModelContains', {
-          engineModelContains: `%${filter.engineModel.contains}%`
-        })
-      }
-    }
-    if (filter.model) {
-      if (filter.model.eq) {
-        qb.andWhere('vehicle.model LIKE :modelEq', {
-          modelEq: filter.model.eq
-        })
-      }
-      if (filter.model.contains) {
-        qb.andWhere('vehicle.model LIKE :modelContains', {
-          modelContains: `%${filter.model.contains}%`
-        })
-      }
-    }
-    if (filter.releaseYear) {
-      if (filter.releaseYear.eq) {
-        qb.andWhere('vehicle.releaseYear LIKE :releaseYearEq', {
-          releaseYearEq: filter.releaseYear.eq
-        })
-      }
-      if (filter.releaseYear.contains) {
-        qb.andWhere('vehicle.releaseYear LIKE :releaseYearContains', {
-          releaseYearContains: `%${filter.releaseYear.contains}%`
-        })
-      }
-    }
-    if (filter.stateNumber) {
-      if (filter.stateNumber.eq) {
-        qb.andWhere('vehicle.stateNumber LIKE :stateNumberEq', {
-          stateNumberEq: filter.stateNumber.eq
-        })
-      }
-      if (filter.stateNumber.contains) {
-        qb.andWhere('vehicle.stateNumber LIKE :stateNumberContains', {
-          stateNumberContains: `%${filter.stateNumber.contains}%`
-        })
-      }
-    }
-    if (filter.ownerName) {
-      if (filter.ownerName.eq) {
-        qb.leftJoin('vehicle.owner', 'owner').andWhere(
-          'owner.name LIKE :ownerNameEq',
-          {
-            ownerNameEq: filter.ownerName.eq
-          }
-        )
-      }
-      if (filter.ownerName.contains) {
-        qb.leftJoin('vehicle.owner', 'owner').andWhere(
-          'owner.name LIKE :ownerNameContains',
-          {
-            ownerNameContains: `%${filter.ownerName.contains}%`
-          }
-        )
-      }
-    }
-    if (filter.ownerId) {
-      if (filter.ownerId.eq) {
-        qb.andWhere('vehicle.owner = :ownerEq', {
-          ownerEq: filter.ownerId.eq
-        })
-      }
-      if (filter.ownerId.in) {
-        qb.andWhere('vehicle.owner IN :...ownerIn', {
-          ownerIn: filter.ownerId.in
-        })
-      }
-    }
+  ): SelectQueryBuilder<Vehicle> {
+    let classFilter = plainToClass(dto.VehicleFilter, filter)
+    classFilter.applyFilter(this.tableName, qb)
     return qb
   }
 }

@@ -3,9 +3,10 @@ import { Type } from 'class-transformer'
 
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { Lubricant, ProductType } from '@app/lubricant/entities/lubricant.entity'
-import { StringFilter } from '@app/graphql/filters/StringFilter'
+import { StringFilterOperator } from '@app/graphql/filters/StringFilterOperator'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
-import { IdFilter } from '@app/graphql/filters/IdFilter'
+import { IdFilterOperator } from '@app/graphql/filters/IdFilterOperator'
+import { BaseFilter } from '@app/graphql/filters/BaseFilter'
 
 @InputType()
 export class LubricantCreateInput {
@@ -18,8 +19,8 @@ export class LubricantCreateInput {
   @Field()
   brand: string
 
-  @Field()
-  viscosity: string
+  @Field({ nullable: true })
+  viscosity?: string
 }
 
 @ObjectType()
@@ -63,15 +64,18 @@ registerEnumType(LubricantSort, {
 })
 
 @InputType()
-export class LubricantFilter {
+export class LubricantFilter extends BaseFilter {
   @Field({ nullable: true })
-  model?: StringFilter
+  @Type(() => StringFilterOperator)
+  model?: StringFilterOperator
 
   @Field({ nullable: true })
-  brand?: StringFilter
+  @Type(() => StringFilterOperator)
+  brand?: StringFilterOperator
 
   @Field({ nullable: true })
-  viscosity?: StringFilter
+  @Type(() => StringFilterOperator)
+  viscosity?: StringFilterOperator
 }
 
 @ArgsType()
