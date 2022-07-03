@@ -3,7 +3,6 @@ import { Type } from 'class-transformer'
 
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { Report, ReportColor } from '@app/report/entities/report.entity'
-import { ProductType } from '@app/report/entities/reportApplicationForm.entity'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
 import { StringFilter } from '@app/graphql/filters/StringFilter'
 import { DateFilter } from '@app/graphql/filters/DateFilter'
@@ -38,6 +37,9 @@ export class ReportCreateInput {
 
   @Field(() => Int, { nullable: true })
   vehicle?: number
+
+  @Field(() => Int, { nullable: true })
+  lubricantEntityId?: number
 
   @Field(() => Int, { nullable: true })
   expressLaboratoryResult?: number | null
@@ -82,6 +84,9 @@ export class ReportUpdateInput {
   vehicle?: number
 
   @Field(() => Int, { nullable: true })
+  lubricantEntityId?: number
+
+  @Field(() => Int, { nullable: true })
   expressLaboratoryResult?: number | null
 
   @Field(() => Int, { nullable: true })
@@ -95,24 +100,24 @@ export class ReportUpdateResponse extends DefaultMutationResponse {
 }
 
 export enum ReportSort {
-  LUBRICANT_ASC,
-  LUBRICANT_DESC,
-  STATE_NUMBER_ASC,
-  STATE_NUMBER_DESC,
-  TOTAL_MILEAGE_ASC,
-  TOTAL_MILEAGE_DESC,
-  LUBRICANT_MILEAGE_ASC,
-  LUBRICANT_MILEAGE_DESC,
-  SAMPLING_NODES_ASC,
-  SAMPLING_NODES_DESC,
-  SAMPLED_AT_ASC,
-  SAMPLED_AT_DESC,
-  ID_ASC,
-  ID_DESC,
-  NUMBER_ASC,
-  NUMBER_DESC,
-  COLOR_ASC,
-  COLOR_DESC
+  LUBRICANT_ASC = "lubricant_ASC",
+  LUBRICANT_DESC = "lubricant_DESC",
+  STATE_NUMBER_ASC = "stateNumber_ASC",
+  STATE_NUMBER_DESC = "stateNumber_DESC",
+  TOTAL_MILEAGE_ASC = "totalMileage_ASC",
+  TOTAL_MILEAGE_DESC = "totalMileage_DESC",
+  LUBRICANT_MILEAGE_ASC = "lubricantMileage_ASC",
+  LUBRICANT_MILEAGE_DESC = "lubricantMileage_DESC",
+  SAMPLING_NODES_ASC = "samplingNodes_ASC",
+  SAMPLING_NODES_DESC = "samplingNodes_DESC",
+  SAMPLED_AT_ASC = "sampledAt_ASC",
+  SAMPLED_AT_DESC = "sampledAt_DESC",
+  ID_ASC = "id_ASC",
+  ID_DESC = "id_DESC",
+  NUMBER_ASC = "number_ASC",
+  NUMBER_DESC = "number_DESC",
+  COLOR_ASC = "color_ASC",
+  COLOR_DESC = "color_DESC"
 }
 
 registerEnumType(ReportSort, {
@@ -199,21 +204,6 @@ export class ReportGeneratePdfResponse extends DefaultMutationResponse {
 @InputType()
 export class ReportUpdateApplicationFormInput {
   @Field({ nullable: true })
-  productType?: ProductType
-
-  @Field({ nullable: true })
-  customerOrganization?: string
-
-  @Field({ nullable: true })
-  customerPhone?: string
-
-  @Field({ nullable: true })
-  customerPerson?: string
-
-  @Field({ nullable: true })
-  customerEmail?: string
-
-  @Field({ nullable: true })
   vehicleEquipmentManufacturer?: string
 
   @Field({ nullable: true })
@@ -236,15 +226,6 @@ export class ReportUpdateApplicationFormInput {
 
   @Field({ nullable: true })
   vehicleToppingUpLubricant?: string
-
-  @Field({ nullable: true })
-  lubricantBrand?: string
-
-  @Field({ nullable: true })
-  lubricantViscosity?: string
-
-  @Field({ nullable: true })
-  lubricantModel?: string
 
   @Field({ nullable: true })
   lubricantState?: string

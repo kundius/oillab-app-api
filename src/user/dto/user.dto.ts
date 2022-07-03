@@ -17,6 +17,12 @@ export class UserCreateInput {
   @Field()
   email: string
 
+  @Field({ nullable: true })
+  organization?: string
+
+  @Field({ nullable: true })
+  phone?: string
+
   @Field()
   role: UserRole
 }
@@ -39,6 +45,12 @@ export class UserUpdateInput {
   email?: string
 
   @Field({ nullable: true })
+  organization?: string
+
+  @Field({ nullable: true })
+  phone?: string
+
+  @Field({ nullable: true })
   role?: UserRole
 }
 
@@ -49,12 +61,16 @@ export class UserUpdateResponse extends DefaultMutationResponse {
 }
 
 export enum UserSort {
-  ID_ASC,
-  ID_DESC,
-  NAME_ASC,
-  NAME_DESC,
-  EMAIL_ASC,
-  EMAIL_DESC
+  ID_ASC = "id_ASC",
+  ID_DESC = "id_DESC",
+  NAME_ASC = "name_ASC",
+  NAME_DESC = "name_DESC",
+  EMAIL_ASC = "email_ASC",
+  EMAIL_DESC = "email_DESC",
+  ORGANIZATION_ASC = "organization_ASC",
+  ORGANIZATION_DESC = "organization_DESC",
+  PHONE_ASC = "phone_ASC",
+  PHONE_DESC = "phone_DESC"
 }
 
 registerEnumType(UserSort, {
@@ -68,6 +84,12 @@ export class UserFilter {
 
   @Field(() => StringFilter, { nullable: true })
   email?: StringFilter
+
+  @Field(() => StringFilter, { nullable: true })
+  organization?: StringFilter
+
+  @Field(() => StringFilter, { nullable: true })
+  phone?: StringFilter
 }
 
 @ArgsType()

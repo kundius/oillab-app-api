@@ -14,7 +14,7 @@ import { AuthGuard } from '@nestjs/passport'
 import { configService } from '@app/config/config.service'
 import { CurrentUser } from '@app/auth/CurrentUser'
 import { User, UserRole } from '@app/user/entities/user.entity'
-import { ProductType } from '../entities/reportApplicationForm.entity'
+import { ProductType } from '@app/lubricant/entities/lubricant.entity'
 import { ReportService } from '../services/report.service'
 
 const wkhtmltopdf = require('wkhtmltopdf')
@@ -47,21 +47,23 @@ export class ReportController {
     }
 
     const getSelectionTitle = () => {
-      if (applicationForm?.productType === ProductType.Coolant) {
+      if (lubricant?.productType === ProductType.Coolant) {
         return 'Информация об отборе образца охлаждающей жидкотсти:'
       }
-      if (applicationForm?.productType === ProductType.Fuel) {
+      if (lubricant?.productType === ProductType.Fuel) {
         return 'Информация об отборе образца топлива:'
       }
-      if (applicationForm?.productType === ProductType.Oil) {
+      if (lubricant?.productType === ProductType.Oil) {
         return 'Информация об отборе образца масла:'
       }
       return 'Информация об отборе образца:'
     }
 
     const applicationForm = await report.applicationForm
+    const lubricant = await report?.lubricantEntity
+    const customer = await report?.client
     const productType = this.reportService.getProductTypeLabel(
-      applicationForm?.productType
+      lubricant?.productType
     )
     const number = await this.reportService.getApplicationFormNumber(report)
 
@@ -217,7 +219,7 @@ export class ReportController {
                   Организация
                 </div>
                 <div class="field__input">
-                  ${applicationForm?.customerOrganization || ''}
+                  ${customer?.organization || ''}
                 </div>
               </div>
             </td>
@@ -227,7 +229,7 @@ export class ReportController {
                 Контактный телефон
               </div>
               <div class="field__input">
-                ${applicationForm?.customerPhone || ''}
+                ${customer?.phone || ''}
               </div>
             </div>
             </td>
@@ -239,7 +241,7 @@ export class ReportController {
                 Контактное лицо
               </div>
               <div class="field__input">
-                ${applicationForm?.customerPerson || ''}
+                ${customer?.name || ''}
               </div>
             </div>
             </td>
@@ -249,7 +251,7 @@ export class ReportController {
                 Электронная почта
               </div>
               <div class="field__input">
-                ${applicationForm?.customerEmail || ''}
+                ${customer?.email || ''}
               </div>
             </div>
             </td>
@@ -376,7 +378,7 @@ export class ReportController {
                 Бренд СМ
                 </div>
                 <div class="field__input">
-                  ${applicationForm?.lubricantBrand || ''}
+                  ${lubricant?.brand || ''}
                 </div>
               </div>
             </td>
@@ -386,7 +388,7 @@ export class ReportController {
               Вязкость
               </div>
               <div class="field__input">
-                ${applicationForm?.lubricantViscosity || ''}
+                ${lubricant?.viscosity || ''}
               </div>
             </div>
             </td>
@@ -398,7 +400,7 @@ export class ReportController {
               Марка СМ
               </div>
               <div class="field__input">
-                ${applicationForm?.lubricantModel || ''}
+                ${lubricant?.model || ''}
               </div>
             </div>
             </td>

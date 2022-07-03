@@ -23,9 +23,11 @@ import {
   Int
 } from '@nestjs/graphql'
 
+import { ReportApplicationForm } from '@app/report/entities/reportApplicationForm.entity'
 import { Vehicle } from '@app/vehicle/entities/vehicle.entity'
 import { Report } from '@app/report/entities/report.entity'
 import { File } from '@app/file/file.entity'
+import { Maybe } from 'graphql/jsutils/Maybe'
 
 export enum UserRole {
   Member = 'Member',
@@ -47,10 +49,18 @@ export class User {
   @Column()
   name: string
 
-  @Field(() => String, { nullable: true })
+  @Field(() => String)
   @Extensions({ ability: 'readEmail' })
   @Column({ unique: true })
   email: string
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
+  organization: Maybe<string>
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
+  phone: Maybe<string>
 
   @Field(() => UserRole)
   @Column({
@@ -79,16 +89,16 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date
 
-  @Field(() => [Vehicle])
-  @OneToMany(() => Vehicle, vehicle => vehicle.owner, { lazy: true })
+  @Field(() => [Vehicle], { nullable: 'items' })
+  @OneToMany(() => Vehicle, vehicle => vehicle.owner)
   vehicles: Promise<Vehicle[]>
 
-  @Field(() => [Report])
+  @Field(() => [Report], { nullable: 'items' })
   @OneToMany(() => Report, report => report.client)
   reports: Promise<Report[]>
 
   @Field(() => [File], { nullable: 'items' })
-  @OneToMany(() => File, file => file.user, { lazy: true })
+  @OneToMany(() => File, file => file.user)
   @JoinTable()
-  files: File[]
+  files: Promise<File[]>
 }

@@ -8,6 +8,8 @@ import { User, UserRole } from '../entities/user.entity'
 
 @Injectable()
 export class UserService {
+  tableName = 'user'
+
   constructor (
     @InjectRepository(User)
     private readonly userRepository: Repository<User>
@@ -63,29 +65,26 @@ export class UserService {
   }
 
   async create (input: dto.UserCreateInput) {
+    const { password, ...data } = input
+
     const record = await this.userRepository.create()
-    record.name = input.name
-    record.email = input.email
-    record.role = input.role
-    record.password = await this.generatePasswordHash(input.password)
-    await this.userRepository.save(record)
-    return record
+
+    return this.update(record, input)
   }
 
   async update (record: User, input: dto.UserUpdateInput) {
-    if (typeof input.name !== 'undefined') {
-      record.name = input.name
+    const { password, ...data } = input
+
+    for (let key of Object.keys(data)) {
+      record[key] = data[key]
     }
-    if (typeof input.email !== 'undefined') {
-      record.email = input.email
+
+    if (typeof password !== 'undefined') {
+      record.password = await this.generatePasswordHash(password)
     }
-    if (typeof input.password !== 'undefined') {
-      record.password = await this.generatePasswordHash(input.password)
-    }
-    if (typeof input.role !== 'undefined') {
-      record.role = input.role
-    }
+
     await this.userRepository.save(record)
+
     return record
   }
 
@@ -124,28 +123,8 @@ export class UserService {
     sort: dto.UserSort[]
   ): Promise<SelectQueryBuilder<User>> {
     for (const value of sort) {
-      switch (value) {
-        case dto.UserSort.ID_ASC:
-          qb.orderBy('user.id', 'ASC')
-          break
-        case dto.UserSort.ID_DESC:
-          qb.orderBy('user.id', 'DESC')
-          break
-        case dto.UserSort.NAME_ASC:
-          qb.orderBy('user.name', 'ASC')
-          break
-        case dto.UserSort.NAME_DESC:
-          qb.orderBy('user.name', 'DESC')
-          break
-        case dto.UserSort.EMAIL_ASC:
-          qb.orderBy('user.email', 'ASC')
-          break
-        case dto.UserSort.EMAIL_DESC:
-          qb.orderBy('user.email', 'DESC')
-          break
-        default:
-          throw new Error('Not implemented')
-      }
+      let arr = value.split('_') as [string, "ASC" | "DESC"]
+      qb.orderBy(`${this.tableName}.${arr[0]}`, arr[1])
     }
     return qb
   }
@@ -154,20 +133,16 @@ export class UserService {
     qb: SelectQueryBuilder<User>,
     filter: dto.UserFilter
   ): Promise<SelectQueryBuilder<User>> {
-    if (filter.name) {
-      if (filter.name.eq) {
-        qb.andWhere('user.name LIKE :nameEq', { nameEq: filter.name.eq })
+    for (let key of Object.keys(filter)) {
+      if (filter[key].eq) {
+        qb.andWhere(`${this.tableName}.${key} LIKE :${key}Eq`, {
+          [`${key}Eq`]: filter[key].eq
+        })
       }
-      if (filter.name.contains) {
-        qb.andWhere('user.name LIKE :nameContains', { nameContains: `%${filter.name.contains}%` })
-      }
-    }
-    if (filter.email) {
-      if (filter.email.eq) {
-        qb.andWhere('user.email LIKE :emailEq', { emailEq: filter.email.eq })
-      }
-      if (filter.email.contains) {
-        qb.andWhere('user.email LIKE :emailContains', { emailContains: `%${filter.email.contains}%` })
+      if (filter[key].contains) {
+        qb.andWhere(`${this.tableName}.${key} LIKE :${key}Contains`, {
+          [`${key}Contains`]: `%${filter[key].contains}%`
+        })
       }
     }
     return qb

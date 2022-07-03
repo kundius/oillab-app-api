@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { UserModule } from '@app/user/user.module'
 import { VehicleModule } from '@app/vehicle/vehicle.module'
+import { LubricantModule } from '@app/lubricant/lubricant.module'
 import { FileModule } from '@app/file/file.module'
 
 import { Report } from './entities/report.entity'
@@ -15,6 +16,7 @@ import { ReportController } from './controllers/report.controller'
   imports: [
     UserModule,
     VehicleModule,
+    LubricantModule,
     FileModule,
     TypeOrmModule.forFeature([Report, ReportApplicationForm])
   ],
