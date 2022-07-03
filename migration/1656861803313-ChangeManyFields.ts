@@ -4,13 +4,6 @@ export class ChangeManyFields1656861803313 implements MigrationInterface {
     name = 'ChangeManyFields1656861803313'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP INDEX \`FK_36d650cd64835565719673e2721\` ON \`report\``);
-        await queryRunner.query(`DROP INDEX \`FK_59d3ad44a823b6b236d0385a602\` ON \`report\``);
-        await queryRunner.query(`DROP INDEX \`FK_09633408cd696a5b20a6425ae28\` ON \`report\``);
-        await queryRunner.query(`DROP INDEX \`FK_51d0561d7971011ab3f33f9e7f4\` ON \`report\``);
-        await queryRunner.query(`DROP INDEX \`FK_6e5cb63e072366b618996ca3156\` ON \`report\``);
-        await queryRunner.query(`DROP INDEX \`FK_61e825bc57f59788efc068a6134\` ON \`vehicle\``);
-        await queryRunner.query(`DROP INDEX \`FK_b2d8e683f020f61115edea206b3\` ON \`file\``);
         await queryRunner.query(`ALTER TABLE \`report_application_form\` CHANGE \`vehicleSamplingPoint\` \`vehicleSamplingPoint\` text NULL`);
         await queryRunner.query(`ALTER TABLE \`report_application_form\` CHANGE \`vehicleToppingUpLubricant\` \`vehicleToppingUpLubricant\` text NULL`);
         await queryRunner.query(`ALTER TABLE \`report_application_form\` CHANGE \`lubricantState\` \`lubricantState\` text NULL`);
@@ -76,13 +69,6 @@ export class ChangeManyFields1656861803313 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`report_application_form\` CHANGE \`lubricantState\` \`lubricantState\` text NULL DEFAULT 'NULL'`);
         await queryRunner.query(`ALTER TABLE \`report_application_form\` CHANGE \`vehicleToppingUpLubricant\` \`vehicleToppingUpLubricant\` text NULL DEFAULT 'NULL'`);
         await queryRunner.query(`ALTER TABLE \`report_application_form\` CHANGE \`vehicleSamplingPoint\` \`vehicleSamplingPoint\` text NULL DEFAULT 'NULL'`);
-        await queryRunner.query(`CREATE INDEX \`FK_b2d8e683f020f61115edea206b3\` ON \`file\` (\`userId\`)`);
-        await queryRunner.query(`CREATE INDEX \`FK_61e825bc57f59788efc068a6134\` ON \`vehicle\` (\`ownerId\`)`);
-        await queryRunner.query(`CREATE INDEX \`FK_6e5cb63e072366b618996ca3156\` ON \`report\` (\`lubricantEntityId\`)`);
-        await queryRunner.query(`CREATE INDEX \`FK_51d0561d7971011ab3f33f9e7f4\` ON \`report\` (\`expressLaboratoryResultId\`)`);
-        await queryRunner.query(`CREATE INDEX \`FK_09633408cd696a5b20a6425ae28\` ON \`report\` (\`laboratoryResultId\`)`);
-        await queryRunner.query(`CREATE INDEX \`FK_59d3ad44a823b6b236d0385a602\` ON \`report\` (\`vehicleId\`)`);
-        await queryRunner.query(`CREATE INDEX \`FK_36d650cd64835565719673e2721\` ON \`report\` (\`clientId\`)`);
     }
 
 }
