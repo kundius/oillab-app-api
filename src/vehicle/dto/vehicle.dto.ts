@@ -105,10 +105,6 @@ export class VehicleFilter extends BaseFilter {
   liquidVolume?: StringFilterOperator
 
   @Field({ nullable: true })
-  @Type(() => StringFilterOperator)
-  ownerName?: StringFilterOperator
-
-  @Field({ nullable: true })
   @Type(() => UserFilter)
   owner?: UserFilter
 

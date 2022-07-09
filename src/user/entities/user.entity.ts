@@ -56,7 +56,7 @@ export class User {
 
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
-  organization: Maybe<string>
+  contactPerson: Maybe<string>
 
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })

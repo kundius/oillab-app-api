@@ -94,7 +94,7 @@ type Vehicle {
 type User {
   name: String!
   email: String!
-  organization: String
+  contactPerson: String
   phone: String
   role: UserRole!
   isActive: Boolean!
@@ -249,8 +249,8 @@ enum UserSort {
   NAME_DESC
   EMAIL_ASC
   EMAIL_DESC
-  ORGANIZATION_ASC
-  ORGANIZATION_DESC
+  CONTACT_PERSON_ASC
+  CONTACT_PERSON_DESC
   PHONE_ASC
   PHONE_DESC
 }
@@ -258,7 +258,7 @@ enum UserSort {
 input UserFilter {
   name: StringFilterOperator
   email: StringFilterOperator
-  organization: StringFilterOperator
+  contactPerson: StringFilterOperator
   phone: StringFilterOperator
 }
 
@@ -288,7 +288,6 @@ input VehicleFilter {
   stateNumber: StringFilterOperator
   engineModel: StringFilterOperator
   liquidVolume: StringFilterOperator
-  ownerName: StringFilterOperator
   owner: UserFilter
   ownerId: IdFilterOperator
 }
@@ -324,11 +323,8 @@ input ReportFilter {
   lubricant: StringFilterOperator
   totalMileage: StringFilterOperator
   lubricantMileage: StringFilterOperator
-  clientName: StringFilterOperator
-  vehicleModel: StringFilterOperator
-  vehicleStateNumber: StringFilterOperator
-  vehicleReleaseYear: StringFilterOperator
-  vehicleEngineModel: StringFilterOperator
+  client: UserFilter
+  vehicle: VehicleFilter
   samplingNodes: StringFilterOperator
   sampledAt: DateFilterOperator
   id: NumberFilterOperator
@@ -388,7 +384,7 @@ input UserCreateInput {
   password: String!
   name: String!
   email: String!
-  organization: String
+  contactPerson: String
   phone: String
   role: String!
 }
@@ -397,7 +393,7 @@ input UserUpdateInput {
   password: String
   name: String
   email: String
-  organization: String
+  contactPerson: String
   phone: String
   role: String
 }

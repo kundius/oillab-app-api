@@ -9,6 +9,8 @@ import { DateFilterOperator } from '@app/graphql/filters/DateFilterOperator'
 import { NumberFilterOperator } from '@app/graphql/filters/NumberFilterOperator'
 import { File } from '@app/file/file.entity'
 import { BaseFilter } from '@app/graphql/filters/BaseFilter'
+import { UserFilter } from '@app/user/dto/user.dto'
+import { VehicleFilter } from '@app/vehicle/dto/vehicle.dto'
 
 @InputType()
 export class ReportCreateInput {
@@ -144,24 +146,12 @@ export class ReportFilter extends BaseFilter {
   lubricantMileage?: StringFilterOperator
 
   @Field({ nullable: true })
-  @Type(() => StringFilterOperator)
-  clientName?: StringFilterOperator
+  @Type(() => UserFilter)
+  client?: UserFilter
 
   @Field({ nullable: true })
-  @Type(() => StringFilterOperator)
-  vehicleModel?: StringFilterOperator
-
-  @Field({ nullable: true })
-  @Type(() => StringFilterOperator)
-  vehicleStateNumber?: StringFilterOperator
-
-  @Field({ nullable: true })
-  @Type(() => StringFilterOperator)
-  vehicleReleaseYear?: StringFilterOperator
-
-  @Field({ nullable: true })
-  @Type(() => StringFilterOperator)
-  vehicleEngineModel?: StringFilterOperator
+  @Type(() => VehicleFilter)
+  vehicle?: VehicleFilter
 
   @Field({ nullable: true })
   @Type(() => StringFilterOperator)

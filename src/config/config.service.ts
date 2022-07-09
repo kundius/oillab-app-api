@@ -52,6 +52,9 @@ class ConfigService {
 
   public getGqlConfig (): GqlModuleOptions {
     return {
+      // debug: true,
+      // playground: true,
+      // introspection: true,
       debug: !this.isProduction(),
       playground: !this.isProduction(),
       // installSubscriptionHandlers: true,

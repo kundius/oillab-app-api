@@ -220,7 +220,7 @@ export class ReportController {
                   Организация
                 </div>
                 <div class="field__input">
-                  ${customer?.organization || ''}
+                  ${customer?.name || ''}
                 </div>
               </div>
             </td>
@@ -242,7 +242,7 @@ export class ReportController {
                 Контактное лицо
               </div>
               <div class="field__input">
-                ${customer?.name || ''}
+                ${customer?.contactPerson || ''}
               </div>
             </div>
             </td>

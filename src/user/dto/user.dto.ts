@@ -19,7 +19,7 @@ export class UserCreateInput {
   email: string
 
   @Field({ nullable: true })
-  organization?: string
+  contactPerson?: string
 
   @Field({ nullable: true })
   phone?: string
@@ -46,7 +46,7 @@ export class UserUpdateInput {
   email?: string
 
   @Field({ nullable: true })
-  organization?: string
+  contactPerson?: string
 
   @Field({ nullable: true })
   phone?: string
@@ -68,8 +68,8 @@ export enum UserSort {
   NAME_DESC = "name_DESC",
   EMAIL_ASC = "email_ASC",
   EMAIL_DESC = "email_DESC",
-  ORGANIZATION_ASC = "organization_ASC",
-  ORGANIZATION_DESC = "organization_DESC",
+  CONTACT_PERSON_ASC = "contactPerson_ASC",
+  CONTACT_PERSON_DESC = "contactPerson_DESC",
   PHONE_ASC = "phone_ASC",
   PHONE_DESC = "phone_DESC"
 }
@@ -90,7 +90,7 @@ export class UserFilter extends BaseFilter {
 
   @Field(() => StringFilterOperator, { nullable: true })
   @Type(() => StringFilterOperator)
-  organization?: StringFilterOperator
+  contactPerson?: StringFilterOperator
 
   @Field(() => StringFilterOperator, { nullable: true })
   @Type(() => StringFilterOperator)
