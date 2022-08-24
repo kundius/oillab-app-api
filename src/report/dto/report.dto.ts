@@ -11,14 +11,12 @@ import { File } from '@app/file/file.entity'
 import { BaseFilter } from '@app/graphql/filters/BaseFilter'
 import { UserFilter } from '@app/user/dto/user.dto'
 import { VehicleFilter } from '@app/vehicle/dto/vehicle.dto'
+import { LubricantFilter } from '@app/lubricant/dto/lubricant.dto'
 
 @InputType()
 export class ReportCreateInput {
   @Field({ nullable: true })
   color?: ReportColor
-
-  @Field()
-  lubricant: string
 
   @Field()
   totalMileage: string
@@ -28,6 +26,15 @@ export class ReportCreateInput {
 
   @Field()
   samplingNodes: string
+
+  @Field({ nullable: true })
+  vehicleToppingUpLubricant?: string
+
+  @Field({ nullable: true })
+  lubricantState?: string
+
+  @Field({ nullable: true })
+  selectionVolume?: string
 
   @Field({ nullable: true })
   note?: string
@@ -63,9 +70,6 @@ export class ReportUpdateInput {
   color?: ReportColor
 
   @Field({ nullable: true })
-  lubricant?: string
-
-  @Field({ nullable: true })
   totalMileage?: string
 
   @Field({ nullable: true })
@@ -73,6 +77,15 @@ export class ReportUpdateInput {
 
   @Field({ nullable: true })
   samplingNodes?: string
+
+  @Field({ nullable: true })
+  vehicleToppingUpLubricant?: string
+
+  @Field({ nullable: true })
+  lubricantState?: string
+
+  @Field({ nullable: true })
+  selectionVolume?: string
 
   @Field({ nullable: true })
   note?: string
@@ -103,8 +116,6 @@ export class ReportUpdateResponse extends DefaultMutationResponse {
 }
 
 export enum ReportSort {
-  LUBRICANT_ASC = "lubricant_ASC",
-  LUBRICANT_DESC = "lubricant_DESC",
   STATE_NUMBER_ASC = "stateNumber_ASC",
   STATE_NUMBER_DESC = "stateNumber_DESC",
   TOTAL_MILEAGE_ASC = "totalMileage_ASC",
@@ -134,8 +145,8 @@ export class ReportFilter extends BaseFilter {
   color?: StringFilterOperator
 
   @Field({ nullable: true })
-  @Type(() => StringFilterOperator)
-  lubricant?: StringFilterOperator
+  @Type(() => LubricantFilter)
+  lubricantEntity?: LubricantFilter
 
   @Field({ nullable: true })
   @Type(() => StringFilterOperator)
@@ -202,52 +213,4 @@ export class ReportGeneratePdfArgs {
 export class ReportGeneratePdfResponse extends DefaultMutationResponse {
   @Field(() => File, { nullable: true })
   record?: File
-}
-
-@InputType()
-export class ReportUpdateApplicationFormInput {
-  // @Field({ nullable: true })
-  // vehicleEquipmentManufacturer?: string
-
-  // @Field({ nullable: true })
-  // vehicleRegistrationNumber?: string
-
-  // @Field({ nullable: true })
-  // vehicleEquipmentModel?: string
-
-  // @Field({ nullable: true })
-  // vehicleTotalOperatingTime?: string
-  
-  @Field({ nullable: true })
-  vehicleSamplingPoint?: string
-
-  // @Field({ nullable: true })
-  // vehicleTotalOperatingTimeLubricant?: string
-
-  // @Field({ nullable: true })
-  // vehicleLiquidVolume?: string
-
-  @Field({ nullable: true })
-  vehicleToppingUpLubricant?: string
-
-  @Field({ nullable: true })
-  lubricantState?: string
-
-  // @Field({ nullable: true })
-  // selectionBrand?: string
-
-  @Field({ nullable: true })
-  selectionVolume?: string
-
-  // @Field({ nullable: true })
-  // selectionPlace?: string
-
-  @Field({ nullable: true })
-  note?: string
-}
-
-@ObjectType()
-export class ReportUpdateApplicationFormResponse extends DefaultMutationResponse {
-  @Field(() => Report, { nullable: true })
-  record?: Report
 }

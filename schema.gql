@@ -40,21 +40,12 @@ enum ProductType {
   Coolant
 }
 
-type ReportApplicationForm {
-  vehicleSamplingPoint: String
-  vehicleToppingUpLubricant: String
-  lubricantState: String
-  selectionVolume: String
-  note: String
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  report: Report
-  id: Float!
-}
-
 type Report {
   color: ReportColor
   number: Int
+  vehicleToppingUpLubricant: String
+  lubricantState: String
+  selectionVolume: String
   note: String
   sampledAt: DateTime!
   createdAt: DateTime!
@@ -64,9 +55,7 @@ type Report {
   lubricantEntity: Lubricant
   laboratoryResult: File
   expressLaboratoryResult: File
-  applicationForm: ReportApplicationForm
   id: Float!
-  lubricant: String!
   totalMileage: String!
   lubricantMileage: String!
   samplingNodes: String!
@@ -129,6 +118,11 @@ type AuthenticationError implements DefaultError {
 
 type NotAllowedError implements DefaultError {
   message: String!
+}
+
+type ValidationError implements DefaultError {
+  message: String!
+  field: String!
 }
 
 type PageInfo {
@@ -211,17 +205,6 @@ type ReportGeneratePdfResponse {
   record: File
 }
 
-type ReportUpdateApplicationFormResponse {
-  success: Boolean!
-  error: DefaultError
-  record: Report
-}
-
-type ValidationError implements DefaultError {
-  message: String!
-  field: String!
-}
-
 type SignInResponse {
   success: Boolean!
   error: DefaultError
@@ -298,8 +281,6 @@ input IdFilterOperator {
 }
 
 enum ReportSort {
-  LUBRICANT_ASC
-  LUBRICANT_DESC
   STATE_NUMBER_ASC
   STATE_NUMBER_DESC
   TOTAL_MILEAGE_ASC
@@ -320,7 +301,7 @@ enum ReportSort {
 
 input ReportFilter {
   color: StringFilterOperator
-  lubricant: StringFilterOperator
+  lubricantEntity: LubricantFilter
   totalMileage: StringFilterOperator
   lubricantMileage: StringFilterOperator
   client: UserFilter
@@ -328,6 +309,12 @@ input ReportFilter {
   samplingNodes: StringFilterOperator
   sampledAt: DateFilterOperator
   id: NumberFilterOperator
+}
+
+input LubricantFilter {
+  model: StringFilterOperator
+  brand: StringFilterOperator
+  viscosity: StringFilterOperator
 }
 
 input DateFilterOperator {
@@ -351,12 +338,6 @@ enum LubricantSort {
   VISCOSITY_DESC
 }
 
-input LubricantFilter {
-  model: StringFilterOperator
-  brand: StringFilterOperator
-  viscosity: StringFilterOperator
-}
-
 type Mutation {
   signIn(input: SignInInput!): SignInResponse!
   userCreate(input: UserCreateInput!): UserCreateResponse!
@@ -369,7 +350,6 @@ type Mutation {
   reportCreate(input: ReportCreateInput!): ReportCreateResponse!
   reportUpdate(input: ReportUpdateInput!, id: Int!): ReportUpdateResponse!
   reportDelete(id: Int!): DefaultMutationResponse!
-  reportUpdateApplicationForm(input: ReportUpdateApplicationFormInput!, id: Int!): ReportUpdateApplicationFormResponse!
   lubricantCreate(input: LubricantCreateInput!): LubricantCreateResponse!
   lubricantUpdate(input: LubricantUpdateInput!, id: Int!): LubricantUpdateResponse!
   lubricantDelete(id: Int!): DefaultMutationResponse!
@@ -395,7 +375,7 @@ input UserUpdateInput {
   email: String
   contactPerson: String
   phone: String
-  role: String
+  role: UserRole
 }
 
 input VehicleCreateInput {
@@ -418,10 +398,12 @@ input VehicleUpdateInput {
 
 input ReportCreateInput {
   color: String
-  lubricant: String!
   totalMileage: String!
   lubricantMileage: String!
   samplingNodes: String!
+  vehicleToppingUpLubricant: String
+  lubricantState: String
+  selectionVolume: String
   note: String
   sampledAt: DateTime!
   client: Int
@@ -433,10 +415,12 @@ input ReportCreateInput {
 
 input ReportUpdateInput {
   color: String
-  lubricant: String
   totalMileage: String
   lubricantMileage: String
   samplingNodes: String
+  vehicleToppingUpLubricant: String
+  lubricantState: String
+  selectionVolume: String
   note: String
   sampledAt: DateTime
   client: Int
@@ -444,14 +428,6 @@ input ReportUpdateInput {
   lubricantEntityId: Int
   expressLaboratoryResult: Int
   laboratoryResult: Int
-}
-
-input ReportUpdateApplicationFormInput {
-  vehicleSamplingPoint: String
-  vehicleToppingUpLubricant: String
-  lubricantState: String
-  selectionVolume: String
-  note: String
 }
 
 input LubricantCreateInput {

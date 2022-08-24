@@ -11,8 +11,7 @@ import { FileService } from '@app/file/file.service'
 import { nanoid } from '@app/utils/nanoid'
 
 import * as dto from '../dto/report.dto'
-import { Report } from '../entities/report.entity'
-import { ReportApplicationForm } from '../entities/reportApplicationForm.entity'
+import { Report, ReportColor } from '../entities/report.entity'
 import { File } from '@app/file/file.entity'
 import { User } from '@app/user/entities/user.entity'
 import { ProductType } from '@app/lubricant/entities/lubricant.entity'
@@ -25,8 +24,6 @@ export class ReportService {
   constructor(
     @InjectRepository(Report)
     private readonly reportRepository: Repository<Report>,
-    @InjectRepository(ReportApplicationForm)
-    private readonly applicationFormRepository: Repository<ReportApplicationForm>,
     private readonly userService: UserService,
     private readonly lubricantService: LubricantService,
     private readonly vehicleService: VehicleService,
@@ -65,6 +62,7 @@ export class ReportService {
 
   async update(record: Report, input: dto.ReportUpdateInput) {
     const {
+      color,
       client,
       vehicle,
       expressLaboratoryResult,
@@ -75,6 +73,10 @@ export class ReportService {
 
     for (let key of Object.keys(data)) {
       record[key] = data[key]
+    }
+
+    if (typeof color !== 'undefined') {
+      record.color = color in ReportColor ? color : null
     }
 
     if (typeof client !== 'undefined') {
@@ -263,6 +265,7 @@ export class ReportService {
     for (const item of items) {
       const client = await item.client
       const vehicle = await item.vehicle
+      const lubricant = await item.lubricantEntity
       itemsHtml.push(`
         <tr>
           <td>${item.id}</td>
@@ -272,7 +275,7 @@ export class ReportService {
           <td>${item.totalMileage}</td>
           <td>${item.lubricantMileage}</td>
           <td>${item.samplingNodes}</td>
-          <td>${item.lubricant}</td>
+          <td>${lubricant?.brand} / ${lubricant?.model} / ${lubricant?.viscosity}</td>
           <td>${item.sampledAt.toLocaleDateString()}</td>
           <td>${item.note}</td>
         </tr>
@@ -347,31 +350,12 @@ export class ReportService {
     })
   }
 
-  async updateApplicationForm(
-    report: Report,
-    input: dto.ReportUpdateApplicationFormInput
-  ): Promise<Report> {
-    let applicationForm = await report.applicationForm
-    if (!applicationForm) {
-      applicationForm = await this.applicationFormRepository.create()
-      applicationForm.report = Promise.resolve(report)
-    }
-
-    for (let key of Object.keys(input)) {
-      applicationForm[key] = input[key]
-    }
-
-    await this.applicationFormRepository.save(applicationForm)
-
-    return report
-  }
-
   getProductTypeLabel(type?: ProductType | null) {
     if (type === ProductType.Coolant) {
-      return 'Т'
+      return 'ОЖ'
     }
     if (type === ProductType.Fuel) {
-      return 'ОЖ'
+      return 'Т'
     }
     if (type === ProductType.Oil) {
       return 'СМ'

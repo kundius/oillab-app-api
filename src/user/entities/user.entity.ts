@@ -23,7 +23,6 @@ import {
   Int
 } from '@nestjs/graphql'
 
-import { ReportApplicationForm } from '@app/report/entities/reportApplicationForm.entity'
 import { Vehicle } from '@app/vehicle/entities/vehicle.entity'
 import { Report } from '@app/report/entities/report.entity'
 import { File } from '@app/file/file.entity'

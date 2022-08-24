@@ -26,7 +26,6 @@ import {
 import { User } from '@app/user/entities/user.entity'
 import { Vehicle } from '@app/vehicle/entities/vehicle.entity'
 import { File } from '@app/file/file.entity'
-import { ReportApplicationForm } from './reportApplicationForm.entity'
 import { Lubricant } from '@app/lubricant/entities/lubricant.entity'
 
 export enum ReportColor {
@@ -58,9 +57,6 @@ export class Report {
   number: number | null
 
   @Column()
-  lubricant: string
-
-  @Column()
   totalMileage: string
 
   @Column()
@@ -68,6 +64,18 @@ export class Report {
 
   @Column()
   samplingNodes: string
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
+  vehicleToppingUpLubricant: string | null
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
+  lubricantState: string | null
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
+  selectionVolume: string | null
 
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
@@ -104,9 +112,4 @@ export class Report {
   @Field(() => File, { nullable: true })
   @ManyToOne(() => File, { nullable: true })
   expressLaboratoryResult: Promise<File | null>
-
-  @Field(() => ReportApplicationForm, { nullable: true })
-  @OneToOne(() => ReportApplicationForm, applicationForm => applicationForm.report)
-  @JoinColumn()
-  applicationForm: Promise<ReportApplicationForm | null>
 }

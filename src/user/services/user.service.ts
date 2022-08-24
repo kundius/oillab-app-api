@@ -66,8 +66,6 @@ export class UserService {
   }
 
   async create (input: dto.UserCreateInput) {
-    const { password, ...data } = input
-
     const record = await this.userRepository.create()
 
     return this.update(record, input)

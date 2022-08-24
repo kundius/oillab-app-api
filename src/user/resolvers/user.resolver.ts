@@ -7,6 +7,7 @@ import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { CurrentUser } from '@app/auth/CurrentUser'
 import { AuthenticationError } from '@app/graphql/errors/AuthenticationError'
 import { NotAllowedError } from '@app/graphql/errors/NotAllowedError'
+import { ValidationError } from '@app/graphql/errors/ValidationError'
 
 import { UserService } from '../services/user.service'
 import { User, UserRole } from '../entities/user.entity'
@@ -77,6 +78,13 @@ export class UserResolver {
       }
     }
 
+    if (await this.userService.isEmailExists(input.email)) {
+      return {
+        error: new ValidationError('email', 'Указанный e-mail занят.'),
+        success: false
+      }
+    }
+
     const record = await this.userService.create(input)
 
     return {
@@ -110,6 +118,13 @@ export class UserResolver {
     if (currentUser.role !== UserRole.Administrator) {
       return {
         error: new NotAllowedError(),
+        success: false
+      }
+    }
+
+    if (typeof input.email !== 'undefined' && record.email !== input.email && await this.userService.isEmailExists(input.email)) {
+      return {
+        error: new ValidationError('email', 'Указанный e-mail занят.'),
         success: false
       }
     }

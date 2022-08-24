@@ -7,7 +7,6 @@ import { LubricantModule } from '@app/lubricant/lubricant.module'
 import { FileModule } from '@app/file/file.module'
 
 import { Report } from './entities/report.entity'
-import { ReportApplicationForm } from './entities/reportApplicationForm.entity'
 import { ReportResolver } from './resolvers/report.resolver'
 import { ReportService } from './services/report.service'
 import { ReportController } from './controllers/report.controller'
@@ -18,7 +17,7 @@ import { ReportController } from './controllers/report.controller'
     VehicleModule,
     LubricantModule,
     FileModule,
-    TypeOrmModule.forFeature([Report, ReportApplicationForm])
+    TypeOrmModule.forFeature([Report])
   ],
   controllers: [ReportController],
   providers: [ReportService, ReportResolver],

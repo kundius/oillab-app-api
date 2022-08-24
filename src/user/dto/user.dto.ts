@@ -51,7 +51,7 @@ export class UserUpdateInput {
   @Field({ nullable: true })
   phone?: string
 
-  @Field({ nullable: true })
+  @Field(() => UserRole, { nullable: true })
   role?: UserRole
 }
 

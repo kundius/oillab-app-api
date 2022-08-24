@@ -59,7 +59,6 @@ export class ReportController {
       return 'Информация об отборе образца:'
     }
 
-    const applicationForm = await report.applicationForm
     const lubricant = await report?.lubricantEntity
     const vehicle = await report?.vehicle
     const customer = await report?.client
@@ -269,7 +268,7 @@ export class ReportController {
       <div class="fields">
         <table>
           <tr>
-            <td>
+            <td colspan="2">
               <div class="field">
                 <div class="field__label">
                 Производитель оборудования
@@ -279,7 +278,9 @@ export class ReportController {
                 </div>
               </div>
             </td>
-            <td>
+          </tr>
+          <tr>
+            <td colspan="2">
             <div class="field">
               <div class="field__label">
               Регистрационный номер
@@ -304,10 +305,10 @@ export class ReportController {
             <td>
             <div class="field">
               <div class="field__label">
-              Точка отбора образца
+              Год выпуска
               </div>
               <div class="field__input">
-                ${applicationForm?.vehicleSamplingPoint || ''}
+                ${vehicle?.releaseYear || ''}
               </div>
             </div>
             </td>
@@ -346,7 +347,7 @@ export class ReportController {
               Общая наработка на СМ
               </div>
               <div class="field__input">
-                ${report?.totalMileage || ''}
+                ${report?.lubricantMileage || ''}
               </div>
             </div>
             </td>
@@ -356,7 +357,7 @@ export class ReportController {
               Долив СМ
               </div>
               <div class="field__input">
-                ${applicationForm?.vehicleToppingUpLubricant || ''}
+                ${report?.vehicleToppingUpLubricant || ''}
               </div>
             </div>
             </td>
@@ -411,7 +412,7 @@ export class ReportController {
               Состояние СМ
               </div>
               <div class="field__input">
-                ${applicationForm?.lubricantState || ''}
+                ${report?.lubricantState || ''}
               </div>
             </div>
             </td>
@@ -456,7 +457,7 @@ export class ReportController {
               Объём образца
               </div>
               <div class="field__input">
-                ${applicationForm?.selectionVolume || ''}
+                ${report?.selectionVolume || ''}
               </div>
             </div>
             </td>
@@ -478,7 +479,7 @@ export class ReportController {
               Место отбора пробы
               </div>
               <div class="field__input">
-                ${applicationForm?.vehicleSamplingPoint || ''}
+                ${report?.samplingNodes || ''}
               </div>
             </div>
             </td>
@@ -492,7 +493,7 @@ export class ReportController {
 
       <div class="field">
         <div class="field__input" style="min-height: 4rem">
-          ${applicationForm?.note || ''}
+          ${report?.note || ''}
         </div>
       </div>
     `
@@ -572,7 +573,7 @@ export class ReportController {
         -ms-flex-pack: justify;
       }
       .field + .field {
-        margin-top: .75rem;
+        margin-top: .5rem;
       }
       .field::after {
         content: '';
@@ -580,20 +581,20 @@ export class ReportController {
         clear: both;
       }
       .field__label {
-        font-size: 1rem;
-        line-height: 1.5rem;
-        padding-right: 0.75rem;
+        font-size: 0.75rem;
+        line-height: 1.25rem;
+        padding-right: 0.5rem;
         float: left;
         background: #ffffff;
       }
       .field__pre-label {
-        font-size: 1rem;
-        line-height: 1.5rem;
+        font-size: 0.75rem;
+        line-height: 1.25rem;
         background: #ffffff;
       }
       .field__input {
-        font-size: 1rem;
-        line-height: 1.5rem;
+        font-size: 0.75rem;
+        line-height: 1.25rem;
         position: relative;
         overflow: hidden;
       }
@@ -601,10 +602,10 @@ export class ReportController {
         content: '';
         position: absolute;
         left: 0;
-        top: 1.5rem;
+        top: 1.25rem;
         margin-top: -1px;
         width: 100%;
-        height: 1.5rem;
+        height: 1.25rem;
         border-top: 1px solid currentColor;
         border-bottom: 1px solid currentColor;
         box-sizing: border-box;
@@ -613,10 +614,10 @@ export class ReportController {
         content: '';
         position: absolute;
         left: 0;
-        top: 4.5rem;
+        top: 3.75rem;
         margin-top: -1px;
         width: 100%;
-        height: 1.5rem;
+        height: 1.25rem;
         border-top: 1px solid currentColor;
         border-bottom: 1px solid currentColor;
         box-sizing: border-box;
