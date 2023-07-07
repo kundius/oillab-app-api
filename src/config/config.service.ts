@@ -54,7 +54,7 @@ class ConfigService {
     return {
       // debug: true,
       // playground: true,
-      // introspection: true,
+      introspection: true,
       debug: !this.isProduction(),
       playground: !this.isProduction(),
       // installSubscriptionHandlers: true,

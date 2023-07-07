@@ -27,6 +27,9 @@ export class ReportCreateInput {
   @Field()
   samplingNodes: string
 
+  @Field()
+  formNumber: string
+
   @Field({ nullable: true })
   vehicleToppingUpLubricant?: string
 
@@ -77,6 +80,9 @@ export class ReportUpdateInput {
 
   @Field({ nullable: true })
   samplingNodes?: string
+
+  @Field({ nullable: true })
+  formNumber?: string
 
   @Field({ nullable: true })
   vehicleToppingUpLubricant?: string

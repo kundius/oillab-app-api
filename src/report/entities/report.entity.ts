@@ -56,6 +56,10 @@ export class Report {
   @Column({ type: 'integer', nullable: true })
   number: number | null
 
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
+  formNumber: string | null
+
   @Column()
   totalMileage: string
 

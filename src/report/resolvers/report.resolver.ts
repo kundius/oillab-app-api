@@ -8,6 +8,7 @@ import { User, UserRole } from '@app/user/entities/user.entity'
 import { NotAllowedError } from '@app/graphql/errors/NotAllowedError'
 import { CurrentUser } from '@app/auth/CurrentUser'
 import { AuthenticationError } from '@app/graphql/errors/AuthenticationError'
+import { ValidationError } from '@app/graphql/errors/ValidationError'
 
 import { ReportService } from '../services/report.service'
 import { Report } from '../entities/report.entity'
@@ -98,6 +99,27 @@ export class ReportResolver {
       }
     }
 
+    if (typeof input.formNumber !== 'undefined' && !input.formNumber) {
+      return {
+        error: new ValidationError('formNumber', 'Номер бланка не может быть пустым.'),
+        success: false
+      }
+    }
+    
+    if (input.formNumber.startsWith('0') || input.formNumber.includes(' ')) {
+      return {
+        error: new ValidationError('formNumber', 'Номер бланка не может начинаться с 0 или содержать пробелы.'),
+        success: false
+      }
+    }
+
+    if (await this.reportService.isFormNumberExists(input.formNumber)) {
+      return {
+        error: new ValidationError('formNumber', 'Указанный номер бланка занят.'),
+        success: false
+      }
+    }
+
     const record = await this.reportService.create(input)
 
     return {
@@ -132,6 +154,29 @@ export class ReportResolver {
       return {
         error: new NotAllowedError(),
         success: false
+      }
+    }
+
+    if (typeof input.formNumber !== 'undefined') {
+      if (!input.formNumber) {
+        return {
+          error: new ValidationError('formNumber', 'Номер бланка не может быть пустым.'),
+          success: false
+        }
+      }
+        
+      if (input.formNumber.startsWith('0') || input.formNumber.includes(' ')) {
+        return {
+          error: new ValidationError('formNumber', 'Номер бланка не может начинаться с 0 или содержать пробелы.'),
+          success: false
+        }
+      }
+    
+      if (record.formNumber !== input.formNumber && await this.reportService.isFormNumberExists(input.formNumber)) {
+        return {
+          error: new ValidationError('formNumber', 'Указанный номер бланка занят.'),
+          success: false
+        }
       }
     }
 

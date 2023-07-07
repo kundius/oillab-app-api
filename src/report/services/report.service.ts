@@ -30,6 +30,10 @@ export class ReportService {
     private readonly fileService: FileService
   ) {}
 
+  async isFormNumberExists (formNumber: string): Promise<boolean> {
+    return !!(await this.reportRepository.findOne({ formNumber }))
+  }
+
   async findById(id: number): Promise<Report | undefined> {
     return await this.reportRepository.findOne(id)
   }

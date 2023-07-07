@@ -532,6 +532,9 @@ export class ReportController {
     }
 
     const client = await report.client
+    const lubricant = await report.lubricantEntity
+    const vehicle = await report.vehicle
+    const productType = this.reportService.getProductTypeLabel(lubricant?.productType)
     const sampledAt = report?.sampledAt.toLocaleDateString('ru-RU')
     const number = await this.reportService.getApplicationFormNumber(report)
 
@@ -557,102 +560,65 @@ export class ReportController {
         border: 1px solid #000000;
         width: 340px;
         height: 170px;
-
-        display: flex;
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: -ms-flexbox;
-        flex-direction: column;
-        -webkit-box-orient: vertical;
-        -webkit-box-direction: normal;
-        -webkit-flex-direction: column;
-        -ms-flex-direction: column;
-        justify-content: space-between;
-        -webkit-box-pack: justify;
-        -webkit-justify-content: space-between;
-        -ms-flex-pack: justify;
       }
-      .field + .field {
-        margin-top: .5rem;
+      .value {
+        font-size: 0.75rem;
+        line-height: 1rem;
       }
-      .field::after {
+      * + .value {
+        margin-top: .25rem;
+      }
+      .group-value {
+        margin-left: -1rem;
+      }
+      .group-value::after {
         content: '';
         display: table;
         clear: both;
       }
-      .field__label {
+      * + .group-value {
+        margin-top: .25rem;
+      }
+      .group-value__item {
         font-size: 0.75rem;
-        line-height: 1.25rem;
-        padding-right: 0.5rem;
+        line-height: 1rem;
+        padding-left: 1rem;
         float: left;
-        background: #ffffff;
       }
-      .field__pre-label {
-        font-size: 0.75rem;
-        line-height: 1.25rem;
-        background: #ffffff;
-      }
-      .field__input {
-        font-size: 0.75rem;
-        line-height: 1.25rem;
-        position: relative;
-        overflow: hidden;
-      }
-      .field__input::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 1.25rem;
-        margin-top: -1px;
-        width: 100%;
-        height: 1.25rem;
-        border-top: 1px solid currentColor;
-        border-bottom: 1px solid currentColor;
-        box-sizing: border-box;
-      }
-      .field__input::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 3.75rem;
-        margin-top: -1px;
-        width: 100%;
-        height: 1.25rem;
-        border-top: 1px solid currentColor;
-        border-bottom: 1px solid currentColor;
-        box-sizing: border-box;
+      .number {
+        font-weight: 700;
+        font-size: 18px;
       }
     </style>
     `
 
     const sticker = `
     <div class="sticker">
-      <div class="field">
-        <div class="field__label">
-          № образца
+      <div class="group-value">
+        <div class="group-value__item">
+          № <span class="number">${report.formNumber}</span>
         </div>
-        <div class="field__input">
-          ${number}
-        </div>
-      </div>
-      <div class="field">
-        <div class="field__label">
-          Клиент
-        </div>
-        <div class="field__input">
-          ${client?.name}
+        <div class="group-value__item">
+          Дата отбора пробы ${sampledAt}
         </div>
       </div>
-      <div class="field">
-        <div class="field__pre-label">
-          Дата оформления образца в личном
-        </div>
-        <div class="field__label">
-          кабинете
-        </div>
-        <div class="field__input">
-          ${sampledAt}
-        </div>
+      <div class="value">
+      ${client?.name}
+      </div>
+      <div class="value">
+      ${lubricant?.brand} ${lubricant?.model} ${lubricant?.viscosity}
+      </div>
+      <div class="value">
+      ${vehicle?.model}
+      </div>
+      <div class="value">
+      ${vehicle?.stateNumber}
+      </div>
+      <div class="value">
+      ${report?.totalMileage}
+      </div>
+      <div class="value">
+      ${report?.note}
       </div>
     </div>
     `
