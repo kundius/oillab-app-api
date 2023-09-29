@@ -206,6 +206,31 @@ type ReportGeneratePdfResponse {
   record: File
 }
 
+type OilType {
+  name: String!
+  standard: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  id: Float!
+}
+
+type OilTypeCreateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: OilType
+}
+
+type OilTypeUpdateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: OilType
+}
+
+type OilTypePaginateResponse {
+  pageInfo: PageInfo!
+  items: [OilType!]!
+}
+
 type SignInResponse {
   success: Boolean!
   error: DefaultError
@@ -224,6 +249,8 @@ type Query {
   reportPaginate(perPage: Int = 12, page: Int = 1, sort: [ReportSort!], filter: ReportFilter): ReportPaginateResponse!
   lubricant(id: Int!): Lubricant
   lubricantPaginate(perPage: Int = 12, page: Int = 1, sort: [LubricantSort!], filter: LubricantFilter): LubricantPaginateResponse!
+  oiltype(id: Int!): OilType
+  oiltypePaginate(perPage: Int = 12, page: Int = 1, sort: [OilTypeSort!], filter: OilTypeFilter): OilTypePaginateResponse!
 }
 
 enum UserSort {
@@ -339,6 +366,17 @@ enum LubricantSort {
   VISCOSITY_DESC
 }
 
+enum OilTypeSort {
+  NAME_ASC
+  NAME_DESC
+  ID_ASC
+  ID_DESC
+}
+
+input OilTypeFilter {
+  name: StringFilterOperator
+}
+
 type Mutation {
   signIn(input: SignInInput!): SignInResponse!
   userCreate(input: UserCreateInput!): UserCreateResponse!
@@ -354,6 +392,9 @@ type Mutation {
   lubricantCreate(input: LubricantCreateInput!): LubricantCreateResponse!
   lubricantUpdate(input: LubricantUpdateInput!, id: Int!): LubricantUpdateResponse!
   lubricantDelete(id: Int!): DefaultMutationResponse!
+  oiltypeCreate(input: OilTypeCreateInput!): OilTypeCreateResponse!
+  oiltypeUpdate(input: OilTypeUpdateInput!, id: Int!): OilTypeUpdateResponse!
+  oiltypeDelete(id: Int!): DefaultMutationResponse!
 }
 
 input SignInInput {
@@ -445,4 +486,14 @@ input LubricantUpdateInput {
   model: String
   brand: String
   viscosity: String
+}
+
+input OilTypeCreateInput {
+  name: String!
+  standard: Boolean!
+}
+
+input OilTypeUpdateInput {
+  name: String
+  standard: Boolean
 }
