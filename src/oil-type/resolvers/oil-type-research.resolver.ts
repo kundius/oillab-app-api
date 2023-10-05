@@ -9,53 +9,52 @@ import { User, UserRole } from '@app/user/entities/user.entity'
 
 import { OilTypeService } from '../services/oil-type.service'
 import { OilType } from '../entities/oil-type.entity'
-import * as dto from '../dto/oil-type.dto'
+import * as dto from '../dto/oil-type-research.dto'
 import { AuthenticationError } from '@app/graphql/errors/AuthenticationError'
 import { NotAllowedError } from '@app/graphql/errors/NotAllowedError'
+import { OilTypeResearchService } from '../services/oil-type-research.service'
+import { OilTypeResearch } from '../entities/oil-type-research.entity'
 
-@Resolver(() => OilType)
+@Resolver(() => OilTypeResearch)
 @UseGuards(GqlAuthGuard)
-export class OilTypeResolver {
+export class OilTypeResearchResolver {
   constructor (
-    private readonly oiltypeService: OilTypeService
+    private readonly oilTypeService: OilTypeService,
+    private readonly oilTypeResearchService: OilTypeResearchService
   ) {}
 
   @Query(() => OilType, { nullable: true })
-  async oiltype (
+  async oilTypeResearch (
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
-  ): Promise<OilType | undefined> {
+  ): Promise<OilTypeResearch | undefined> {
     if (!currentUser) {
       return undefined
     }
 
-    return this.oiltypeService.findById(id)
+    return this.oilTypeResearchService.findById(id)
   }
 
-  @Query(() => dto.OilTypePaginateResponse)
-  async oiltypePaginate (
-    @Args() args: dto.OilTypePaginateArgs,
+  @Query(() => dto.OilTypeResearchListResponse)
+  async oilTypeResearchList (
+    @Args() args: dto.OilTypeResearchListArgs,
     @CurrentUser() currentUser?: User
-  ): Promise<dto.OilTypePaginateResponse> {
+  ): Promise<dto.OilTypeResearchListResponse> {
     if (!currentUser) {
       return {
-        items: [],
-        pageInfo: {
-          total: 0,
-          page: args.page,
-          perPage: args.perPage
-        }
+        items: []
       }
     }
 
-    return this.oiltypeService.paginate(args)
+    return this.oilTypeResearchService.list(args)
   }
 
-  @Mutation(() => dto.OilTypeCreateResponse)
-  async oiltypeCreate (
-    @Args('input') input: dto.OilTypeCreateInput,
+  @Mutation(() => dto.OilTypeResearchCreateResponse)
+  async oilTypeResearchCreate (
+    @Args('oilTypeId', { type: () => Int }) oilTypeId: number,
+    @Args('input') input: dto.OilTypeResearchCreateInput,
     @CurrentUser() currentUser?: User
-  ): Promise<dto.OilTypeCreateResponse> {
+  ): Promise<dto.OilTypeResearchCreateResponse> {
     if (!currentUser) {
       return {
         error: new AuthenticationError(),
@@ -70,7 +69,16 @@ export class OilTypeResolver {
       }
     }
 
-    const record = await this.oiltypeService.create(input)
+    const oilType = await this.oilTypeService.findById(oilTypeId)
+
+    if (!oilType) {
+      return {
+        error: new NotFoundError(),
+        success: false
+      }
+    }
+
+    const record = await this.oilTypeResearchService.create(oilType, input)
 
     return {
       record,
@@ -78,12 +86,12 @@ export class OilTypeResolver {
     }
   }
 
-  @Mutation(() => dto.OilTypeUpdateResponse)
-  async oiltypeUpdate (
+  @Mutation(() => dto.OilTypeResearchUpdateResponse)
+  async oilTypeResearchUpdate (
     @Args('id', { type: () => Int }) id: number,
-    @Args('input') input: dto.OilTypeUpdateInput,
+    @Args('input') input: dto.OilTypeResearchUpdateInput,
     @CurrentUser() currentUser?: User
-  ): Promise<dto.OilTypeUpdateResponse> {
+  ): Promise<dto.OilTypeResearchUpdateResponse> {
     if (!currentUser) {
       return {
         error: new AuthenticationError(),
@@ -91,7 +99,7 @@ export class OilTypeResolver {
       }
     }
 
-    const record = await this.oiltypeService.findById(id)
+    const record = await this.oilTypeResearchService.findById(id)
 
     if (!record) {
       return {
@@ -107,7 +115,7 @@ export class OilTypeResolver {
       }
     }
 
-    await this.oiltypeService.update(record, input)
+    await this.oilTypeResearchService.update(record, input)
 
     return {
       record,
@@ -115,8 +123,9 @@ export class OilTypeResolver {
     }
   }
 
+
   @Mutation(() => DefaultMutationResponse)
-  async oiltypeDelete (
+  async oilTypeResearchDelete (
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
   ): Promise<DefaultMutationResponse> {
@@ -127,7 +136,7 @@ export class OilTypeResolver {
       }
     }
 
-    const record = await this.oiltypeService.findById(id)
+    const record = await this.oilTypeResearchService.findById(id)
 
     if (!record) {
       return {
@@ -143,7 +152,7 @@ export class OilTypeResolver {
       }
     }
 
-    await this.oiltypeService.delete(record)
+    await this.oilTypeResearchService.delete(record)
 
     return {
       success: true

@@ -13,6 +13,9 @@ import {
 } from '@nestjs/graphql'
 
 import { Maybe } from 'graphql/jsutils/Maybe'
+import { OilTypeIndicator } from './oil-type-indicator.entity'
+import { OilTypeResearch } from './oil-type-research.entity'
+import { Result } from '@app/result/entities/result.entity'
 
 @Entity()
 @ObjectType()
@@ -35,4 +38,16 @@ export class OilType {
   @Field(() => Date)
   @UpdateDateColumn()
   updatedAt: Date
+
+  @Field(() => [OilTypeIndicator], { nullable: 'items' })
+  @OneToMany(() => OilTypeIndicator, (oilTypeIndicator) => oilTypeIndicator.oilType)
+  indicators: Promise<OilTypeIndicator[]>
+
+  @Field(() => [OilTypeResearch], { nullable: 'items' })
+  @OneToMany(() => OilTypeResearch, (oilTypeResearch) => oilTypeResearch.oilType)
+  researches: Promise<OilTypeResearch[]>
+
+  @Field(() => [Result], { nullable: 'items' })
+  @OneToMany(() => Result, (result) => result.oilType)
+  results: Promise<Result[]>
 }
