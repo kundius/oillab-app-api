@@ -9,8 +9,8 @@ import {
   ObjectType
 } from '@nestjs/graphql'
 
-import { OilTypeIndicator } from '@app/oil-type/entities/oil-type-indicator.entity'
 import { Result } from './result.entity'
+import { OilTypeIndicator } from './oil-type-indicator.entity'
 
 @Entity()
 @ObjectType()

@@ -16,6 +16,7 @@ import {
 import { Maybe } from 'graphql/jsutils/Maybe'
 import { OilType } from './oil-type.entity'
 import { Result } from '@app/result/entities/result.entity'
+import { ResultIndicator } from '@app/result/entities/result-indicator.entity'
 
 @Entity()
 @ObjectType()
@@ -37,4 +38,7 @@ export class OilTypeIndicator {
 
   @ManyToOne(() => OilType, (oilType) => oilType.indicators)
   oilType: Promise<OilType>
+
+  @OneToMany(() => ResultIndicator, (resultIndicator) => resultIndicator.oilTypeIndicator)
+  resultIndicators: Promise<ResultIndicator[]>
 }

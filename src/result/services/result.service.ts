@@ -1,5 +1,3 @@
-import { OilTypeIndicatorService } from '@app/oil-type/services/oil-type-indicator.service'
-import { OilTypeService } from '@app/oil-type/services/oil-type.service'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { plainToClass } from 'class-transformer'
@@ -8,6 +6,8 @@ import { Repository, SelectQueryBuilder } from 'typeorm'
 import * as dto from '../dto/result.dto'
 import { ResultIndicator } from '../entities/result-indicator.entity'
 import { Result } from '../entities/result.entity'
+import { OilTypeIndicatorService } from './oil-type-indicator.service'
+import { OilTypeService } from './oil-type.service'
 
 @Injectable()
 export class ResultService {
@@ -42,7 +42,8 @@ export class ResultService {
 
   async update(record: Result, input: dto.ResultUpdateInput) {
     for (const row of input.values) {
-      const oilTypeIndicator = await this.oilTypeIndicatorService.findByIdOrFail(row.oilTypeIndicatorId)
+      const oilTypeIndicator = await this.oilTypeIndicatorService.findById(row.oilTypeIndicatorId)
+      if (!oilTypeIndicator) continue
       let indicator = await this.resultIndicatorRepository.findOne({
         where: {
           oilTypeIndicator: {

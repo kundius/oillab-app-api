@@ -6,6 +6,7 @@ import { Repository, SelectQueryBuilder } from 'typeorm'
 import * as dto from '../dto/oil-type-indicator.dto'
 import { OilTypeIndicator } from '../entities/oil-type-indicator.entity'
 import { OilType } from '../entities/oil-type.entity'
+import { ResultIndicator } from '../entities/result-indicator.entity'
 
 @Injectable()
 export class OilTypeIndicatorService {
@@ -15,7 +16,9 @@ export class OilTypeIndicatorService {
     @InjectRepository(OilType)
     private readonly oilTypeRepository: Repository<OilType>,
     @InjectRepository(OilTypeIndicator)
-    private readonly oilTypeIndicatorRepository: Repository<OilTypeIndicator>
+    private readonly oilTypeIndicatorRepository: Repository<OilTypeIndicator>,
+    @InjectRepository(ResultIndicator)
+    private readonly resultIndicatorRepository: Repository<ResultIndicator>
   ) {}
 
   async findById(id: number): Promise<OilTypeIndicator | undefined> {
@@ -45,6 +48,9 @@ export class OilTypeIndicatorService {
   }
 
   async delete(record: OilTypeIndicator) {
+    for (const resultIndicator of await record.resultIndicators) {
+      await this.resultIndicatorRepository.remove(resultIndicator)
+    }
     await this.oilTypeIndicatorRepository.remove(record)
   }
 

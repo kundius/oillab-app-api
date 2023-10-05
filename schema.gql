@@ -206,6 +206,32 @@ type ReportGeneratePdfResponse {
   record: File
 }
 
+type OilTypeResearch {
+  name: String!
+  id: Float!
+  oilType: OilType!
+}
+
+type OilType {
+  name: String!
+  standard: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  indicators: [OilTypeIndicator]!
+  researches: [OilTypeResearch]!
+  results: [Result]!
+  id: Float!
+}
+
+type OilTypeIndicator {
+  name: String!
+  ntd: String!
+  units: String!
+  id: Float!
+  oilType: OilType!
+  resultIndicators: [ResultIndicator!]!
+}
+
 type ResultIndicator {
   value: String
   result: Result!
@@ -222,29 +248,21 @@ type Result {
   indicators: [ResultIndicator!]!
 }
 
-type OilTypeIndicator {
-  name: String!
-  ntd: String!
-  units: String!
-  id: Float!
-  oilType: OilType!
+type ResultCreateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Result
 }
 
-type OilTypeResearch {
-  name: String!
-  id: Float!
-  oilType: OilType!
+type ResultUpdateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Result
 }
 
-type OilType {
-  name: String!
-  standard: Boolean!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  indicators: [OilTypeIndicator]!
-  researches: [OilTypeResearch]!
-  results: [Result]!
-  id: Float!
+type ResultPaginateResponse {
+  pageInfo: PageInfo!
+  items: [Result!]!
 }
 
 type OilTypeCreateResponse {
@@ -296,23 +314,6 @@ type OilTypeResearchListResponse {
   items: [OilTypeResearch!]!
 }
 
-type ResultCreateResponse {
-  success: Boolean!
-  error: DefaultError
-  record: Result
-}
-
-type ResultUpdateResponse {
-  success: Boolean!
-  error: DefaultError
-  record: Result
-}
-
-type ResultPaginateResponse {
-  pageInfo: PageInfo!
-  items: [Result!]!
-}
-
 type SignInResponse {
   success: Boolean!
   error: DefaultError
@@ -331,14 +332,14 @@ type Query {
   reportPaginate(perPage: Int = 12, page: Int = 1, sort: [ReportSort!], filter: ReportFilter): ReportPaginateResponse!
   lubricant(id: Int!): Lubricant
   lubricantPaginate(perPage: Int = 12, page: Int = 1, sort: [LubricantSort!], filter: LubricantFilter): LubricantPaginateResponse!
+  result(id: Int!): Result
+  resultPaginate(perPage: Int = 12, page: Int = 1, sort: [ResultSort!], filter: ResultFilter): ResultPaginateResponse!
   oiltype(id: Int!): OilType
   oiltypePaginate(perPage: Int = 12, page: Int = 1, sort: [OilTypeSort!], filter: OilTypeFilter): OilTypePaginateResponse!
   oilTypeIndicator(id: Int!): OilType
   oilTypeIndicatorList(oilTypeId: Int!): OilTypeIndicatorListResponse!
   oilTypeResearch(id: Int!): OilType
   oilTypeResearchList(oilTypeId: Int!): OilTypeResearchListResponse!
-  result(id: Int!): Result
-  resultPaginate(perPage: Int = 12, page: Int = 1, sort: [ResultSort!], filter: ResultFilter): ResultPaginateResponse!
 }
 
 enum UserSort {
@@ -454,6 +455,15 @@ enum LubricantSort {
   VISCOSITY_DESC
 }
 
+enum ResultSort {
+  ID_ASC
+  ID_DESC
+}
+
+input ResultFilter {
+  number: StringFilterOperator
+}
+
 enum OilTypeSort {
   NAME_ASC
   NAME_DESC
@@ -463,15 +473,6 @@ enum OilTypeSort {
 
 input OilTypeFilter {
   name: StringFilterOperator
-}
-
-enum ResultSort {
-  ID_ASC
-  ID_DESC
-}
-
-input ResultFilter {
-  number: StringFilterOperator
 }
 
 type Mutation {
@@ -489,6 +490,9 @@ type Mutation {
   lubricantCreate(input: LubricantCreateInput!): LubricantCreateResponse!
   lubricantUpdate(input: LubricantUpdateInput!, id: Int!): LubricantUpdateResponse!
   lubricantDelete(id: Int!): DefaultMutationResponse!
+  resultCreate(input: ResultCreateInput!): ResultCreateResponse!
+  resultUpdate(input: ResultUpdateInput!, id: Int!): ResultUpdateResponse!
+  resultDelete(id: Int!): DefaultMutationResponse!
   oiltypeCreate(input: OilTypeCreateInput!): OilTypeCreateResponse!
   oiltypeUpdate(input: OilTypeUpdateInput!, id: Int!): OilTypeUpdateResponse!
   oiltypeDelete(id: Int!): DefaultMutationResponse!
@@ -498,9 +502,6 @@ type Mutation {
   oilTypeResearchCreate(input: OilTypeResearchCreateInput!, oilTypeId: Int!): OilTypeResearchCreateResponse!
   oilTypeResearchUpdate(input: OilTypeResearchUpdateInput!, id: Int!): OilTypeResearchUpdateResponse!
   oilTypeResearchDelete(id: Int!): DefaultMutationResponse!
-  resultCreate(input: ResultCreateInput!): ResultCreateResponse!
-  resultUpdate(input: ResultUpdateInput!, id: Int!): ResultUpdateResponse!
-  resultDelete(id: Int!): DefaultMutationResponse!
 }
 
 input SignInInput {
@@ -594,6 +595,20 @@ input LubricantUpdateInput {
   viscosity: String
 }
 
+input ResultCreateInput {
+  number: String!
+  oilTypeId: Float!
+}
+
+input ResultUpdateInput {
+  values: [ResultUpdateIndicatorValue!]!
+}
+
+input ResultUpdateIndicatorValue {
+  value: String!
+  oilTypeIndicatorId: Float!
+}
+
 input OilTypeCreateInput {
   name: String!
   standard: Boolean!
@@ -622,18 +637,4 @@ input OilTypeResearchCreateInput {
 
 input OilTypeResearchUpdateInput {
   name: String
-}
-
-input ResultCreateInput {
-  number: String!
-  oilTypeId: Float!
-}
-
-input ResultUpdateInput {
-  values: [ResultUpdateIndicatorValue!]!
-}
-
-input ResultUpdateIndicatorValue {
-  value: String!
-  oilTypeIndicatorId: Float!
 }
