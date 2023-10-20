@@ -4,7 +4,8 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
+  BaseEntity
 } from 'typeorm'
 import {
   Field,
@@ -20,7 +21,7 @@ import { Report } from '@app/report/entities/report.entity'
 
 @Entity()
 @ObjectType()
-export class OilType {
+export class OilType extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number
 

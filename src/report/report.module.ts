@@ -10,14 +10,12 @@ import { Report } from './entities/report.entity'
 import { ReportResolver } from './resolvers/report.resolver'
 import { ReportService } from './services/report.service'
 import { ReportController } from './controllers/report.controller'
-import { ResultModule } from '@app/result/result.module'
 
 @Module({
   imports: [
     UserModule,
     VehicleModule,
     LubricantModule,
-    ResultModule,
     FileModule,
     TypeOrmModule.forFeature([Report])
   ],

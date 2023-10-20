@@ -17,7 +17,8 @@ import { File } from '@app/file/file.entity'
 import { User } from '@app/user/entities/user.entity'
 import { ProductType } from '@app/lubricant/entities/lubricant.entity'
 import { plainToClass } from 'class-transformer'
-import { OilTypeService } from '@app/result/services/oil-type.service'
+import { OilType } from '@app/result/entities/oil-type.entity'
+import { Result } from '@app/result/entities/result.entity'
 
 @Injectable()
 export class ReportService {
@@ -28,12 +29,11 @@ export class ReportService {
     private readonly reportRepository: Repository<Report>,
     private readonly userService: UserService,
     private readonly lubricantService: LubricantService,
-    private readonly oilTypeService: OilTypeService,
     private readonly vehicleService: VehicleService,
     private readonly fileService: FileService
   ) {}
 
-  async isFormNumberExists (formNumber: string): Promise<boolean> {
+  async isFormNumberExists(formNumber: string): Promise<boolean> {
     return !!(await this.reportRepository.findOne({ formNumber }))
   }
 
@@ -123,9 +123,7 @@ export class ReportService {
       if (oilTypeId === null) {
         record.oilType = Promise.resolve(null)
       } else {
-        const oilType = await this.oilTypeService.findByIdOrFail(
-          oilTypeId
-        )
+        const oilType = await OilType.findOneOrFail(oilTypeId)
         record.oilType = Promise.resolve(oilType)
       }
     }
@@ -293,7 +291,9 @@ export class ReportService {
           <td>${item.totalMileage}</td>
           <td>${item.lubricantMileage}</td>
           <td>${item.samplingNodes}</td>
-          <td>${lubricant?.brand} / ${lubricant?.model} / ${lubricant?.viscosity}</td>
+          <td>${lubricant?.brand} / ${lubricant?.model} / ${
+        lubricant?.viscosity
+      }</td>
           <td>${item.sampledAt.toLocaleDateString()}</td>
           <td>${item.note}</td>
         </tr>
@@ -397,7 +397,10 @@ export class ReportService {
     return number
   }
 
-  async getResultPdf(report: Report) {
+  async getResultStream(
+    report: Report,
+    result: Result
+  ): Promise<NodeJS.ReadableStream> {
     const getSelectionTitle = () => {
       if (lubricant?.productType === ProductType.Coolant) {
         return 'Информация об отборе образца охлаждающей жидкотсти:'
@@ -414,9 +417,7 @@ export class ReportService {
     const lubricant = await report?.lubricantEntity
     const vehicle = await report?.vehicle
     const customer = await report?.client
-    const productType = this.getProductTypeLabel(
-      lubricant?.productType
-    )
+    const productType = this.getProductTypeLabel(lubricant?.productType)
     const number = await this.getApplicationFormNumber(report)
 
     const html = `
@@ -858,5 +859,36 @@ export class ReportService {
       encoding: 'utf8',
       disableSmartShrinking: true
     })
+  }
+
+  async getResultBuffer(
+    report: Report,
+    result: Result
+  ): Promise<Buffer> {
+    const stream = await this.getResultStream(report, result)
+
+    return new Promise<Buffer>((resolve, reject) => {
+      const _buf = Array<any>()
+      stream.on('data', (chunk) => _buf.push(chunk))
+      stream.on('end', () => resolve(Buffer.concat(_buf)))
+      stream.on('error', (err) =>
+        reject(`error converting stream - ${err}`)
+      )
+    })
+  }
+
+  async getResultFile(
+    report: Report,
+    result: Result
+  ): Promise<File> {
+    const buffer = await this.getResultBuffer(report, result)
+
+    const file = await this.fileService.uploadAndCreateFile({
+      buffer,
+      dir: 'result/pdf',
+      name: nanoid()
+    })
+
+    return file
   }
 }

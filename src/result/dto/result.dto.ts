@@ -11,7 +11,7 @@ import { BaseFilter } from '@app/graphql/filters/BaseFilter'
 @InputType()
 export class ResultCreateInput {
   @Field()
-  number: string
+  formNumber: string
 
   @Field()
   oilTypeId: number
@@ -57,7 +57,7 @@ registerEnumType(ResultSort, {
 export class ResultFilter extends BaseFilter {
   @Field({ nullable: true })
   @Type(() => StringFilterOperator)
-  number?: StringFilterOperator
+  formNumber?: StringFilterOperator
 }
 
 @ArgsType()

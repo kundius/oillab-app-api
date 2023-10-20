@@ -5,7 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToMany
+  OneToMany,
+  BaseEntity
 } from 'typeorm'
 import {
   Field,
@@ -17,13 +18,13 @@ import { OilType } from './oil-type.entity'
 
 @Entity()
 @ObjectType()
-export class Result {
+export class Result extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number
 
   @Field()
   @Column()
-  number: string
+  formNumber: string
 
   @Field(() => Date)
   @CreateDateColumn()

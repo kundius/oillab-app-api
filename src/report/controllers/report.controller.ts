@@ -7,7 +7,9 @@ import {
   UnauthorizedException,
   NotFoundException,
   Param,
-  Res
+  Res,
+  BadRequestException,
+  StreamableFile
 } from '@nestjs/common'
 import { Response } from 'express'
 import { AuthGuard } from '@nestjs/passport'
@@ -16,6 +18,7 @@ import { CurrentUser } from '@app/auth/CurrentUser'
 import { User, UserRole } from '@app/user/entities/user.entity'
 import { ProductType } from '@app/lubricant/entities/lubricant.entity'
 import { ReportService } from '../services/report.service'
+import { Result } from '@app/result/entities/result.entity'
 
 const wkhtmltopdf = require('wkhtmltopdf')
 
@@ -531,7 +534,19 @@ export class ReportController {
       throw new NotFoundException()
     }
 
-    const stream = await this.reportService.getResultPdf(report)
+    if (!report.formNumber) {
+      throw new BadRequestException()
+    }
+
+    const result = await Result.findOne({
+      formNumber: report.formNumber
+    })
+
+    if (!result) {
+      throw new NotFoundException()
+    }
+
+    const stream = await this.reportService.getResultStream(report, result)
 
     stream.pipe(response)
   }

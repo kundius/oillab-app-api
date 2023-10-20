@@ -41,7 +41,7 @@ registerEnumType(ReportColor, {
 
 @Entity()
 @ObjectType()
-export class Report {
+export class Report extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number
 

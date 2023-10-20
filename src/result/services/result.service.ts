@@ -1,3 +1,6 @@
+import { ProductType } from '@app/lubricant/entities/lubricant.entity'
+import { Report } from '@app/report/entities/report.entity'
+import { ReportService } from '@app/report/services/report.service'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { plainToClass } from 'class-transformer'
@@ -19,7 +22,8 @@ export class ResultService {
     @InjectRepository(ResultIndicator)
     private readonly resultIndicatorRepository: Repository<ResultIndicator>,
     private readonly oilTypeIndicatorService: OilTypeIndicatorService,
-    private readonly oilTypeService: OilTypeService
+    private readonly oilTypeService: OilTypeService,
+    private readonly reportService: ReportService
   ) {}
 
   async findById(id: number): Promise<Result | undefined> {
@@ -35,12 +39,12 @@ export class ResultService {
     record.oilType = Promise.resolve(
       await this.oilTypeService.findByIdOrFail(input.oilTypeId)
     )
-    record.number = input.number
+    record.formNumber = input.formNumber
     await this.resultRepository.save(record)
     return record
   }
 
-  async update(record: Result, input: dto.ResultUpdateInput) {
+  async update(result: Result, input: dto.ResultUpdateInput) {
     for (const row of input.values) {
       const oilTypeIndicator = await this.oilTypeIndicatorService.findById(row.oilTypeIndicatorId)
       if (!oilTypeIndicator) continue
@@ -50,20 +54,28 @@ export class ResultService {
             id: oilTypeIndicator.id
           },
           result: {
-            id: record.id
+            id: result.id
           }
         }
       })
       if (!indicator) {
         indicator = await this.resultIndicatorRepository.create()
         indicator.oilTypeIndicator = Promise.resolve(oilTypeIndicator)
-        indicator.result = Promise.resolve(record)
+        indicator.result = Promise.resolve(result)
         await this.resultIndicatorRepository.save(indicator)
       }
       indicator.value = row.value
       await this.resultIndicatorRepository.save(indicator)
     }
-    return record
+    const report = await Report.findOne({
+      formNumber: result.formNumber
+    })
+    if (report) {
+      const file = await this.reportService.getResultFile(report, result)
+      report.laboratoryResult = Promise.resolve(file)
+      report.save()
+    }
+    return result
   }
 
   async delete(record: Result) {

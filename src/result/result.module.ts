@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { UserModule } from '@app/user/user.module'
+import { ReportModule } from '@app/report/report.module'
+import { FileModule } from '@app/file/file.module'
 
 import { Result } from './entities/result.entity'
 import { ResultResolver } from './resolvers/result.resolver'
@@ -20,6 +22,7 @@ import { OilTypeResearchResolver } from './resolvers/oil-type-research.resolver'
 @Module({
   imports: [
     UserModule,
+    ReportModule,
     TypeOrmModule.forFeature([Result, ResultIndicator, OilType, OilTypeIndicator, OilTypeResearch])
   ],
   providers: [
