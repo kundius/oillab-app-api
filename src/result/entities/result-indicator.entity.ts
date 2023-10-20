@@ -2,7 +2,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne
+  ManyToOne,
+  BaseEntity
 } from 'typeorm'
 import {
   Field,
@@ -10,11 +11,11 @@ import {
 } from '@nestjs/graphql'
 
 import { Result } from './result.entity'
-import { OilTypeIndicator } from './oil-type-indicator.entity'
+import { OilTypeIndicator } from '@app/oil-type/entities/oil-type-indicator.entity'
 
 @Entity()
 @ObjectType()
-export class ResultIndicator {
+export class ResultIndicator extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number
 

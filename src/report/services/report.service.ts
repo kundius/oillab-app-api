@@ -17,8 +17,8 @@ import { File } from '@app/file/file.entity'
 import { User } from '@app/user/entities/user.entity'
 import { ProductType } from '@app/lubricant/entities/lubricant.entity'
 import { plainToClass } from 'class-transformer'
-import { OilType } from '@app/result/entities/oil-type.entity'
 import { Result } from '@app/result/entities/result.entity'
+import { OilType } from '@app/oil-type/entities/oil-type.entity'
 
 @Injectable()
 export class ReportService {

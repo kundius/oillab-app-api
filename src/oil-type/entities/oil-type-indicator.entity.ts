@@ -5,7 +5,8 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne
+  ManyToOne,
+  BaseEntity
 } from 'typeorm'
 import {
   Field,
@@ -20,7 +21,7 @@ import { ResultIndicator } from '@app/result/entities/result-indicator.entity'
 
 @Entity()
 @ObjectType()
-export class OilTypeIndicator {
+export class OilTypeIndicator extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number
 

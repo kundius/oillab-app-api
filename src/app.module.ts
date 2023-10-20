@@ -10,6 +10,7 @@ import { LubricantModule } from './lubricant/lubricant.module'
 import { ResultModule } from './result/result.module'
 import { AuthModule } from './auth/auth.module'
 import { FileModule } from './file/file.module'
+import { OilTypeModule } from './oil-type/oil-type.module'
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { FileModule } from './file/file.module'
     ReportModule,
     LubricantModule,
     ResultModule,
+    OilTypeModule,
     TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
     GraphQLModule.forRoot(configService.getGqlConfig())
   ]

@@ -1,4 +1,6 @@
 import { ProductType } from '@app/lubricant/entities/lubricant.entity'
+import { OilTypeIndicator } from '@app/oil-type/entities/oil-type-indicator.entity'
+import { OilType } from '@app/oil-type/entities/oil-type.entity'
 import { Report } from '@app/report/entities/report.entity'
 import { ReportService } from '@app/report/services/report.service'
 import { Injectable } from '@nestjs/common'
@@ -9,8 +11,6 @@ import { Repository, SelectQueryBuilder } from 'typeorm'
 import * as dto from '../dto/result.dto'
 import { ResultIndicator } from '../entities/result-indicator.entity'
 import { Result } from '../entities/result.entity'
-import { OilTypeIndicatorService } from './oil-type-indicator.service'
-import { OilTypeService } from './oil-type.service'
 
 @Injectable()
 export class ResultService {
@@ -21,8 +21,6 @@ export class ResultService {
     private readonly resultRepository: Repository<Result>,
     @InjectRepository(ResultIndicator)
     private readonly resultIndicatorRepository: Repository<ResultIndicator>,
-    private readonly oilTypeIndicatorService: OilTypeIndicatorService,
-    private readonly oilTypeService: OilTypeService,
     private readonly reportService: ReportService
   ) {}
 
@@ -35,10 +33,11 @@ export class ResultService {
   }
 
   async create(input: dto.ResultCreateInput) {
+    const oilType = await OilType.findOneOrFail({
+      id: input.oilTypeId
+    })
     const record = await this.resultRepository.create()
-    record.oilType = Promise.resolve(
-      await this.oilTypeService.findByIdOrFail(input.oilTypeId)
-    )
+    record.oilType = Promise.resolve(oilType)
     record.formNumber = input.formNumber
     await this.resultRepository.save(record)
     return record
@@ -46,7 +45,9 @@ export class ResultService {
 
   async update(result: Result, input: dto.ResultUpdateInput) {
     for (const row of input.values) {
-      const oilTypeIndicator = await this.oilTypeIndicatorService.findById(row.oilTypeIndicatorId)
+      const oilTypeIndicator = await OilTypeIndicator.findOne({
+        id: row.oilTypeIndicatorId
+      })
       if (!oilTypeIndicator) continue
       let indicator = await this.resultIndicatorRepository.findOne({
         where: {

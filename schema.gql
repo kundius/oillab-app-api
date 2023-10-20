@@ -267,6 +267,13 @@ type ResultPaginateResponse {
   items: [Result!]!
 }
 
+type SignInResponse {
+  success: Boolean!
+  error: DefaultError
+  token: String
+  record: User
+}
+
 type OilTypeCreateResponse {
   success: Boolean!
   error: DefaultError
@@ -314,13 +321,6 @@ type OilTypeResearchUpdateResponse {
 
 type OilTypeResearchListResponse {
   items: [OilTypeResearch!]!
-}
-
-type SignInResponse {
-  success: Boolean!
-  error: DefaultError
-  token: String
-  record: User
 }
 
 type Query {

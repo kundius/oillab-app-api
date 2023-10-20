@@ -27,7 +27,7 @@ import { User } from '@app/user/entities/user.entity'
 import { Vehicle } from '@app/vehicle/entities/vehicle.entity'
 import { File } from '@app/file/file.entity'
 import { Lubricant } from '@app/lubricant/entities/lubricant.entity'
-import { OilType } from '@app/result/entities/oil-type.entity'
+import { OilType } from '@app/oil-type/entities/oil-type.entity'
 
 export enum ReportColor {
   Red = 'Red',
