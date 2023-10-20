@@ -509,6 +509,34 @@ export class ReportController {
   }
 
   @UseGuards(AuthGuard('jwt'))
+  @Get(':id/result')
+  @Header('Content-Type', 'application/pdf')
+  // @Header('Content-Disposition', 'attachment; filename=result.pdf')
+  async result(
+    @Param('id') id: string,
+    @Res() response: Response,
+    @CurrentUser() currentUser?: User
+  ): Promise<void> {
+    if (!currentUser) {
+      throw new UnauthorizedException()
+    }
+
+    if (currentUser.role !== UserRole.Administrator) {
+      throw new ForbiddenException()
+    }
+
+    const report = await this.reportService.findById(parseInt(id))
+
+    if (!report) {
+      throw new NotFoundException()
+    }
+
+    const stream = await this.reportService.getResultPdf(report)
+
+    stream.pipe(response)
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id/registrationSticker')
   @Header('Content-Type', 'application/pdf')
   // @Header('Content-Disposition', 'attachment; filename=registrationSticker.pdf')

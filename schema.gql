@@ -40,6 +40,49 @@ enum ProductType {
   Coolant
 }
 
+type Result {
+  number: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  oilType: OilType!
+  id: Float!
+  indicators: [ResultIndicator!]!
+}
+
+type ResultIndicator {
+  value: String
+  result: Result!
+  oilTypeIndicator: OilTypeIndicator!
+  id: Float!
+}
+
+type OilTypeIndicator {
+  name: String!
+  ntd: String!
+  units: String!
+  id: Float!
+  oilType: OilType!
+  resultIndicators: [ResultIndicator!]!
+}
+
+type OilTypeResearch {
+  name: String!
+  id: Float!
+  oilType: OilType!
+}
+
+type OilType {
+  name: String!
+  standard: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  indicators: [OilTypeIndicator]!
+  researches: [OilTypeResearch]!
+  results: [Result]!
+  reports: [Report]!
+  id: Float!
+}
+
 type Report {
   color: ReportColor
   number: Int
@@ -53,6 +96,7 @@ type Report {
   updatedAt: DateTime!
   client: User
   vehicle: Vehicle
+  oilType: OilType
   lubricantEntity: Lubricant
   laboratoryResult: File
   expressLaboratoryResult: File
@@ -206,46 +250,21 @@ type ReportGeneratePdfResponse {
   record: File
 }
 
-type OilTypeResearch {
-  name: String!
-  id: Float!
-  oilType: OilType!
+type OilTypeCreateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: OilType
 }
 
-type OilType {
-  name: String!
-  standard: Boolean!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  indicators: [OilTypeIndicator]!
-  researches: [OilTypeResearch]!
-  results: [Result]!
-  id: Float!
+type OilTypeUpdateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: OilType
 }
 
-type OilTypeIndicator {
-  name: String!
-  ntd: String!
-  units: String!
-  id: Float!
-  oilType: OilType!
-  resultIndicators: [ResultIndicator!]!
-}
-
-type ResultIndicator {
-  value: String
-  result: Result!
-  oilTypeIndicator: OilTypeIndicator!
-  id: Float!
-}
-
-type Result {
-  number: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  oilType: OilType!
-  id: Float!
-  indicators: [ResultIndicator!]!
+type OilTypePaginateResponse {
+  pageInfo: PageInfo!
+  items: [OilType!]!
 }
 
 type ResultCreateResponse {
@@ -263,23 +282,6 @@ type ResultUpdateResponse {
 type ResultPaginateResponse {
   pageInfo: PageInfo!
   items: [Result!]!
-}
-
-type OilTypeCreateResponse {
-  success: Boolean!
-  error: DefaultError
-  record: OilType
-}
-
-type OilTypeUpdateResponse {
-  success: Boolean!
-  error: DefaultError
-  record: OilType
-}
-
-type OilTypePaginateResponse {
-  pageInfo: PageInfo!
-  items: [OilType!]!
 }
 
 type OilTypeIndicatorCreateResponse {
@@ -558,6 +560,7 @@ input ReportCreateInput {
   sampledAt: DateTime!
   client: Int
   vehicle: Int
+  oilTypeId: Int
   lubricantEntityId: Int
   expressLaboratoryResult: Int
   laboratoryResult: Int
@@ -576,6 +579,7 @@ input ReportUpdateInput {
   sampledAt: DateTime
   client: Int
   vehicle: Int
+  oilTypeId: Int
   lubricantEntityId: Int
   expressLaboratoryResult: Int
   laboratoryResult: Int

@@ -52,6 +52,9 @@ export class ReportCreateInput {
   vehicle?: number
 
   @Field(() => Int, { nullable: true })
+  oilTypeId?: number
+
+  @Field(() => Int, { nullable: true })
   lubricantEntityId?: number
 
   @Field(() => Int, { nullable: true })
@@ -104,6 +107,9 @@ export class ReportUpdateInput {
 
   @Field(() => Int, { nullable: true })
   vehicle?: number
+
+  @Field(() => Int, { nullable: true })
+  oilTypeId?: number
 
   @Field(() => Int, { nullable: true })
   lubricantEntityId?: number

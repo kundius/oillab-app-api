@@ -27,6 +27,7 @@ import { User } from '@app/user/entities/user.entity'
 import { Vehicle } from '@app/vehicle/entities/vehicle.entity'
 import { File } from '@app/file/file.entity'
 import { Lubricant } from '@app/lubricant/entities/lubricant.entity'
+import { OilType } from '@app/result/entities/oil-type.entity'
 
 export enum ReportColor {
   Red = 'Red',
@@ -104,6 +105,10 @@ export class Report {
   @Field(() => Vehicle, { nullable: true })
   @ManyToOne(() => Vehicle, vehicle => vehicle.reports, { nullable: true })
   vehicle: Promise<Vehicle | null>
+
+  @Field(() => OilType, { nullable: true })
+  @ManyToOne(() => OilType, (oilType) => oilType.reports, { nullable: true })
+  oilType: Promise<OilType | null>
 
   @Field(() => Lubricant, { nullable: true })
   @ManyToOne(() => Lubricant, lubricant => lubricant.reports, { nullable: true })
