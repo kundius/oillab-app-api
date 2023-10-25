@@ -79,8 +79,11 @@ export class ResultService {
     return result
   }
 
-  async delete(record: Result) {
-    await this.resultRepository.remove(record)
+  async delete(result: Result) {
+    for (const indicator of await result.indicators) {
+      await ResultIndicator.remove(indicator)
+    }
+    await this.resultRepository.remove(result)
   }
 
   async paginate(
