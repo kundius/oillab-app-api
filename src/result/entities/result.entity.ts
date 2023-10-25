@@ -15,6 +15,7 @@ import {
 
 import { ResultIndicator } from './result-indicator.entity'
 import { OilType } from '@app/oil-type/entities/oil-type.entity'
+import { ResultResearch } from './result-research.entity'
 
 @Entity()
 @ObjectType()
@@ -40,4 +41,7 @@ export class Result extends BaseEntity {
 
   @OneToMany(() => ResultIndicator, (oilTypeIndicator) => oilTypeIndicator.result)
   indicators: Promise<ResultIndicator[]>
+
+  @OneToMany(() => ResultResearch, (oilTypeResearch) => oilTypeResearch.result)
+  researches: Promise<ResultResearch[]>
 }

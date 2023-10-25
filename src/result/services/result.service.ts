@@ -1,5 +1,6 @@
 import { ProductType } from '@app/lubricant/entities/lubricant.entity'
 import { OilTypeIndicator } from '@app/oil-type/entities/oil-type-indicator.entity'
+import { OilTypeResearch } from '@app/oil-type/entities/oil-type-research.entity'
 import { OilType } from '@app/oil-type/entities/oil-type.entity'
 import { Report } from '@app/report/entities/report.entity'
 import { ReportService } from '@app/report/services/report.service'
@@ -10,6 +11,7 @@ import { Repository, SelectQueryBuilder } from 'typeorm'
 
 import * as dto from '../dto/result.dto'
 import { ResultIndicator } from '../entities/result-indicator.entity'
+import { ResultResearch } from '../entities/result-research.entity'
 import { Result } from '../entities/result.entity'
 
 @Injectable()
@@ -49,7 +51,7 @@ export class ResultService {
         id: row.oilTypeIndicatorId
       })
       if (!oilTypeIndicator) continue
-      let indicator = await this.resultIndicatorRepository.findOne({
+      let indicator = await ResultIndicator.findOne({
         where: {
           oilTypeIndicator: {
             id: oilTypeIndicator.id
@@ -60,13 +62,37 @@ export class ResultService {
         }
       })
       if (!indicator) {
-        indicator = await this.resultIndicatorRepository.create()
+        indicator = await ResultIndicator.create()
         indicator.oilTypeIndicator = Promise.resolve(oilTypeIndicator)
         indicator.result = Promise.resolve(result)
-        await this.resultIndicatorRepository.save(indicator)
+        await ResultIndicator.save(indicator)
       }
       indicator.value = row.value
-      await this.resultIndicatorRepository.save(indicator)
+      await ResultIndicator.save(indicator)
+    }
+    for (const row of input.researches) {
+      const oilTypeResearch = await OilTypeResearch.findOne({
+        id: row.oilTypeResearchId
+      })
+      if (!oilTypeResearch) continue
+      let research = await ResultResearch.findOne({
+        where: {
+          oilTypeResearch: {
+            id: oilTypeResearch.id
+          },
+          result: {
+            id: result.id
+          }
+        }
+      })
+      if (!research) {
+        research = await ResultResearch.create()
+        research.oilTypeResearch = Promise.resolve(oilTypeResearch)
+        research.result = Promise.resolve(result)
+        await ResultResearch.save(research)
+      }
+      research.value = row.value
+      await ResultResearch.save(research)
     }
     const report = await Report.findOne({
       formNumber: result.formNumber

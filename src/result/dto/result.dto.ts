@@ -33,9 +33,21 @@ export class ResultUpdateIndicatorValue {
 }
 
 @InputType()
+export class ResultUpdateResearchValue {
+  @Field()
+  value: string
+
+  @Field()
+  oilTypeResearchId: number
+}
+
+@InputType()
 export class ResultUpdateInput {
   @Field(() => [ResultUpdateIndicatorValue])
   values: ResultUpdateIndicatorValue[]
+
+  @Field(() => [ResultUpdateResearchValue])
+  researches: ResultUpdateResearchValue[]
 }
 
 @ObjectType()

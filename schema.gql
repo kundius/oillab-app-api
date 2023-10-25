@@ -40,6 +40,19 @@ enum ProductType {
   Coolant
 }
 
+type OilTypeResearch {
+  name: String!
+  id: Float!
+  oilType: OilType!
+}
+
+type ResultResearch {
+  value: String
+  result: Result!
+  oilTypeResearch: OilTypeResearch!
+  id: Float!
+}
+
 type Result {
   formNumber: String!
   createdAt: DateTime!
@@ -47,6 +60,7 @@ type Result {
   oilType: OilType!
   id: Float!
   indicators: [ResultIndicator!]!
+  researches: [ResultResearch!]!
 }
 
 type ResultIndicator {
@@ -63,12 +77,6 @@ type OilTypeIndicator {
   id: Float!
   oilType: OilType!
   resultIndicators: [ResultIndicator!]!
-}
-
-type OilTypeResearch {
-  name: String!
-  id: Float!
-  oilType: OilType!
 }
 
 type OilType {
@@ -606,11 +614,17 @@ input ResultCreateInput {
 
 input ResultUpdateInput {
   values: [ResultUpdateIndicatorValue!]!
+  researches: [ResultUpdateResearchValue!]!
 }
 
 input ResultUpdateIndicatorValue {
   value: String!
   oilTypeIndicatorId: Float!
+}
+
+input ResultUpdateResearchValue {
+  value: String!
+  oilTypeResearchId: Float!
 }
 
 input OilTypeCreateInput {
