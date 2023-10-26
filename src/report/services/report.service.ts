@@ -420,6 +420,20 @@ export class ReportService {
     const productType = this.getProductTypeLabel(lubricant?.productType)
     const number = await this.getApplicationFormNumber(report)
 
+//     {
+//       canvas: [
+//          {
+//              type: 'line',
+//              x1: 0,
+//              y1: 0,
+//              x2: 250,
+//              y2: 0,
+//              lineWidth: 0.5
+//          }
+//      ],
+//      marginBottom: 6,
+//      marginTop: 2
+//  },
     const html = `
       <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
       <style>
@@ -449,6 +463,7 @@ export class ReportService {
         }
         .screen {
           min-height: 100vh;
+          min-height: 100%;
         }
         .title-normal {
           font-size: 1.25rem;
