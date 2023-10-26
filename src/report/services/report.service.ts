@@ -487,6 +487,7 @@ export class ReportService {
           min-height: 1.5rem;
           position: relative;
           overflow: hidden;
+          font-weight: bold;
         }
         .field__input::before {
           content: '';
