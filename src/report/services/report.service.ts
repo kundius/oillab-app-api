@@ -543,6 +543,7 @@ export class ReportService {
         }
       </style>
       <div class="screen">
+        <div class="test"></div>
         <table style="font-size: 1rem">
           <tr>
             <td>
@@ -894,6 +895,11 @@ export class ReportService {
           ${report?.note || ''}
         </div>
       </div>
+
+      <script>
+      const test = document.querySelector('.test');
+      test.innerHTML = 'test ' + window.innerHeight;
+      </script>
     `
 
     return wkhtmltopdf(html, {
