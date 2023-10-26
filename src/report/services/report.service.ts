@@ -447,6 +447,9 @@ export class ReportService {
         td {
           vertical-align: top;
         }
+        .screen {
+          min-height: 100vh;
+        }
         .title-normal {
           font-size: 1.25rem;
           line-height: 1;
@@ -524,278 +527,280 @@ export class ReportService {
           border-spacing: 1.5rem 0.75rem;
         }
       </style>
-      <table style="font-size: 1rem">
-        <tr>
-          <td>
-            <img src="${configService.getOrigin()}/images/logo.png" width="200" height="90" />
-          </td>
-          <td style="text-align: center; vertical-align: middle">
-            Испытательная лаборатория (центр)<br />
-            Общество с Ограниченной Ответственностью<br />
-            <strong>«OILLAB»</strong>
-          </td>
-          <td style="text-align: right">
-            <img src="${configService.getOrigin()}/images/qr-code.png" width="90" height="90" />
-          </td>
-        </tr>
-        <tr>
-          <td colspan="3" style="height: 1rem"></td>
-        </tr>
-        <tr>
-          <td colspan="2">
-            Воронежская область, город Воронеж, Ленинский проспект, дом 156в<br />
-            8-962-328-89-16
-          </td>
-          <td style="text-align: right">
-            oillabvrn@yandex.ru<br />
-            www.oillabvrn.ru
-          </td>
-        </tr>
-      </table>
-
-      <hr />
-
-      <div class="fields">
-        <table>
-          <tr>
-            <td width="50%">
-              <div class="field field_vertical">
-                <div class="field__label">
-                  ПРОТОКОЛ РЕЗУЛЬТАТОВ ИЗМЕРЕНИЙ
-                </div>
-                <div class="field__input">
-                  № ${report.formNumber} от ${report.createdAt.toLocaleDateString('ru-RU')}
-                </div>
-              </div>
-            </td>
-            <td width="50%">
-              <div class="field field_vertical">
-                <div class="field__label">
-                  НОМЕР ОБРАЗЦА ЗАКАЗЧИКА
-                </div>
-                <div class="field__input">
-                  ${number}
-                </div>
-              </div>
-            </td>
-          </tr>
-        </table>
-      </div>
-
-      <hr />
-
-      <div class="title-normal">
-        Данные владельца техники / заказчика
-      </div>
-
-      <div class="fields">
-        <table>
+      <div class="screen">
+        <table style="font-size: 1rem">
           <tr>
             <td>
-              <div class="field">
-                <div class="field__label">
-                  Организация
-                </div>
-                <div class="field__input">
-                  ${customer?.name || ''}
-                </div>
-              </div>
+              <img src="${configService.getOrigin()}/images/logo.png" width="200" height="90" />
             </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Контактный телефон
-                </div>
-                <div class="field__input">
-                  ${customer?.phone || ''}
-                </div>
-              </div>
+            <td style="text-align: center; vertical-align: middle">
+              Испытательная лаборатория (центр)<br />
+              Общество с Ограниченной Ответственностью<br />
+              <strong>«OILLAB»</strong>
+            </td>
+            <td style="text-align: right">
+              <img src="${configService.getOrigin()}/images/qr-code.png" width="90" height="90" />
             </td>
           </tr>
           <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Контактное лицо
-                </div>
-                <div class="field__input">
-                  ${customer?.contactPerson || ''}
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Электронная почта
-                </div>
-                <div class="field__input">
-                  ${customer?.email || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-        </table>
-      </div>
-
-      <hr />
-
-      <div class="title-normal">
-        Техника / точка отбора образца
-      </div>
-
-      <div class="fields">
-        <table>
-          <tr>
-            <td colspan="2">
-              <div class="field">
-                <div class="field__label">
-                  Производитель оборудования
-                </div>
-                <div class="field__input">
-                  ${vehicle?.model || ''}
-                </div>
-              </div>
-            </td>
+            <td colspan="3" style="height: 1rem"></td>
           </tr>
           <tr>
             <td colspan="2">
-              <div class="field">
-                <div class="field__label">
-                  Регистрационный номер
-                </div>
-                <div class="field__input">
-                  ${vehicle?.stateNumber || ''}
-                </div>
-              </div>
+              Воронежская область, город Воронеж, Ленинский проспект, дом 156в<br />
+              8-962-328-89-16
             </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Модель оборудования
-                </div>
-                <div class="field__input">
-                  ${vehicle?.engineModel || ''}
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Год выпуска
-                </div>
-                <div class="field__input">
-                  ${vehicle?.releaseYear || ''}
-                </div>
-              </div>
+            <td style="text-align: right">
+              oillabvrn@yandex.ru<br />
+              www.oillabvrn.ru
             </td>
           </tr>
         </table>
+
+        <hr />
+
+        <div class="fields">
+          <table>
+            <tr>
+              <td width="50%">
+                <div class="field field_vertical">
+                  <div class="field__label">
+                    ПРОТОКОЛ РЕЗУЛЬТАТОВ ИЗМЕРЕНИЙ
+                  </div>
+                  <div class="field__input">
+                    № ${report.formNumber} от ${report.createdAt.toLocaleDateString('ru-RU')}
+                  </div>
+                </div>
+              </td>
+              <td width="50%">
+                <div class="field field_vertical">
+                  <div class="field__label">
+                    НОМЕР ОБРАЗЦА ЗАКАЗЧИКА
+                  </div>
+                  <div class="field__input">
+                    ${number}
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <hr />
+
+        <div class="title-normal">
+          Данные владельца техники / заказчика
         </div>
 
         <div class="fields">
-        <table>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Общая наработка узла
+          <table>
+            <tr>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                    Организация
+                  </div>
+                  <div class="field__input">
+                    ${customer?.name || ''}
+                  </div>
                 </div>
-                <div class="field__input">
-                  ${report?.totalMileage || ''}
+              </td>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                    Контактный телефон
+                  </div>
+                  <div class="field__input">
+                    ${customer?.phone || ''}
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Объём жидкости в оборудовании
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                    Контактное лицо
+                  </div>
+                  <div class="field__input">
+                    ${customer?.contactPerson || ''}
+                  </div>
                 </div>
-                <div class="field__input">
-                  ${vehicle?.liquidVolume || ''}
+              </td>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                    Электронная почта
+                  </div>
+                  <div class="field__input">
+                    ${customer?.email || ''}
+                  </div>
                 </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Общая наработка на СМ
-                </div>
-                <div class="field__input">
-                  ${report?.lubricantMileage || ''}
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Долив СМ
-                </div>
-                <div class="field__input">
-                  ${report?.vehicleToppingUpLubricant || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-        </table>
-      </div>
+              </td>
+            </tr>
+          </table>
+        </div>
 
-      <hr />
+        <hr />
 
-      <div class="title-normal">
-        Информация о смазочном материале
-      </div>
+        <div class="title-normal">
+          Техника / точка отбора образца
+        </div>
 
-      <div class="fields">
-        <table>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                Бренд СМ
+        <div class="fields">
+          <table>
+            <tr>
+              <td colspan="2">
+                <div class="field">
+                  <div class="field__label">
+                    Производитель оборудования
+                  </div>
+                  <div class="field__input">
+                    ${vehicle?.model || ''}
+                  </div>
                 </div>
-                <div class="field__input">
-                  ${lubricant?.brand || ''}
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <div class="field">
+                  <div class="field__label">
+                    Регистрационный номер
+                  </div>
+                  <div class="field__input">
+                    ${vehicle?.stateNumber || ''}
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                Вязкость
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                    Модель оборудования
+                  </div>
+                  <div class="field__input">
+                    ${vehicle?.engineModel || ''}
+                  </div>
                 </div>
-                <div class="field__input">
-                  ${lubricant?.viscosity || ''}
+              </td>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                    Год выпуска
+                  </div>
+                  <div class="field__input">
+                    ${vehicle?.releaseYear || ''}
+                  </div>
                 </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                Марка СМ
+              </td>
+            </tr>
+          </table>
+          </div>
+
+          <div class="fields">
+          <table>
+            <tr>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                    Общая наработка узла
+                  </div>
+                  <div class="field__input">
+                    ${report?.totalMileage || ''}
+                  </div>
                 </div>
-                <div class="field__input">
-                  ${lubricant?.model || ''}
+              </td>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                    Объём жидкости в оборудовании
+                  </div>
+                  <div class="field__input">
+                    ${vehicle?.liquidVolume || ''}
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                Состояние СМ
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                    Общая наработка на СМ
+                  </div>
+                  <div class="field__input">
+                    ${report?.lubricantMileage || ''}
+                  </div>
                 </div>
-                <div class="field__input">
-                  ${report?.lubricantState || ''}
+              </td>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                    Долив СМ
+                  </div>
+                  <div class="field__input">
+                    ${report?.vehicleToppingUpLubricant || ''}
+                  </div>
                 </div>
-              </div>
-            </td>
-          </tr>
-        </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <hr />
+
+        <div class="title-normal">
+          Информация о смазочном материале
+        </div>
+
+        <div class="fields">
+          <table>
+            <tr>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                  Бренд СМ
+                  </div>
+                  <div class="field__input">
+                    ${lubricant?.brand || ''}
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                  Вязкость
+                  </div>
+                  <div class="field__input">
+                    ${lubricant?.viscosity || ''}
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                  Марка СМ
+                  </div>
+                  <div class="field__input">
+                    ${lubricant?.model || ''}
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="field">
+                  <div class="field__label">
+                  Состояние СМ
+                  </div>
+                  <div class="field__input">
+                    ${report?.lubricantState || ''}
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
 
       <hr />
