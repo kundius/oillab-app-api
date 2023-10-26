@@ -557,7 +557,7 @@ export class ReportService {
       <div class="fields">
         <table>
           <tr>
-            <td>
+            <td width="50%">
               <div class="field field_vertical">
                 <div class="field__label">
                   ПРОТОКОЛ РЕЗУЛЬТАТОВ ИЗМЕРЕНИЙ
@@ -567,7 +567,7 @@ export class ReportService {
                 </div>
               </div>
             </td>
-            <td>
+            <td width="50%">
               <div class="field field_vertical">
                 <div class="field__label">
                   НОМЕР ОБРАЗЦА ЗАКАЗЧИКА
