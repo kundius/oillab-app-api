@@ -465,6 +465,9 @@ export class ReportService {
         }
         .field_vertical {
           flex-direction: column;
+          -webkit-box-orient: vertical;
+          -webkit-box-direction: normal;
+          -webkit-flex-direction: column;
         }
         .field__label {
           font-size: 1rem;
