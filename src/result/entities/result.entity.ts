@@ -37,7 +37,7 @@ export class Result extends BaseEntity {
 
   @Field(() => OilType)
   @ManyToOne(() => OilType, (oilType) => oilType.results)
-  oilType: Promise<OilType | null>
+  oilType: Promise<OilType>
 
   @OneToMany(() => ResultIndicator, (oilTypeIndicator) => oilTypeIndicator.result)
   indicators: Promise<ResultIndicator[]>

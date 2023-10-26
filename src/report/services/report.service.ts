@@ -463,6 +463,9 @@ export class ReportService {
           display: -webkit-box;
           display: flex;
         }
+        .field_vertical {
+          flex-direction: column;
+        }
         .field__label {
           font-size: 1rem;
           line-height: 1.5rem;
@@ -548,13 +551,31 @@ export class ReportService {
 
       <hr />
 
-      <div class="field">
-        <div class="field__label field__label_large">
-          №&nbsp;образца
-        </div>
-        <div class="field__input">
-          ${number}
-        </div>
+      <div class="fields">
+        <table>
+          <tr>
+            <td>
+              <div class="field field_vertical">
+                <div class="field__label">
+                  ПРОТОКОЛ РЕЗУЛЬТАТОВ ИЗМЕРЕНИЙ
+                </div>
+                <div class="field__input">
+                  № ${report.formNumber} от ${report.createdAt.toLocaleDateString('ru-RU')}
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="field field_vertical">
+                <div class="field__label">
+                  НОМЕР ОБРАЗЦА ЗАКАЗЧИКА
+                </div>
+                <div class="field__input">
+                  ${number}
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
       </div>
 
       <hr />
@@ -577,36 +598,36 @@ export class ReportService {
               </div>
             </td>
             <td>
-            <div class="field">
-              <div class="field__label">
-                Контактный телефон
+              <div class="field">
+                <div class="field__label">
+                  Контактный телефон
+                </div>
+                <div class="field__input">
+                  ${customer?.phone || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${customer?.phone || ''}
-              </div>
-            </div>
             </td>
           </tr>
           <tr>
             <td>
-            <div class="field">
-              <div class="field__label">
-                Контактное лицо
+              <div class="field">
+                <div class="field__label">
+                  Контактное лицо
+                </div>
+                <div class="field__input">
+                  ${customer?.contactPerson || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${customer?.contactPerson || ''}
-              </div>
-            </div>
             </td>
             <td>
-            <div class="field">
-              <div class="field__label">
-                Электронная почта
+              <div class="field">
+                <div class="field__label">
+                  Электронная почта
+                </div>
+                <div class="field__input">
+                  ${customer?.email || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${customer?.email || ''}
-              </div>
-            </div>
             </td>
           </tr>
         </table>
@@ -624,7 +645,7 @@ export class ReportService {
             <td colspan="2">
               <div class="field">
                 <div class="field__label">
-                Производитель оборудования
+                  Производитель оборудования
                 </div>
                 <div class="field__input">
                   ${vehicle?.model || ''}
@@ -634,36 +655,36 @@ export class ReportService {
           </tr>
           <tr>
             <td colspan="2">
-            <div class="field">
-              <div class="field__label">
-              Регистрационный номер
+              <div class="field">
+                <div class="field__label">
+                  Регистрационный номер
+                </div>
+                <div class="field__input">
+                  ${vehicle?.stateNumber || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${vehicle?.stateNumber || ''}
-              </div>
-            </div>
             </td>
           </tr>
           <tr>
             <td>
-            <div class="field">
-              <div class="field__label">
-              Модель оборудования
+              <div class="field">
+                <div class="field__label">
+                  Модель оборудования
+                </div>
+                <div class="field__input">
+                  ${vehicle?.engineModel || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${vehicle?.engineModel || ''}
-              </div>
-            </div>
             </td>
             <td>
-            <div class="field">
-              <div class="field__label">
-              Год выпуска
+              <div class="field">
+                <div class="field__label">
+                  Год выпуска
+                </div>
+                <div class="field__input">
+                  ${vehicle?.releaseYear || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${vehicle?.releaseYear || ''}
-              </div>
-            </div>
             </td>
           </tr>
         </table>
@@ -675,7 +696,7 @@ export class ReportService {
             <td>
               <div class="field">
                 <div class="field__label">
-                Общая наработка узла
+                  Общая наработка узла
                 </div>
                 <div class="field__input">
                   ${report?.totalMileage || ''}
@@ -683,36 +704,36 @@ export class ReportService {
               </div>
             </td>
             <td>
-            <div class="field">
-              <div class="field__label">
-              Объём жидкости в оборудовании
+              <div class="field">
+                <div class="field__label">
+                  Объём жидкости в оборудовании
+                </div>
+                <div class="field__input">
+                  ${vehicle?.liquidVolume || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${vehicle?.liquidVolume || ''}
-              </div>
-            </div>
             </td>
           </tr>
           <tr>
             <td>
-            <div class="field">
-              <div class="field__label">
-              Общая наработка на СМ
+              <div class="field">
+                <div class="field__label">
+                  Общая наработка на СМ
+                </div>
+                <div class="field__input">
+                  ${report?.lubricantMileage || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${report?.lubricantMileage || ''}
-              </div>
-            </div>
             </td>
             <td>
-            <div class="field">
-              <div class="field__label">
-              Долив СМ
+              <div class="field">
+                <div class="field__label">
+                  Долив СМ
+                </div>
+                <div class="field__input">
+                  ${report?.vehicleToppingUpLubricant || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${report?.vehicleToppingUpLubricant || ''}
-              </div>
-            </div>
             </td>
           </tr>
         </table>
@@ -738,36 +759,36 @@ export class ReportService {
               </div>
             </td>
             <td>
-            <div class="field">
-              <div class="field__label">
-              Вязкость
+              <div class="field">
+                <div class="field__label">
+                Вязкость
+                </div>
+                <div class="field__input">
+                  ${lubricant?.viscosity || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${lubricant?.viscosity || ''}
-              </div>
-            </div>
             </td>
           </tr>
           <tr>
             <td>
-            <div class="field">
-              <div class="field__label">
-              Марка СМ
+              <div class="field">
+                <div class="field__label">
+                Марка СМ
+                </div>
+                <div class="field__input">
+                  ${lubricant?.model || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${lubricant?.model || ''}
-              </div>
-            </div>
             </td>
             <td>
-            <div class="field">
-              <div class="field__label">
-              Состояние СМ
+              <div class="field">
+                <div class="field__label">
+                Состояние СМ
+                </div>
+                <div class="field__input">
+                  ${report?.lubricantState || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${report?.lubricantState || ''}
-              </div>
-            </div>
             </td>
           </tr>
         </table>
@@ -783,21 +804,21 @@ export class ReportService {
         <table>
           <tr>
             <td colspan="2">
-            <div class="field">
-              <div class="field__label">
-              Номер образца
+              <div class="field">
+                <div class="field__label">
+                Номер образца
+                </div>
+                <div class="field__input">
+                ${number}
+                </div>
               </div>
-              <div class="field__input">
-              ${number}
-              </div>
-            </div>
             </td>
           </tr>
           <tr>
             <td style="width: 50%">
               <div class="field">
                 <div class="field__label">
-                Вид
+                  Вид
                 </div>
                 <div class="field__input">
                   ${productType || ''}
@@ -805,36 +826,36 @@ export class ReportService {
               </div>
             </td>
             <td>
-            <div class="field">
-              <div class="field__label">
-              Объём образца
+              <div class="field">
+                <div class="field__label">
+                  Объём образца
+                </div>
+                <div class="field__input">
+                  ${report?.selectionVolume || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${report?.selectionVolume || ''}
-              </div>
-            </div>
             </td>
           </tr>
           <tr>
             <td>
-            <div class="field">
-              <div class="field__label">
-              Бренд
+              <div class="field">
+                <div class="field__label">
+                  Бренд
+                </div>
+                <div class="field__input">
+                  ${lubricant?.brand || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${lubricant?.brand || ''}
-              </div>
-            </div>
             </td>
             <td>
-            <div class="field">
-              <div class="field__label">
-              Место отбора пробы
+              <div class="field">
+                <div class="field__label">
+                Место отбора пробы
+                </div>
+                <div class="field__input">
+                  ${report?.samplingNodes || ''}
+                </div>
               </div>
-              <div class="field__input">
-                ${report?.samplingNodes || ''}
-              </div>
-            </div>
             </td>
           </tr>
         </table>

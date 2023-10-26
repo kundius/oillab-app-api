@@ -31,6 +31,7 @@
     "aws-sdk": "^2.987.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
+    "date-fns": "^2.30.0",
     "file-type": "^16.5.3",
     "graphql": "^15.5.3",
     "graphql-fields-to-relations": "^1.0.4",
