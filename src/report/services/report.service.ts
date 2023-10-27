@@ -479,6 +479,9 @@ export class ReportService {
           -webkit-box-direction: normal;
           -webkit-flex-direction: column;
         }
+        .field_lhw .field__label {
+          width: 50%;
+        }
         .field__label {
           font-size: 1rem;
           line-height: 1.5rem;
@@ -816,7 +819,7 @@ export class ReportService {
         Результаты измерений
       </div>
 
-      <div class="field">
+      <div class="field field_lhw">
         <div class="field__label">
         Номер
         </div>
@@ -825,7 +828,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field">
+      <div class="field field_lhw">
         <div class="field__label">
         Тип СМ
         </div>
@@ -834,7 +837,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field">
+      <div class="field field_lhw">
         <div class="field__label">
         Бренд СМ
         </div>
@@ -843,7 +846,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field">
+      <div class="field field_lhw">
         <div class="field__label">
         Номер протокола
         </div>
@@ -852,7 +855,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field">
+      <div class="field field_lhw">
         <div class="field__label">
         Дата выдачи заключения
         </div>
@@ -861,7 +864,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field">
+      <div class="field field_lhw">
         <div class="field__label">
         Общая наработка узла
         </div>
@@ -870,7 +873,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field">
+      <div class="field field_lhw">
         <div class="field__label">
         Общая наработка на СМ
         </div>
@@ -879,7 +882,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field">
+      <div class="field field_lhw">
         <div class="field__label">
         Долив СМ
         </div>
