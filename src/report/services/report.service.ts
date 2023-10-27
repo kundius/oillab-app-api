@@ -419,7 +419,21 @@ export class ReportService {
     const customer = await report?.client
     const productType = this.getProductTypeLabel(lubricant?.productType)
     const number = await this.getApplicationFormNumber(report)
-    const indicators = await result.indicators
+    const resultIndicators = await result.indicators
+    let indicators = ''
+    
+    for (const resultIndicator of resultIndicators) {
+      const oilTypeIndicator = await resultIndicator.oilTypeIndicator
+      if (oilTypeIndicator) {
+        indicators += `
+        <tr>
+          <td>${oilTypeIndicator.name}</td>
+          <td>${oilTypeIndicator.ntd}</td>
+          <td>${resultIndicator.value}</td>
+        </tr>
+        `
+      }
+    }
 
     const html = `
       <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
@@ -895,18 +909,7 @@ export class ReportService {
           <th>Метод измерения</th>
           <th>Результат</th>
         </tr>
-        ${Promise.all(indicators.map(async (item) => {
-          const indicator = await item.oilTypeIndicator
-          if (indicator) {
-            return `
-            <tr>
-              <td>${indicator.name}</td>
-              <td>${indicator.ntd}</td>
-              <td>${item.value}</td>
-            </tr>
-            `
-          }
-        }))}
+        ${indicators}
       </table>
 
       <hr />
