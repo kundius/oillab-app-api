@@ -419,9 +419,10 @@ export class ReportService {
     const customer = await report?.client
     const productType = this.getProductTypeLabel(lubricant?.productType)
     const number = await this.getApplicationFormNumber(report)
+    const oilType = await result.oilType
+
     const resultIndicators = await result.indicators
-    let indicators = ''
-    
+    let indicators = ''    
     for (const resultIndicator of resultIndicators) {
       const oilTypeIndicator = await resultIndicator.oilTypeIndicator
       if (oilTypeIndicator) {
@@ -429,7 +430,25 @@ export class ReportService {
         <tr>
           <td>${oilTypeIndicator.name}</td>
           <td>${oilTypeIndicator.ntd}</td>
+          <td>${oilTypeIndicator.units}</td>
           <td>${resultIndicator.value}</td>
+        </tr>
+        `
+      }
+    }
+
+    const resultResearches = await result.researches
+    let researches = ''  
+    let i = 0  
+    for (const resultResearch of resultResearches) {
+      i++
+      const oilTypeIndicator = await resultResearch.oilTypeResearch
+      if (oilTypeIndicator) {
+        researches += `
+        <tr>
+          <td>${i}</td>
+          <td>${oilTypeIndicator.name}</td>
+          <td>${resultResearch.value}</td>
         </tr>
         `
       }
@@ -919,6 +938,7 @@ export class ReportService {
         <tr>
           <th>Параметры</th>
           <th>Метод измерения</th>
+          <th>Единицы измерения</th>
           <th>Результат</th>
         </tr>
         ${indicators}
@@ -926,13 +946,32 @@ export class ReportService {
 
       <hr />
   
+      ${oilType.standard ? `
+      <div class="title-normal">
+        Интерпретация полученных данных
+      </div>
+
+      <table class="table-indicators">
+        <tr>
+          <th>№</th>
+          <th>Направленность исследования</th>
+          <th>Результат</th>
+        </tr>
+        ${researches}
+      </table>
+
+      <p>
+        Масло по проверенным показателям соответствует НТД на данный вид масла.
+      </p>
+      ` : `
       <div class="title-normal">
         Интерпретация полученных данных
       </div>
 
       <p>
-        Масло по проверенным показателям соответствует НТД на данный вид масла. Результат сравнения значений 2020 года и 2022 года. Показывают сопоставимые значения. Проверенные под нагрузкой щелочное число, так же говорит о качественном европейском пакете присадок. Масло скорее оригинал, чем иначе.
+        Масло по проверенным показателям   соответствует НТД на данный вид масла. Результат сравнения значений 2020 года и 2022 года. Показывают сопоставимые значения. Проверенные под нагрузкой щелочное число, так же говорит о качественном европейском пакете присадок. Масло скорее оригинал, чем иначе.
       </p>
+      `}
     `
 
     return wkhtmltopdf(html, {
