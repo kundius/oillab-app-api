@@ -419,6 +419,7 @@ export class ReportService {
     const customer = await report?.client
     const productType = this.getProductTypeLabel(lubricant?.productType)
     const number = await this.getApplicationFormNumber(report)
+    const indicators = await result.indicators
 
     const html = `
       <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
@@ -478,9 +479,6 @@ export class ReportService {
           -webkit-box-orient: vertical;
           -webkit-box-direction: normal;
           -webkit-flex-direction: column;
-        }
-        .field_lhw .field__label {
-          width: 50%;
         }
         .field__label {
           font-size: 1rem;
@@ -819,7 +817,7 @@ export class ReportService {
         Результаты измерений
       </div>
 
-      <div class="field field_lhw">
+      <div class="field">
         <div class="field__label">
         Номер
         </div>
@@ -828,7 +826,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field field_lhw">
+      <div class="field">
         <div class="field__label">
         Тип СМ
         </div>
@@ -837,7 +835,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field field_lhw">
+      <div class="field">
         <div class="field__label">
         Бренд СМ
         </div>
@@ -846,7 +844,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field field_lhw">
+      <div class="field">
         <div class="field__label">
         Номер протокола
         </div>
@@ -855,7 +853,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field field_lhw">
+      <div class="field">
         <div class="field__label">
         Дата выдачи заключения
         </div>
@@ -864,7 +862,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field field_lhw">
+      <div class="field">
         <div class="field__label">
         Общая наработка узла
         </div>
@@ -873,7 +871,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field field_lhw">
+      <div class="field">
         <div class="field__label">
         Общая наработка на СМ
         </div>
@@ -882,7 +880,7 @@ export class ReportService {
         </div>
       </div>
 
-      <div class="field field_lhw">
+      <div class="field">
         <div class="field__label">
         Долив СМ
         </div>
@@ -890,6 +888,26 @@ export class ReportService {
         ${report?.vehicleToppingUpLubricant || ''}
         </div>
       </div>
+
+      <table>
+        <tr>
+          <th>Параметры</th>
+          <th>Метод измерения</th>
+          <th>Результат</th>
+        </tr>
+        ${Promise.all(indicators.map(async (item) => {
+          const indicator = await item.oilTypeIndicator
+          if (indicator) {
+            return `
+            <tr>
+              <td>${indicator.name}</td>
+              <td>${indicator.ntd}</td>
+              <td>${item.value}</td>
+            </tr>
+            `
+          }
+        }))}
+      </table>
 
       <hr />
   
