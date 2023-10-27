@@ -462,6 +462,13 @@ export class ReportService {
         td {
           vertical-align: top;
         }
+        table.table-indicators {
+          margin: 1rem 0;
+          border: 1px solid #000;
+        }
+        table.table-indicators td {
+          border: 1px solid #000;
+        }
         .pagebreak {
           page-break-before: always;
           height: 1rem;
@@ -903,7 +910,7 @@ export class ReportService {
         </div>
       </div>
 
-      <table>
+      <table class="table-indicators">
         <tr>
           <th>Параметры</th>
           <th>Метод измерения</th>
