@@ -468,6 +468,11 @@ export class ReportService {
         }
         table.table-indicators td {
           border: 1px solid #000;
+          padding: 2px 4px;
+        }
+        table.table-indicators th {
+          border: 1px solid #000;
+          padding: 2px 4px;
         }
         .pagebreak {
           page-break-before: always;
