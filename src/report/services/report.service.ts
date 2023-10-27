@@ -811,81 +811,92 @@ export class ReportService {
       <div class="pagebreak"></div>
 
       <hr />
-
-      <div class="title-small">
-        ${getSelectionTitle()}
-      </div>
-
-      <div class="fields">
-        <table>
-          <tr>
-            <td colspan="2">
-              <div class="field">
-                <div class="field__label">
-                Номер образца
-                </div>
-                <div class="field__input">
-                ${number}
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td style="width: 50%">
-              <div class="field">
-                <div class="field__label">
-                  Вид
-                </div>
-                <div class="field__input">
-                  ${productType || ''}
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Объём образца
-                </div>
-                <div class="field__input">
-                  ${report?.selectionVolume || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Бренд
-                </div>
-                <div class="field__input">
-                  ${lubricant?.brand || ''}
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                Место отбора пробы
-                </div>
-                <div class="field__input">
-                  ${report?.samplingNodes || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="title-small" style="margin-bottom: 0">
-        Примечание:
+  
+      <div class="title-normal">
+        Результаты измерений
       </div>
 
       <div class="field">
-        <div class="field__input" style="min-height: 4rem">
-          ${report?.note || ''}
+        <div class="field__label">
+        Номер
+        </div>
+        <div class="field__input">
+        ${report.number}
         </div>
       </div>
+
+      <div class="field">
+        <div class="field__label">
+        Тип СМ
+        </div>
+        <div class="field__input">
+        ${productType}
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field__label">
+        Бренд СМ
+        </div>
+        <div class="field__input">
+        ${lubricant?.brand || ''}
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field__label">
+        Номер протокола
+        </div>
+        <div class="field__input">
+          № ${report?.formNumber || ''}
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field__label">
+        Дата выдачи заключения
+        </div>
+        <div class="field__input">
+        ${report.createdAt.toLocaleDateString('ru-RU')}
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field__label">
+        Общая наработка узла
+        </div>
+        <div class="field__input">
+        ${report?.totalMileage || ''}
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field__label">
+        Общая наработка на СМ
+        </div>
+        <div class="field__input">
+        ${report?.lubricantMileage || ''}
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field__label">
+        Долив СМ
+        </div>
+        <div class="field__input">
+        ${report?.vehicleToppingUpLubricant || ''}
+        </div>
+      </div>
+
+      <hr />
+  
+      <div class="title-normal">
+        Интерпретация полученных данных
+      </div>
+
+      <p>
+        Масло по проверенным показателям соответствует НТД на данный вид масла. Результат сравнения значений 2020 года и 2022 года. Показывают сопоставимые значения. Проверенные под нагрузкой щелочное число, так же говорит о качественном европейском пакете присадок. Масло скорее оригинал, чем иначе.
+      </p>
     `
 
     return wkhtmltopdf(html, {
