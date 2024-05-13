@@ -48,13 +48,22 @@ type OilTypeResearch {
 
 type ResultResearch {
   value: String
+  color: ResultResearchColor
   result: Result!
   oilTypeResearch: OilTypeResearch!
   id: Float!
 }
 
+enum ResultResearchColor {
+  Green
+  Yellow
+  Red
+  White
+}
+
 type Result {
   formNumber: String!
+  interpretation: String
   createdAt: DateTime!
   updatedAt: DateTime!
   oilType: OilType!
@@ -65,9 +74,17 @@ type Result {
 
 type ResultIndicator {
   value: String
+  color: ResultIndicatorColor
   result: Result!
   oilTypeIndicator: OilTypeIndicator!
   id: Float!
+}
+
+enum ResultIndicatorColor {
+  Green
+  Yellow
+  Red
+  White
 }
 
 type OilTypeIndicator {
@@ -613,17 +630,20 @@ input ResultCreateInput {
 }
 
 input ResultUpdateInput {
+  interpretation: String!
   values: [ResultUpdateIndicatorValue!]!
   researches: [ResultUpdateResearchValue!]!
 }
 
 input ResultUpdateIndicatorValue {
   value: String!
+  color: ResultIndicatorColor!
   oilTypeIndicatorId: Float!
 }
 
 input ResultUpdateResearchValue {
   value: String!
+  color: ResultResearchColor!
   oilTypeResearchId: Float!
 }
 

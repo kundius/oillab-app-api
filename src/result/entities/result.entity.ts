@@ -27,6 +27,10 @@ export class Result extends BaseEntity {
   @Column()
   formNumber: string
 
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
+  interpretation: string | null
+
   @Field(() => Date)
   @CreateDateColumn()
   createdAt: Date

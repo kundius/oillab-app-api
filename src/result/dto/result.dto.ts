@@ -3,6 +3,8 @@ import { Type } from 'class-transformer'
 
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { Result } from '../entities/result.entity'
+import { ResultResearchColor } from '../entities/result-research.entity'
+import { ResultIndicatorColor } from '../entities/result-indicator.entity'
 import { StringFilterOperator } from '@app/graphql/filters/StringFilterOperator'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
 import { IdFilterOperator } from '@app/graphql/filters/IdFilterOperator'
@@ -27,6 +29,9 @@ export class ResultCreateResponse extends DefaultMutationResponse {
 export class ResultUpdateIndicatorValue {
   @Field()
   value: string
+  
+  @Field(() => ResultIndicatorColor)
+  color: ResultIndicatorColor
 
   @Field()
   oilTypeIndicatorId: number
@@ -36,6 +41,9 @@ export class ResultUpdateIndicatorValue {
 export class ResultUpdateResearchValue {
   @Field()
   value: string
+  
+  @Field(() => ResultResearchColor)
+  color: ResultResearchColor
 
   @Field()
   oilTypeResearchId: number
@@ -43,6 +51,9 @@ export class ResultUpdateResearchValue {
 
 @InputType()
 export class ResultUpdateInput {
+  @Field()
+  interpretation: string
+  
   @Field(() => [ResultUpdateIndicatorValue])
   values: ResultUpdateIndicatorValue[]
 

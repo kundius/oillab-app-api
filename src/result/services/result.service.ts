@@ -46,6 +46,8 @@ export class ResultService {
   }
 
   async update(result: Result, input: dto.ResultUpdateInput) {
+    result.interpretation = input.interpretation
+    
     for (const row of input.values) {
       const oilTypeIndicator = await OilTypeIndicator.findOne({
         id: row.oilTypeIndicatorId
@@ -68,6 +70,7 @@ export class ResultService {
         await ResultIndicator.save(indicator)
       }
       indicator.value = row.value
+      indicator.color = row.color
       await ResultIndicator.save(indicator)
     }
     for (const row of input.researches) {
@@ -92,16 +95,27 @@ export class ResultService {
         await ResultResearch.save(research)
       }
       research.value = row.value
+      research.color = row.color
       await ResultResearch.save(research)
     }
     const report = await Report.findOne({
       formNumber: result.formNumber
     })
     if (report) {
+      const oilType = await result.oilType
       const file = await this.reportService.getResultFile(report, result)
-      report.laboratoryResult = Promise.resolve(file)
+      
+      if (oilType.standard) {
+        report.expressLaboratoryResult = Promise.resolve(file)
+      } else {
+        report.laboratoryResult = Promise.resolve(file)
+      }
+
       report.save()
     }
+    
+    result.save()
+    
     return result
   }
 

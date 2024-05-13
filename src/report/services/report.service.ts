@@ -18,6 +18,8 @@ import { User } from '@app/user/entities/user.entity'
 import { ProductType } from '@app/lubricant/entities/lubricant.entity'
 import { plainToClass } from 'class-transformer'
 import { Result } from '@app/result/entities/result.entity'
+import { ResultIndicator } from '@app/result/entities/result-indicator.entity'
+import { ResultResearch } from '@app/result/entities/result-research.entity'
 import { OilType } from '@app/oil-type/entities/oil-type.entity'
 
 @Injectable()
@@ -422,36 +424,48 @@ export class ReportService {
     const oilType = await result.oilType
 
     const resultIndicators = await result.indicators
+    const oilTypeIndicators = await oilType.indicators
     let indicators = ''    
-    for (const resultIndicator of resultIndicators) {
-      const oilTypeIndicator = await resultIndicator.oilTypeIndicator
-      if (oilTypeIndicator) {
-        indicators += `
-        <tr>
-          <td>${oilTypeIndicator.name}</td>
-          <td>${oilTypeIndicator.ntd}</td>
-          <td>${oilTypeIndicator.units}</td>
-          <td>${resultIndicator.value}</td>
-        </tr>
-        `
+    for (const oilTypeIndicator of oilTypeIndicators) {
+      let resultIndicator: ResultIndicator | null = null
+      for (const item of resultIndicators) {
+        const resultOilTypeIndicator = await item.oilTypeIndicator
+        if (resultOilTypeIndicator && resultOilTypeIndicator.id === oilTypeIndicator.id) {
+          resultIndicator = item
+        }
       }
+    
+      indicators += `
+      <tr>
+        <td>${oilTypeIndicator.name}</td>
+        <td align="center">${oilTypeIndicator.ntd}</td>
+        <td align="center">${oilTypeIndicator.units}</td>
+        <td align="center" class="background-${(resultIndicator?.color || 'white').toLowerCase()}">${resultIndicator?.value}</td>
+      </tr>
+      `
     }
 
     const resultResearches = await result.researches
+    const oilTypeResearches = await oilType.researches
     let researches = ''  
     let i = 0  
-    for (const resultResearch of resultResearches) {
-      i++
-      const oilTypeIndicator = await resultResearch.oilTypeResearch
-      if (oilTypeIndicator) {
-        researches += `
-        <tr>
-          <td>${i}</td>
-          <td>${oilTypeIndicator.name}</td>
-          <td>${resultResearch.value}</td>
-        </tr>
-        `
+    for (const oilTypeResearch of oilTypeResearches) {
+      let resultResearch: ResultResearch | null = null
+      for (const item of resultResearches) {
+        const resultOilTypeResearch = await item.oilTypeResearch
+        if (resultOilTypeResearch && resultOilTypeResearch.id === oilTypeResearch.id) {
+          resultResearch = item
+        }
       }
+      
+      i++
+      researches += `
+      <tr>
+        <td>${i}</td>
+        <td>${oilTypeResearch.name}</td>
+        <td align="center" class="background-${(resultResearch?.color || 'white').toLowerCase()}">${resultResearch?.value}</td>
+      </tr>
+      `
     }
 
     const html = `
@@ -471,15 +485,22 @@ export class ReportService {
           background: #4f81bd;
           margin: 1rem 0;
         }
+        .background-green {
+          background: #eaf1dd;
+        }
+        .background-red {
+          background: #f2dbdb;
+        }
+        .background-yellow {
+          background: #ffff00;
+        }
+        .background-white {
+          background: #ffffff;
+        }
         table {
           width: 100%;
           border: none;
           border-collapse: collapse;
-        }
-        th {
-        }
-        td {
-          vertical-align: top;
         }
         table.table-indicators {
           margin: 1rem 0;
@@ -487,11 +508,13 @@ export class ReportService {
         }
         table.table-indicators td {
           border: 1px solid #000;
-          padding: 2px 4px;
+          padding: 0 4px;
+          font-size: 0.875rem;
         }
         table.table-indicators th {
           border: 1px solid #000;
-          padding: 2px 4px;
+          padding: 0 4px;
+          font-size: 0.875rem;
         }
         .pagebreak {
           page-break-before: always;
@@ -504,7 +527,7 @@ export class ReportService {
           padding: 20px;
         }
         .title-normal {
-          font-size: 1.25rem;
+          font-size: 1.125rem;
           line-height: 1;
           font-weight: bold;
           margin: 1rem 0;
@@ -526,7 +549,7 @@ export class ReportService {
           -webkit-flex-direction: column;
         }
         .field__label {
-          font-size: 1rem;
+          font-size: 0.875rem;
           line-height: 1.5rem;
           margin-right: 0.75rem;
         }
@@ -538,7 +561,7 @@ export class ReportService {
           flex-grow: 1;
           -webkit-box-flex: 1;
           -webkit-flex-grow: 1;
-          font-size: 1rem;
+          font-size: 0.875rem;
           line-height: 1.5rem;
           min-height: 1.5rem;
           position: relative;
@@ -579,6 +602,117 @@ export class ReportService {
           border-collapse: separate;
           border-spacing: 1.5rem 0.75rem;
         }
+        
+        .data-label {
+          font-size: 0.875rem;
+          line-height: 0.875rem;
+          padding: 0.125rem 0;
+        }
+        .data-value {
+          flex-grow: 1;
+          -webkit-box-flex: 1;
+          -webkit-flex-grow: 1;
+          font-size: 0.875rem;
+          line-height: 0.875rem;
+          padding: 0.125rem 0;
+          min-height: 1.125rem;
+          position: relative;
+          overflow: hidden;
+          border-bottom: 1px solid currentColor;
+        }
+        /*.data-value::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 1.5rem;
+          margin-top: -1px;
+          width: 100%;
+          height: 1.5rem;
+          border-top: 1px solid currentColor;
+          border-bottom: 1px solid currentColor;
+          box-sizing: border-box;
+        }
+        .data-value::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 4.5rem;
+          margin-top: -1px;
+          width: 100%;
+          height: 1.5rem;
+          border-top: 1px solid currentColor;
+          border-bottom: 1px solid currentColor;
+          box-sizing: border-box;
+        }*/
+        .table-layout {
+          border-collapse: collapse;
+          border: none;
+        }
+        .data-layout {
+          display: -webkit-box;
+          display: flex;
+        }
+        .data-layout-group {
+          display: -webkit-box;
+          display: flex;
+          flex-grow: 1;
+          -webkit-box-flex: 1;
+          -webkit-flex-grow: 1;
+          flex-direction: column;
+          -webkit-box-orient: vertical;
+          -webkit-box-direction: normal;
+          -webkit-flex-direction: column;
+        	justify-content: space-between;
+        	-webkit-box-pack: justify;
+        	-webkit-justify-content: space-between;
+        	-ms-flex-pack: justify;
+        }
+        .data-layout-group_vehicle-left {
+          width: 400px;
+        }
+        .data-layout-group_w-full {
+          width: 100%;
+        }
+        .data-layout-group + .data-layout-group {
+          margin-left: 1.5rem;
+        }
+        .data-layout-row + .data-layout-row {
+          margin-top: 0.75rem;
+        }
+        .data-layout_tight .data-layout-row + .data-layout-row {
+          margin-top: 0.25rem;
+        }
+        .data-layout-row {
+          display: -webkit-box;
+          display: flex;
+          align-items: center
+          -webkit-box-align: center;
+          -webkit-align-items: center;
+          -ms-flex-align: center;
+        }
+        .data-layout-row_vertical {
+          flex-direction: column;
+          -webkit-box-orient: vertical;
+          -webkit-box-direction: normal;
+          -webkit-flex-direction: column;
+        }
+        .data-layout-label {
+          flex-grow: 1;
+          -webkit-box-flex: 1;
+          -webkit-flex-grow: 1;
+        }
+        .data-layout-value {
+          text-align: center;
+          margin-left: 0.75rem;
+          min-width: 150px;
+          max-width: 150px;
+        }
+        .data-layout-row_vertical .data-layout-value {
+          margin-left: 0;
+          min-width: 100%;
+          max-width: 100%;
+          text-align: left;
+        }
       </style>
       <table style="font-size: 1rem">
         <tr>
@@ -610,32 +744,28 @@ export class ReportService {
       </table>
   
       <hr />
-  
-      <div class="fields">
-        <table>
-          <tr>
-            <td width="50%">
-              <div class="field field_vertical">
-                <div class="field__label">
-                  ПРОТОКОЛ РЕЗУЛЬТАТОВ ИЗМЕРЕНИЙ
-                </div>
-                <div class="field__input">
-                  № ${report.formNumber} от ${report.createdAt.toLocaleDateString('ru-RU')}
-                </div>
-              </div>
-            </td>
-            <td width="50%">
-              <div class="field field_vertical">
-                <div class="field__label">
-                  НОМЕР ОБРАЗЦА ЗАКАЗЧИКА
-                </div>
-                <div class="field__input">
-                  ${number}
-                </div>
-              </div>
-            </td>
-          </tr>
-        </table>
+      
+      <div class="data-layout">
+        <div class="data-layout-group data-layout-group_w-full">
+          <div class="data-layout-row data-layout-row_vertical">
+            <div class="data-layout-label">
+              <div class="data-label">ПРОТОКОЛ РЕЗУЛЬТАТОВ ИЗМЕРЕНИЙ</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">№ ${report.formNumber} от ${report.createdAt.toLocaleDateString('ru-RU')}</div>
+            </div>
+          </div>
+        </div>
+        <div class="data-layout-group data-layout-group_w-full">
+          <div class="data-layout-row data-layout-row_vertical">
+            <div class="data-layout-label">
+              <div class="data-label">НОМЕР ОБРАЗЦА ЗАКАЗЧИКА</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${number}</div>
+            </div>
+          </div>
+        </div>
       </div>
   
       <hr />
@@ -643,54 +773,44 @@ export class ReportService {
       <div class="title-normal">
         Данные владельца техники / заказчика
       </div>
-  
-      <div class="fields">
-        <table>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Организация
-                </div>
-                <div class="field__input">
-                  ${customer?.name || ''}
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Контактный телефон
-                </div>
-                <div class="field__input">
-                  ${customer?.phone || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Контактное лицо
-                </div>
-                <div class="field__input">
-                  ${customer?.contactPerson || ''}
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Электронная почта
-                </div>
-                <div class="field__input">
-                  ${customer?.email || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-        </table>
+      
+      <div class="data-layout">
+        <div class="data-layout-group">
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Организация</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${customer?.name || '-'}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Контактное лицо</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${customer?.contactPerson || '-'}</div>
+            </div>
+          </div>
+        </div>
+        <div class="data-layout-group">
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Контактный телефон</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${customer?.phone || '-'}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Электронная почта</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${customer?.email || '-'}</div>
+            </div>
+          </div>
+        </div>
       </div>
   
       <hr />
@@ -698,105 +818,76 @@ export class ReportService {
       <div class="title-normal">
         Техника / точка отбора образца
       </div>
-  
-      <div class="fields">
-        <table>
-          <tr>
-            <td colspan="2">
-              <div class="field">
-                <div class="field__label">
-                  Производитель оборудования
-                </div>
-                <div class="field__input">
-                  ${vehicle?.model || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <div class="field">
-                <div class="field__label">
-                  Регистрационный номер
-                </div>
-                <div class="field__input">
-                  ${vehicle?.stateNumber || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Модель оборудования
-                </div>
-                <div class="field__input">
-                  ${vehicle?.engineModel || ''}
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Год выпуска
-                </div>
-                <div class="field__input">
-                  ${vehicle?.releaseYear || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-        </table>
+      
+      <div class="data-layout">
+        <div class="data-layout-group data-layout-group_vehicle-left">
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Производитель оборудования</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${vehicle?.model || '-'}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Модель оборудования</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${vehicle?.engineModel || '-'}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Общая наработка узла</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${report?.totalMileage || '-'}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Общая наработка на СМ</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${report?.lubricantMileage || '-'}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Долив СМ</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${report?.vehicleToppingUpLubricant || '-'}</div>
+            </div>
+          </div>
         </div>
-  
-        <div class="fields">
-        <table>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Общая наработка узла
-                </div>
-                <div class="field__input">
-                  ${report?.totalMileage || ''}
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Объём жидкости в оборудовании
-                </div>
-                <div class="field__input">
-                  ${vehicle?.liquidVolume || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Общая наработка на СМ
-                </div>
-                <div class="field__input">
-                  ${report?.lubricantMileage || ''}
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                  Долив СМ
-                </div>
-                <div class="field__input">
-                  ${report?.vehicleToppingUpLubricant || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-        </table>
+        <div class="data-layout-group data-layout-group_right">
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Регистрационный номер</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${vehicle?.stateNumber || '-'}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Точка отбора образца</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${report?.samplingNodes || '-'}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Объём жидкости в оборудовании</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${vehicle?.liquidVolume || '-'}</div>
+            </div>
+          </div>
+        </div>
       </div>
   
       <hr />
@@ -804,174 +895,151 @@ export class ReportService {
       <div class="title-normal">
         Информация о смазочном материале
       </div>
-  
-      <div class="fields">
-        <table>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                Бренд СМ
-                </div>
-                <div class="field__input">
-                  ${lubricant?.brand || ''}
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                Вязкость
-                </div>
-                <div class="field__input">
-                  ${lubricant?.viscosity || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                Марка СМ
-                </div>
-                <div class="field__input">
-                  ${lubricant?.model || ''}
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="field">
-                <div class="field__label">
-                Состояние СМ
-                </div>
-                <div class="field__input">
-                  ${report?.lubricantState || ''}
-                </div>
-              </div>
-            </td>
-          </tr>
-        </table>
-      </div>
       
-      <div class="pagebreak"></div>
+      <div class="data-layout">
+        <div class="data-layout-group">
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Бренд СМ</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${lubricant?.brand || '-'}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Марка СМ</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${lubricant?.model || '-'}</div>
+            </div>
+          </div>
+        </div>
+        <div class="data-layout-group">
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Вязкость</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${lubricant?.viscosity || '-'}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Состояние СМ</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${report?.lubricantState || '-'}</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <hr />
   
       <div class="title-normal">
+        Интерпретация полученных данных
+      </div>
+      
+      ${result.interpretation && `<p>${result.interpretation.replace(/\n/g, "<br />")}</p>`}
+      
+      <div class="pagebreak"></div>
+
+      <div class="title-normal">
         Результаты измерений
       </div>
-
-      <div class="field">
-        <div class="field__label">
-        Номер
-        </div>
-        <div class="field__input">
-        ${report.number}
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field__label">
-        Тип СМ
-        </div>
-        <div class="field__input">
-        ${productType}
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field__label">
-        Бренд СМ
-        </div>
-        <div class="field__input">
-        ${lubricant?.brand || ''}
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field__label">
-        Номер протокола
-        </div>
-        <div class="field__input">
-          № ${report?.formNumber || ''}
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field__label">
-        Дата выдачи заключения
-        </div>
-        <div class="field__input">
-        ${report.createdAt.toLocaleDateString('ru-RU')}
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field__label">
-        Общая наработка узла
-        </div>
-        <div class="field__input">
-        ${report?.totalMileage || ''}
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field__label">
-        Общая наработка на СМ
-        </div>
-        <div class="field__input">
-        ${report?.lubricantMileage || ''}
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field__label">
-        Долив СМ
-        </div>
-        <div class="field__input">
-        ${report?.vehicleToppingUpLubricant || ''}
+      
+      <div class="data-layout data-layout_tight">
+        <div class="data-layout-group">
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Номер</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">1</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Тип СМ</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${productType}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Бренд СМ</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${lubricant?.brand || ''} ${lubricant?.model || ''} ${lubricant?.viscosity || ''}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Номер протокола</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${report?.formNumber || ''}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Дата выдачи заключения</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${report.createdAt.toLocaleDateString('ru-RU')}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Общая наработка узла</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${report?.totalMileage || ''}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Общая наработка на СМ</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${report?.lubricantMileage || ''}</div>
+            </div>
+          </div>
+          <div class="data-layout-row">
+            <div class="data-layout-label">
+              <div class="data-label">Долив СМ</div>
+            </div>
+            <div class="data-layout-value">
+              <div class="data-value">${report?.vehicleToppingUpLubricant || ''}</div>
+            </div>
+          </div>
         </div>
       </div>
 
       <table class="table-indicators">
         <tr>
           <th>Параметры</th>
-          <th>Метод измерения</th>
-          <th>Единицы измерения</th>
-          <th>Результат</th>
+          <th width="100">Метод измерения</th>
+          <th width="100">Единицы измерения</th>
+          <th width="142">Результат</th>
         </tr>
         ${indicators}
       </table>
-
-      <hr />
-  
+      
       ${oilType.standard ? `
-      <div class="title-normal">
-        Интерпретация полученных данных
-      </div>
-
+      <hr />
+      
       <table class="table-indicators">
         <tr>
           <th>№</th>
           <th>Направленность исследования</th>
-          <th>Результат</th>
+          <th width="142">Результат</th>
         </tr>
         ${researches}
       </table>
-
-      <p>
-        Масло по проверенным показателям соответствует НТД на данный вид масла.
-      </p>
-      ` : `
-      <div class="title-normal">
-        Интерпретация полученных данных
-      </div>
-
-      <p>
-        Масло по проверенным показателям   соответствует НТД на данный вид масла. Результат сравнения значений 2020 года и 2022 года. Показывают сопоставимые значения. Проверенные под нагрузкой щелочное число, так же говорит о качественном европейском пакете присадок. Масло скорее оригинал, чем иначе.
-      </p>
-      `}
+      ` : ``}
     `
 
     return wkhtmltopdf(html, {
@@ -1009,7 +1077,7 @@ export class ReportService {
     const file = await this.fileService.uploadAndCreateFile({
       buffer,
       dir: 'result/pdf',
-      name: nanoid()
+      name: `${nanoid()}/${result.formNumber}.pdf`
     })
 
     return file
