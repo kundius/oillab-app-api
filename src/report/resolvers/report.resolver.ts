@@ -31,6 +31,18 @@ export class ReportResolver {
     return this.reportService.findById(id)
   }
 
+  @Query(() => Report, { nullable: true })
+  async reportByFormNumber(
+    @Args('formNumber', { type: () => String }) formNumber: string,
+    @CurrentUser() currentUser?: User
+  ): Promise<Report | null> {
+    if (!currentUser) {
+      return null
+    }
+
+    return this.reportService.findByFormNumber(formNumber)
+  }
+
   @Query(() => dto.ReportPaginateResponse)
   async reportPaginate(
     @Args() args: dto.ReportPaginateArgs,

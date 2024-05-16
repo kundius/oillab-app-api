@@ -356,6 +356,7 @@ type Query {
   vehicle(id: Int!): Vehicle
   vehiclePaginate(perPage: Int! = 12, page: Int! = 1, sort: [VehicleSort!], filter: VehicleFilter): VehiclePaginateResponse!
   report(id: Int!): Report
+  reportByFormNumber(formNumber: String!): Report
   reportPaginate(perPage: Int! = 12, page: Int! = 1, sort: [ReportSort!], filter: ReportFilter): ReportPaginateResponse!
   lubricant(id: Int!): Lubricant
   lubricantPaginate(perPage: Int! = 12, page: Int! = 1, sort: [LubricantSort!], filter: LubricantFilter): LubricantPaginateResponse!

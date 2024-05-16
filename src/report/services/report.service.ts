@@ -47,6 +47,10 @@ export class ReportService {
     return await this.reportRepository.find()
   }
 
+  async findByFormNumber(formNumber: string): Promise<Report | null> {
+    return await this.reportRepository.findOneBy({ formNumber })
+  }
+
   async findByIdOrFail(id: number): Promise<Report> {
     return await this.reportRepository.findOneByOrFail({ id })
   }
