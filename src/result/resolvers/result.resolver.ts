@@ -1,39 +1,35 @@
-import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent } from '@nestjs/graphql'
-import { UseGuards } from '@nestjs/common'
-
-import { GqlAuthGuard } from '@app/auth/auth.guard'
-import { NotFoundError } from '@app/graphql/errors/NotFoundError'
-import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { CurrentUser } from '@app/auth/CurrentUser'
-import { User, UserRole } from '@app/user/entities/user.entity'
-
-import { ResultService } from '../services/result.service'
-import { Result } from '../entities/result.entity'
-import * as dto from '../dto/result.dto'
+import { GqlAuthGuard } from '@app/auth/auth.guard'
+import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { AuthenticationError } from '@app/graphql/errors/AuthenticationError'
 import { NotAllowedError } from '@app/graphql/errors/NotAllowedError'
+import { NotFoundError } from '@app/graphql/errors/NotFoundError'
+import { User, UserRole } from '@app/user/entities/user.entity'
+import { UseGuards } from '@nestjs/common'
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
+import * as dto from '../dto/result.dto'
+import { Result } from '../entities/result.entity'
+import { ResultService } from '../services/result.service'
 
 @Resolver(() => Result)
 @UseGuards(GqlAuthGuard)
 export class ResultResolver {
-  constructor (
-    private readonly resultService: ResultService
-  ) {}
+  constructor(private readonly resultService: ResultService) {}
 
   @Query(() => Result, { nullable: true })
-  async result (
+  async result(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
-  ): Promise<Result | undefined> {
+  ): Promise<Result | null> {
     if (!currentUser) {
-      return undefined
+      return null
     }
 
     return this.resultService.findById(id)
   }
 
   @Query(() => dto.ResultPaginateResponse)
-  async resultPaginate (
+  async resultPaginate(
     @Args() args: dto.ResultPaginateArgs,
     @CurrentUser() currentUser?: User
   ): Promise<dto.ResultPaginateResponse> {
@@ -52,7 +48,7 @@ export class ResultResolver {
   }
 
   @Mutation(() => dto.ResultCreateResponse)
-  async resultCreate (
+  async resultCreate(
     @Args('input') input: dto.ResultCreateInput,
     @CurrentUser() currentUser?: User
   ): Promise<dto.ResultCreateResponse> {
@@ -79,7 +75,7 @@ export class ResultResolver {
   }
 
   @Mutation(() => dto.ResultUpdateResponse)
-  async resultUpdate (
+  async resultUpdate(
     @Args('id', { type: () => Int }) id: number,
     @Args('input') input: dto.ResultUpdateInput,
     @CurrentUser() currentUser?: User
@@ -116,7 +112,7 @@ export class ResultResolver {
   }
 
   @Mutation(() => DefaultMutationResponse)
-  async resultDelete (
+  async resultDelete(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
   ): Promise<DefaultMutationResponse> {

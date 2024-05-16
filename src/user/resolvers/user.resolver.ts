@@ -22,9 +22,9 @@ export class UserResolver {
   async user(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
-  ): Promise<User | undefined> {
+  ): Promise<User | null> {
     if (!currentUser) {
-      return undefined
+      return null
     }
 
     return this.userService.findById(id)

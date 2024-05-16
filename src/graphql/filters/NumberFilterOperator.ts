@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql'
-import { SelectQueryBuilder } from 'typeorm'
+import { ObjectLiteral, SelectQueryBuilder } from 'typeorm'
 import { BaseFilterOperator } from './BaseFilterOperator'
 
 @InputType()
@@ -13,7 +13,7 @@ export class NumberFilterOperator extends BaseFilterOperator {
   @Field({ nullable: true })
   gt?: number
 
-  applyOperator(field: string, qb: SelectQueryBuilder<unknown>) {
+  applyOperator(field: string, qb: SelectQueryBuilder<ObjectLiteral>) {
     for (let key of Object.keys(this)) {
       switch (key) {
         case 'eq':

@@ -1,39 +1,35 @@
-import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent } from '@nestjs/graphql'
-import { UseGuards } from '@nestjs/common'
-
-import { GqlAuthGuard } from '@app/auth/auth.guard'
-import { NotFoundError } from '@app/graphql/errors/NotFoundError'
-import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { CurrentUser } from '@app/auth/CurrentUser'
-import { User, UserRole } from '@app/user/entities/user.entity'
-
-import { OilTypeService } from '../services/oil-type.service'
-import { OilType } from '../entities/oil-type.entity'
-import * as dto from '../dto/oil-type.dto'
+import { GqlAuthGuard } from '@app/auth/auth.guard'
+import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { AuthenticationError } from '@app/graphql/errors/AuthenticationError'
 import { NotAllowedError } from '@app/graphql/errors/NotAllowedError'
+import { NotFoundError } from '@app/graphql/errors/NotFoundError'
+import { User, UserRole } from '@app/user/entities/user.entity'
+import { UseGuards } from '@nestjs/common'
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
+import * as dto from '../dto/oil-type.dto'
+import { OilType } from '../entities/oil-type.entity'
+import { OilTypeService } from '../services/oil-type.service'
 
 @Resolver(() => OilType)
 @UseGuards(GqlAuthGuard)
 export class OilTypeResolver {
-  constructor (
-    private readonly oiltypeService: OilTypeService
-  ) {}
+  constructor(private readonly oiltypeService: OilTypeService) {}
 
   @Query(() => OilType, { nullable: true })
-  async oiltype (
+  async oiltype(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
-  ): Promise<OilType | undefined> {
+  ): Promise<OilType | null> {
     if (!currentUser) {
-      return undefined
+      return null
     }
 
     return this.oiltypeService.findById(id)
   }
 
   @Query(() => dto.OilTypePaginateResponse)
-  async oiltypePaginate (
+  async oiltypePaginate(
     @Args() args: dto.OilTypePaginateArgs,
     @CurrentUser() currentUser?: User
   ): Promise<dto.OilTypePaginateResponse> {
@@ -52,7 +48,7 @@ export class OilTypeResolver {
   }
 
   @Mutation(() => dto.OilTypeCreateResponse)
-  async oiltypeCreate (
+  async oiltypeCreate(
     @Args('input') input: dto.OilTypeCreateInput,
     @CurrentUser() currentUser?: User
   ): Promise<dto.OilTypeCreateResponse> {
@@ -79,7 +75,7 @@ export class OilTypeResolver {
   }
 
   @Mutation(() => dto.OilTypeUpdateResponse)
-  async oiltypeUpdate (
+  async oiltypeUpdate(
     @Args('id', { type: () => Int }) id: number,
     @Args('input') input: dto.OilTypeUpdateInput,
     @CurrentUser() currentUser?: User
@@ -116,7 +112,7 @@ export class OilTypeResolver {
   }
 
   @Mutation(() => DefaultMutationResponse)
-  async oiltypeDelete (
+  async oiltypeDelete(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
   ): Promise<DefaultMutationResponse> {

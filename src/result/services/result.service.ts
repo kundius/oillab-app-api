@@ -26,16 +26,16 @@ export class ResultService {
     private readonly reportService: ReportService
   ) {}
 
-  async findById(id: number): Promise<Result | undefined> {
-    return await this.resultRepository.findOne(id)
+  async findById(id: number): Promise<Result | null> {
+    return await this.resultRepository.findOneBy({ id })
   }
 
   async findByIdOrFail(id: number): Promise<Result> {
-    return await this.resultRepository.findOneOrFail(id)
+    return await this.resultRepository.findOneByOrFail({ id })
   }
 
   async create(input: dto.ResultCreateInput) {
-    const oilType = await OilType.findOneOrFail({
+    const oilType = await OilType.findOneByOrFail({
       id: input.oilTypeId
     })
     const record = await this.resultRepository.create()
@@ -47,9 +47,9 @@ export class ResultService {
 
   async update(result: Result, input: dto.ResultUpdateInput) {
     result.interpretation = input.interpretation
-    
+
     for (const row of input.values) {
-      const oilTypeIndicator = await OilTypeIndicator.findOne({
+      const oilTypeIndicator = await OilTypeIndicator.findOneBy({
         id: row.oilTypeIndicatorId
       })
       if (!oilTypeIndicator) continue
@@ -74,7 +74,7 @@ export class ResultService {
       await ResultIndicator.save(indicator)
     }
     for (const row of input.researches) {
-      const oilTypeResearch = await OilTypeResearch.findOne({
+      const oilTypeResearch = await OilTypeResearch.findOneBy({
         id: row.oilTypeResearchId
       })
       if (!oilTypeResearch) continue
@@ -98,13 +98,13 @@ export class ResultService {
       research.color = row.color
       await ResultResearch.save(research)
     }
-    const report = await Report.findOne({
+    const report = await Report.findOneBy({
       formNumber: result.formNumber
     })
     if (report) {
       const oilType = await result.oilType
       const file = await this.reportService.getResultFile(report, result)
-      
+
       if (oilType.standard) {
         report.expressLaboratoryResult = Promise.resolve(file)
       } else {
@@ -113,9 +113,9 @@ export class ResultService {
 
       report.save()
     }
-    
+
     result.save()
-    
+
     return result
   }
 

@@ -1,74 +1,66 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm'
-import { GqlModuleOptions } from '@nestjs/graphql'
-import { join } from 'path'
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface'
+import { TypeOrmModuleOptions } from '@nestjs/typeorm'
 import { S3 } from 'aws-sdk'
 import { config } from 'dotenv'
+import { join } from 'path'
 
 config()
 
 class ConfigService {
-  constructor (private readonly env: { [k: string]: string | undefined }) { }
+  constructor(private readonly env: { [k: string]: string | undefined }) {}
 
-  public ensureValues (keys: string[]): ConfigService {
-    keys.forEach(k => this.getValue(k, true))
+  public ensureValues(keys: string[]): ConfigService {
+    keys.forEach((k) => this.getValue(k, true))
     return this
   }
 
-  public getOrigin (): string {
+  public getOrigin(): string {
     return this.getValue('APP_ORIGIN', true)
   }
 
-  public getPort (): string {
+  public getPort(): string {
     return this.getValue('APP_PORT', true)
   }
 
-  public getSecret (): string {
+  public getSecret(): string {
     return this.getValue('APP_SECRET', true)
   }
 
-  public isProduction (): boolean {
+  public isProduction(): boolean {
     const APP_MODE = this.getValue('APP_MODE', false)
     return APP_MODE !== 'development'
   }
 
-  public getTypeOrmConfig (): TypeOrmModuleOptions {
+  public getTypeOrmConfig(): TypeOrmModuleOptions {
     return {
       type: 'mysql',
       host: this.getValue('TYPEORM_HOST'),
-      port: parseInt(this.getValue('TYPEORM_PORT'), 2),
+      port: Number(this.getValue('TYPEORM_PORT')),
       username: this.getValue('TYPEORM_USERNAME'),
       password: this.getValue('TYPEORM_PASSWORD'),
       database: this.getValue('TYPEORM_DATABASE'),
       entities: [join(__dirname, '..', '**', '*.entity{.ts,.js}')], // Workaround https://stackoverflow.com/a/59607836
       migrationsTableName: 'migration',
-      cli: {
-        migrationsDir: 'migration'
-      },
       synchronize: false,
       ssl: false
     }
   }
 
-  public getGqlConfig (): GqlModuleOptions {
+  public getGraphQLConfig(): ApolloDriverConfig {
     return {
-      // debug: true,
-      // playground: true,
-      introspection: true,
-      debug: !this.isProduction(),
-      playground: !this.isProduction(),
-      // installSubscriptionHandlers: true,
+      driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'schema.gql')
     }
   }
 
-  public getCorsConfig (): CorsOptions {
+  public getCorsConfig(): CorsOptions {
     return {
       origin: this.getValue('APP_ORIGIN').split(',')
     }
   }
 
-  public getS3ClientConfig (): S3.Types.ClientConfiguration {
+  public getS3ClientConfig(): S3.Types.ClientConfiguration {
     return {
       accessKeyId: this.getValue('S3_ACCESS_KEY_ID'),
       secretAccessKey: this.getValue('S3_SECRET_ACCESS_KEY'),
@@ -79,15 +71,15 @@ class ConfigService {
     }
   }
 
-  public getS3Bucket (): string {
+  public getS3Bucket(): string {
     return this.getValue('S3_BUCKET')
   }
 
-  public getS3Url (): string {
+  public getS3Url(): string {
     return this.getValue('S3_URL')
   }
 
-  private getValue (key: string, throwOnMissing = true): string {
+  private getValue(key: string, throwOnMissing = true): string {
     const value = this.env[key]
 
     if (!value && throwOnMissing) {
@@ -98,23 +90,22 @@ class ConfigService {
   }
 }
 
-const configService = new ConfigService(process.env)
-  .ensureValues([
-    'APP_MODE',
-    'APP_SECRET',
-    'APP_ORIGIN',
-    'APP_PORT',
-    'TYPEORM_HOST',
-    'TYPEORM_PORT',
-    'TYPEORM_USERNAME',
-    'TYPEORM_PASSWORD',
-    'TYPEORM_DATABASE',
-    'S3_ENDPOINT',
-    'S3_ACCESS_KEY_ID',
-    'S3_SECRET_ACCESS_KEY',
-    'S3_REGION',
-    'S3_BUCKET',
-    'S3_URL'
-  ])
+const configService = new ConfigService(process.env).ensureValues([
+  'APP_MODE',
+  'APP_SECRET',
+  'APP_ORIGIN',
+  'APP_PORT',
+  'TYPEORM_HOST',
+  'TYPEORM_PORT',
+  'TYPEORM_USERNAME',
+  'TYPEORM_PASSWORD',
+  'TYPEORM_DATABASE',
+  'S3_ENDPOINT',
+  'S3_ACCESS_KEY_ID',
+  'S3_SECRET_ACCESS_KEY',
+  'S3_REGION',
+  'S3_BUCKET',
+  'S3_URL'
+])
 
 export { configService }

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { plainToClass } from 'class-transformer'
 import { Repository, SelectQueryBuilder } from 'typeorm'
-
 import * as dto from '../dto/lubricant.dto'
 import { Lubricant } from '../entities/lubricant.entity'
 
@@ -15,12 +14,12 @@ export class LubricantService {
     private readonly lubricantRepository: Repository<Lubricant>
   ) {}
 
-  async findById(id: number): Promise<Lubricant | undefined> {
-    return await this.lubricantRepository.findOne(id)
+  async findById(id: number): Promise<Lubricant | null> {
+    return await this.lubricantRepository.findOneBy({ id })
   }
 
   async findByIdOrFail(id: number): Promise<Lubricant> {
-    return await this.lubricantRepository.findOneOrFail(id)
+    return await this.lubricantRepository.findOneByOrFail({ id })
   }
 
   async create(input: dto.LubricantCreateInput) {
@@ -40,7 +39,7 @@ export class LubricantService {
     }
 
     await this.lubricantRepository.save(record)
-    
+
     return record
   }
 
@@ -84,7 +83,7 @@ export class LubricantService {
     sort: dto.LubricantSort[]
   ): Promise<SelectQueryBuilder<Lubricant>> {
     for (const value of sort) {
-      let arr = value.split('_') as [string, "ASC" | "DESC"]
+      let arr = value.split('_') as [string, 'ASC' | 'DESC']
       qb.orderBy(`${this.tableName}.${arr[0]}`, arr[1])
     }
     return qb

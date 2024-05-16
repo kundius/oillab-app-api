@@ -24,9 +24,9 @@ export class VehicleResolver {
   async vehicle (
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
-  ): Promise<Vehicle | undefined> {
+  ): Promise<Vehicle | null> {
     if (!currentUser) {
-      return undefined
+      return null
     }
 
     return this.vehicleService.findById(id)

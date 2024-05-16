@@ -1,42 +1,40 @@
-import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent } from '@nestjs/graphql'
-import { UseGuards } from '@nestjs/common'
-
-import { GqlAuthGuard } from '@app/auth/auth.guard'
-import { NotFoundError } from '@app/graphql/errors/NotFoundError'
-import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { CurrentUser } from '@app/auth/CurrentUser'
-import { User, UserRole } from '@app/user/entities/user.entity'
-
-import { OilTypeService } from '../services/oil-type.service'
-import { OilType } from '../entities/oil-type.entity'
-import * as dto from '../dto/oil-type-research.dto'
+import { GqlAuthGuard } from '@app/auth/auth.guard'
+import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { AuthenticationError } from '@app/graphql/errors/AuthenticationError'
 import { NotAllowedError } from '@app/graphql/errors/NotAllowedError'
-import { OilTypeResearchService } from '../services/oil-type-research.service'
+import { NotFoundError } from '@app/graphql/errors/NotFoundError'
+import { User, UserRole } from '@app/user/entities/user.entity'
+import { UseGuards } from '@nestjs/common'
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
+import * as dto from '../dto/oil-type-research.dto'
 import { OilTypeResearch } from '../entities/oil-type-research.entity'
+import { OilType } from '../entities/oil-type.entity'
+import { OilTypeResearchService } from '../services/oil-type-research.service'
+import { OilTypeService } from '../services/oil-type.service'
 
 @Resolver(() => OilTypeResearch)
 @UseGuards(GqlAuthGuard)
 export class OilTypeResearchResolver {
-  constructor (
+  constructor(
     private readonly oilTypeService: OilTypeService,
     private readonly oilTypeResearchService: OilTypeResearchService
   ) {}
 
   @Query(() => OilType, { nullable: true })
-  async oilTypeResearch (
+  async oilTypeResearch(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
-  ): Promise<OilTypeResearch | undefined> {
+  ): Promise<OilTypeResearch | null> {
     if (!currentUser) {
-      return undefined
+      return null
     }
 
     return this.oilTypeResearchService.findById(id)
   }
 
   @Query(() => dto.OilTypeResearchListResponse)
-  async oilTypeResearchList (
+  async oilTypeResearchList(
     @Args() args: dto.OilTypeResearchListArgs,
     @CurrentUser() currentUser?: User
   ): Promise<dto.OilTypeResearchListResponse> {
@@ -50,7 +48,7 @@ export class OilTypeResearchResolver {
   }
 
   @Mutation(() => dto.OilTypeResearchCreateResponse)
-  async oilTypeResearchCreate (
+  async oilTypeResearchCreate(
     @Args('oilTypeId', { type: () => Int }) oilTypeId: number,
     @Args('input') input: dto.OilTypeResearchCreateInput,
     @CurrentUser() currentUser?: User
@@ -87,7 +85,7 @@ export class OilTypeResearchResolver {
   }
 
   @Mutation(() => dto.OilTypeResearchUpdateResponse)
-  async oilTypeResearchUpdate (
+  async oilTypeResearchUpdate(
     @Args('id', { type: () => Int }) id: number,
     @Args('input') input: dto.OilTypeResearchUpdateInput,
     @CurrentUser() currentUser?: User
@@ -123,9 +121,8 @@ export class OilTypeResearchResolver {
     }
   }
 
-
   @Mutation(() => DefaultMutationResponse)
-  async oilTypeResearchDelete (
+  async oilTypeResearchDelete(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
   ): Promise<DefaultMutationResponse> {

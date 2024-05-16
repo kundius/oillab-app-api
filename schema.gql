@@ -218,21 +218,11 @@ type UserPaginateResponse {
   items: [User!]!
 }
 
-type VehicleCreateResponse {
+type SignInResponse {
   success: Boolean!
   error: DefaultError
-  record: Vehicle
-}
-
-type VehicleUpdateResponse {
-  success: Boolean!
-  error: DefaultError
-  record: Vehicle
-}
-
-type VehiclePaginateResponse {
-  pageInfo: PageInfo!
-  items: [Vehicle!]!
+  token: String
+  record: User
 }
 
 type LubricantCreateResponse {
@@ -250,53 +240,6 @@ type LubricantUpdateResponse {
 type LubricantPaginateResponse {
   pageInfo: PageInfo!
   items: [Lubricant!]!
-}
-
-type ReportCreateResponse {
-  success: Boolean!
-  error: DefaultError
-  record: Report
-}
-
-type ReportUpdateResponse {
-  success: Boolean!
-  error: DefaultError
-  record: Report
-}
-
-type ReportPaginateResponse {
-  pageInfo: PageInfo!
-  items: [Report!]!
-}
-
-type ReportGeneratePdfResponse {
-  success: Boolean!
-  error: DefaultError
-  record: File
-}
-
-type ResultCreateResponse {
-  success: Boolean!
-  error: DefaultError
-  record: Result
-}
-
-type ResultUpdateResponse {
-  success: Boolean!
-  error: DefaultError
-  record: Result
-}
-
-type ResultPaginateResponse {
-  pageInfo: PageInfo!
-  items: [Result!]!
-}
-
-type SignInResponse {
-  success: Boolean!
-  error: DefaultError
-  token: String
-  record: User
 }
 
 type OilTypeCreateResponse {
@@ -348,21 +291,78 @@ type OilTypeResearchListResponse {
   items: [OilTypeResearch!]!
 }
 
+type VehicleCreateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Vehicle
+}
+
+type VehicleUpdateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Vehicle
+}
+
+type VehiclePaginateResponse {
+  pageInfo: PageInfo!
+  items: [Vehicle!]!
+}
+
+type ReportCreateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Report
+}
+
+type ReportUpdateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Report
+}
+
+type ReportPaginateResponse {
+  pageInfo: PageInfo!
+  items: [Report!]!
+}
+
+type ReportGeneratePdfResponse {
+  success: Boolean!
+  error: DefaultError
+  record: File
+}
+
+type ResultCreateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Result
+}
+
+type ResultUpdateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Result
+}
+
+type ResultPaginateResponse {
+  pageInfo: PageInfo!
+  items: [Result!]!
+}
+
 type Query {
   user(id: Int!): User
   currentUser: User
-  userPaginate(perPage: Int = 12, page: Int = 1, sort: [UserSort!], filter: UserFilter): UserPaginateResponse!
+  userPaginate(perPage: Int! = 12, page: Int! = 1, sort: [UserSort!], filter: UserFilter): UserPaginateResponse!
   file(id: ID!): File
   vehicle(id: Int!): Vehicle
-  vehiclePaginate(perPage: Int = 12, page: Int = 1, sort: [VehicleSort!], filter: VehicleFilter): VehiclePaginateResponse!
+  vehiclePaginate(perPage: Int! = 12, page: Int! = 1, sort: [VehicleSort!], filter: VehicleFilter): VehiclePaginateResponse!
   report(id: Int!): Report
-  reportPaginate(perPage: Int = 12, page: Int = 1, sort: [ReportSort!], filter: ReportFilter): ReportPaginateResponse!
+  reportPaginate(perPage: Int! = 12, page: Int! = 1, sort: [ReportSort!], filter: ReportFilter): ReportPaginateResponse!
   lubricant(id: Int!): Lubricant
-  lubricantPaginate(perPage: Int = 12, page: Int = 1, sort: [LubricantSort!], filter: LubricantFilter): LubricantPaginateResponse!
+  lubricantPaginate(perPage: Int! = 12, page: Int! = 1, sort: [LubricantSort!], filter: LubricantFilter): LubricantPaginateResponse!
   result(id: Int!): Result
-  resultPaginate(perPage: Int = 12, page: Int = 1, sort: [ResultSort!], filter: ResultFilter): ResultPaginateResponse!
+  resultPaginate(perPage: Int! = 12, page: Int! = 1, sort: [ResultSort!], filter: ResultFilter): ResultPaginateResponse!
   oiltype(id: Int!): OilType
-  oiltypePaginate(perPage: Int = 12, page: Int = 1, sort: [OilTypeSort!], filter: OilTypeFilter): OilTypePaginateResponse!
+  oiltypePaginate(perPage: Int! = 12, page: Int! = 1, sort: [OilTypeSort!], filter: OilTypeFilter): OilTypePaginateResponse!
   oilTypeIndicator(id: Int!): OilType
   oilTypeIndicatorList(oilTypeId: Int!): OilTypeIndicatorListResponse!
   oilTypeResearch(id: Int!): OilType
@@ -505,29 +505,29 @@ input OilTypeFilter {
 type Mutation {
   signIn(input: SignInInput!): SignInResponse!
   userCreate(input: UserCreateInput!): UserCreateResponse!
-  userUpdate(input: UserUpdateInput!, id: Int!): UserUpdateResponse!
+  userUpdate(id: Int!, input: UserUpdateInput!): UserUpdateResponse!
   userDelete(id: Int!): DefaultMutationResponse!
   vehicleCreate(input: VehicleCreateInput!): VehicleCreateResponse!
-  vehicleUpdate(input: VehicleUpdateInput!, id: Int!): VehicleUpdateResponse!
+  vehicleUpdate(id: Int!, input: VehicleUpdateInput!): VehicleUpdateResponse!
   vehicleDelete(id: Int!): DefaultMutationResponse!
   reportGeneratePdf(sort: [ReportSort!], filter: ReportFilter): ReportGeneratePdfResponse!
   reportCreate(input: ReportCreateInput!): ReportCreateResponse!
-  reportUpdate(input: ReportUpdateInput!, id: Int!): ReportUpdateResponse!
+  reportUpdate(id: Int!, input: ReportUpdateInput!): ReportUpdateResponse!
   reportDelete(id: Int!): DefaultMutationResponse!
   lubricantCreate(input: LubricantCreateInput!): LubricantCreateResponse!
-  lubricantUpdate(input: LubricantUpdateInput!, id: Int!): LubricantUpdateResponse!
+  lubricantUpdate(id: Int!, input: LubricantUpdateInput!): LubricantUpdateResponse!
   lubricantDelete(id: Int!): DefaultMutationResponse!
   resultCreate(input: ResultCreateInput!): ResultCreateResponse!
-  resultUpdate(input: ResultUpdateInput!, id: Int!): ResultUpdateResponse!
+  resultUpdate(id: Int!, input: ResultUpdateInput!): ResultUpdateResponse!
   resultDelete(id: Int!): DefaultMutationResponse!
   oiltypeCreate(input: OilTypeCreateInput!): OilTypeCreateResponse!
-  oiltypeUpdate(input: OilTypeUpdateInput!, id: Int!): OilTypeUpdateResponse!
+  oiltypeUpdate(id: Int!, input: OilTypeUpdateInput!): OilTypeUpdateResponse!
   oiltypeDelete(id: Int!): DefaultMutationResponse!
-  oilTypeIndicatorCreate(input: OilTypeIndicatorCreateInput!, oilTypeId: Int!): OilTypeIndicatorCreateResponse!
-  oilTypeIndicatorUpdate(input: OilTypeIndicatorUpdateInput!, id: Int!): OilTypeIndicatorUpdateResponse!
+  oilTypeIndicatorCreate(oilTypeId: Int!, input: OilTypeIndicatorCreateInput!): OilTypeIndicatorCreateResponse!
+  oilTypeIndicatorUpdate(id: Int!, input: OilTypeIndicatorUpdateInput!): OilTypeIndicatorUpdateResponse!
   oilTypeIndicatorDelete(id: Int!): DefaultMutationResponse!
-  oilTypeResearchCreate(input: OilTypeResearchCreateInput!, oilTypeId: Int!): OilTypeResearchCreateResponse!
-  oilTypeResearchUpdate(input: OilTypeResearchUpdateInput!, id: Int!): OilTypeResearchUpdateResponse!
+  oilTypeResearchCreate(oilTypeId: Int!, input: OilTypeResearchCreateInput!): OilTypeResearchCreateResponse!
+  oilTypeResearchUpdate(id: Int!, input: OilTypeResearchUpdateInput!): OilTypeResearchUpdateResponse!
   oilTypeResearchDelete(id: Int!): DefaultMutationResponse!
 }
 

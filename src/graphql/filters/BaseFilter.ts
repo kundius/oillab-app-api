@@ -1,7 +1,10 @@
-import { SelectQueryBuilder } from 'typeorm'
+import { ObjectLiteral, SelectQueryBuilder } from 'typeorm'
 
 export class BaseFilter {
-  applyFilter(tableName: string, qb: SelectQueryBuilder<unknown>): SelectQueryBuilder<unknown> {
+  applyFilter(
+    tableName: string,
+    qb: SelectQueryBuilder<ObjectLiteral>
+  ): SelectQueryBuilder<ObjectLiteral> {
     for (let key of Object.keys(this)) {
       if (this[key] instanceof BaseFilter) {
         qb.leftJoinAndSelect(`${tableName}.${key}`, key)

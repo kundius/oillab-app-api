@@ -21,12 +21,12 @@ export class FileService {
     return this.fileRepository.createQueryBuilder('file')
   }
 
-  async findById(id: number): Promise<File | undefined> {
-    return await this.fileRepository.findOne(id)
+  async findById(id: number): Promise<File | null> {
+    return await this.fileRepository.findOneBy({ id })
   }
 
   async findByIdOrFail(id: number): Promise<File> {
-    return await this.fileRepository.findOneOrFail(id)
+    return await this.fileRepository.findOneByOrFail({ id })
   }
 
   async many(): Promise<{

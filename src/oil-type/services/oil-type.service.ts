@@ -15,12 +15,12 @@ export class OilTypeService {
     private readonly oilTypeRepository: Repository<OilType>
   ) {}
 
-  async findById(id: number): Promise<OilType | undefined> {
-    return await this.oilTypeRepository.findOne(id)
+  async findById(id: number): Promise<OilType | null> {
+    return await this.oilTypeRepository.findOneBy({ id })
   }
 
   async findByIdOrFail(id: number): Promise<OilType> {
-    return await this.oilTypeRepository.findOneOrFail(id)
+    return await this.oilTypeRepository.findOneByOrFail({ id })
   }
 
   async create(input: dto.OilTypeCreateInput) {
@@ -36,7 +36,7 @@ export class OilTypeService {
     }
 
     await this.oilTypeRepository.save(record)
-    
+
     return record
   }
 
@@ -80,7 +80,7 @@ export class OilTypeService {
     sort: dto.OilTypeSort[]
   ): Promise<SelectQueryBuilder<OilType>> {
     for (const value of sort) {
-      let arr = value.split('_') as [string, "ASC" | "DESC"]
+      let arr = value.split('_') as [string, 'ASC' | 'DESC']
       qb.orderBy(`${this.tableName}.${arr[0]}`, arr[1])
     }
     return qb

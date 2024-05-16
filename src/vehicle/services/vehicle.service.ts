@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, SelectQueryBuilder } from 'typeorm'
-import { plainToClass } from 'class-transformer';
-
+import { plainToClass } from 'class-transformer'
 
 import { UserService } from '@app/user/services/user.service'
 
@@ -11,7 +10,7 @@ import { Vehicle } from '../entities/vehicle.entity'
 
 @Injectable()
 export class VehicleService {
-  tableName = "vehicle"
+  tableName = 'vehicle'
 
   constructor(
     @InjectRepository(Vehicle)
@@ -19,12 +18,12 @@ export class VehicleService {
     private readonly userService: UserService
   ) {}
 
-  async findById(id: number): Promise<Vehicle | undefined> {
-    return await this.vehicleRepository.findOne(id)
+  async findById(id: number): Promise<Vehicle | null> {
+    return await this.vehicleRepository.findOneBy({ id })
   }
 
   async findByIdOrFail(id: number): Promise<Vehicle> {
-    return await this.vehicleRepository.findOneOrFail(id)
+    return await this.vehicleRepository.findOneByOrFail({ id })
   }
 
   async create(input: dto.VehicleCreateInput) {
@@ -34,10 +33,7 @@ export class VehicleService {
   }
 
   async update(record: Vehicle, input: dto.VehicleUpdateInput) {
-    const {
-      owner,
-      ...data
-    } = input
+    const { owner, ...data } = input
 
     for (let key of Object.keys(data)) {
       record[key] = data[key]

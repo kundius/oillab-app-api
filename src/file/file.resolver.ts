@@ -23,7 +23,7 @@ export class FileResolver {
   @Query(() => File, { nullable: true })
   async file (
     @Args('id', { type: () => ID }) id: number
-  ): Promise<File | undefined> {
+  ): Promise<File | null> {
     return this.fileService.findById(id)
   }
 }

@@ -1,42 +1,40 @@
-import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent } from '@nestjs/graphql'
-import { UseGuards } from '@nestjs/common'
-
-import { GqlAuthGuard } from '@app/auth/auth.guard'
-import { NotFoundError } from '@app/graphql/errors/NotFoundError'
-import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { CurrentUser } from '@app/auth/CurrentUser'
-import { User, UserRole } from '@app/user/entities/user.entity'
-
-import { OilTypeService } from '../services/oil-type.service'
-import { OilType } from '../entities/oil-type.entity'
-import * as dto from '../dto/oil-type-indicator.dto'
+import { GqlAuthGuard } from '@app/auth/auth.guard'
+import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { AuthenticationError } from '@app/graphql/errors/AuthenticationError'
 import { NotAllowedError } from '@app/graphql/errors/NotAllowedError'
-import { OilTypeIndicatorService } from '../services/oil-type-indicator.service'
+import { NotFoundError } from '@app/graphql/errors/NotFoundError'
+import { User, UserRole } from '@app/user/entities/user.entity'
+import { UseGuards } from '@nestjs/common'
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
+import * as dto from '../dto/oil-type-indicator.dto'
 import { OilTypeIndicator } from '../entities/oil-type-indicator.entity'
+import { OilType } from '../entities/oil-type.entity'
+import { OilTypeIndicatorService } from '../services/oil-type-indicator.service'
+import { OilTypeService } from '../services/oil-type.service'
 
 @Resolver(() => OilTypeIndicator)
 @UseGuards(GqlAuthGuard)
 export class OilTypeIndicatorResolver {
-  constructor (
+  constructor(
     private readonly oilTypeService: OilTypeService,
     private readonly oilTypeIndicatorService: OilTypeIndicatorService
   ) {}
 
   @Query(() => OilType, { nullable: true })
-  async oilTypeIndicator (
+  async oilTypeIndicator(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
-  ): Promise<OilTypeIndicator | undefined> {
+  ): Promise<OilTypeIndicator | null> {
     if (!currentUser) {
-      return undefined
+      return null
     }
 
     return this.oilTypeIndicatorService.findById(id)
   }
 
   @Query(() => dto.OilTypeIndicatorListResponse)
-  async oilTypeIndicatorList (
+  async oilTypeIndicatorList(
     @Args() args: dto.OilTypeIndicatorListArgs,
     @CurrentUser() currentUser?: User
   ): Promise<dto.OilTypeIndicatorListResponse> {
@@ -50,7 +48,7 @@ export class OilTypeIndicatorResolver {
   }
 
   @Mutation(() => dto.OilTypeIndicatorCreateResponse)
-  async oilTypeIndicatorCreate (
+  async oilTypeIndicatorCreate(
     @Args('oilTypeId', { type: () => Int }) oilTypeId: number,
     @Args('input') input: dto.OilTypeIndicatorCreateInput,
     @CurrentUser() currentUser?: User
@@ -87,7 +85,7 @@ export class OilTypeIndicatorResolver {
   }
 
   @Mutation(() => dto.OilTypeIndicatorUpdateResponse)
-  async oilTypeIndicatorUpdate (
+  async oilTypeIndicatorUpdate(
     @Args('id', { type: () => Int }) id: number,
     @Args('input') input: dto.OilTypeIndicatorUpdateInput,
     @CurrentUser() currentUser?: User
@@ -123,9 +121,8 @@ export class OilTypeIndicatorResolver {
     }
   }
 
-
   @Mutation(() => DefaultMutationResponse)
-  async oilTypeIndicatorDelete (
+  async oilTypeIndicatorDelete(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
   ): Promise<DefaultMutationResponse> {

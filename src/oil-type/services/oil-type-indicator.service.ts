@@ -16,15 +16,15 @@ export class OilTypeIndicatorService {
     @InjectRepository(OilType)
     private readonly oilTypeRepository: Repository<OilType>,
     @InjectRepository(OilTypeIndicator)
-    private readonly oilTypeIndicatorRepository: Repository<OilTypeIndicator>,
+    private readonly oilTypeIndicatorRepository: Repository<OilTypeIndicator>
   ) {}
 
-  async findById(id: number): Promise<OilTypeIndicator | undefined> {
-    return await this.oilTypeIndicatorRepository.findOne(id)
+  async findById(id: number): Promise<OilTypeIndicator | null> {
+    return await this.oilTypeIndicatorRepository.findOneBy({ id })
   }
 
   async findByIdOrFail(id: number): Promise<OilTypeIndicator> {
-    return await this.oilTypeIndicatorRepository.findOneOrFail(id)
+    return await this.oilTypeIndicatorRepository.findOneByOrFail({ id })
   }
 
   async create(oilType: OilType, input: dto.OilTypeIndicatorCreateInput) {
@@ -33,7 +33,10 @@ export class OilTypeIndicatorService {
     return this.update(record, input)
   }
 
-  async update(record: OilTypeIndicator, input: dto.OilTypeIndicatorUpdateInput) {
+  async update(
+    record: OilTypeIndicator,
+    input: dto.OilTypeIndicatorUpdateInput
+  ) {
     const { ...data } = input
 
     for (let key of Object.keys(input)) {
@@ -41,7 +44,7 @@ export class OilTypeIndicatorService {
     }
 
     await this.oilTypeIndicatorRepository.save(record)
-    
+
     return record
   }
 
@@ -55,10 +58,13 @@ export class OilTypeIndicatorService {
   async list(
     args: dto.OilTypeIndicatorListArgs
   ): Promise<dto.OilTypeIndicatorListResponse> {
-    const qb = this.oilTypeIndicatorRepository.createQueryBuilder('oil_type_indicator')
+    const qb =
+      this.oilTypeIndicatorRepository.createQueryBuilder('oil_type_indicator')
 
     qb.leftJoinAndSelect('oil_type_indicator.oilType', 'oilType')
-    qb.where('oil_type_indicator.oilType = :oilTypeId', { oilTypeId: args.oilTypeId })
+    qb.where('oil_type_indicator.oilType = :oilTypeId', {
+      oilTypeId: args.oilTypeId
+    })
 
     const items = await qb.getMany()
 

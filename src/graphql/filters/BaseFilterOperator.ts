@@ -1,10 +1,10 @@
-import { SelectQueryBuilder } from 'typeorm'
+import { ObjectLiteral, SelectQueryBuilder } from 'typeorm'
 
 export class BaseFilterOperator {
   applyOperator(
     field: string,
-    qb: SelectQueryBuilder<unknown>
-  ): SelectQueryBuilder<unknown> {
+    qb: SelectQueryBuilder<ObjectLiteral>
+  ): SelectQueryBuilder<ObjectLiteral> {
     throw new Error('Operator apply method not implemented')
   }
 }

@@ -1,39 +1,35 @@
-import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent } from '@nestjs/graphql'
-import { UseGuards } from '@nestjs/common'
-
-import { GqlAuthGuard } from '@app/auth/auth.guard'
-import { NotFoundError } from '@app/graphql/errors/NotFoundError'
-import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { CurrentUser } from '@app/auth/CurrentUser'
-import { User, UserRole } from '@app/user/entities/user.entity'
-
-import { LubricantService } from '../services/lubricant.service'
-import { Lubricant } from '../entities/lubricant.entity'
-import * as dto from '../dto/lubricant.dto'
+import { GqlAuthGuard } from '@app/auth/auth.guard'
+import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
 import { AuthenticationError } from '@app/graphql/errors/AuthenticationError'
 import { NotAllowedError } from '@app/graphql/errors/NotAllowedError'
+import { NotFoundError } from '@app/graphql/errors/NotFoundError'
+import { User, UserRole } from '@app/user/entities/user.entity'
+import { UseGuards } from '@nestjs/common'
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
+import * as dto from '../dto/lubricant.dto'
+import { Lubricant } from '../entities/lubricant.entity'
+import { LubricantService } from '../services/lubricant.service'
 
 @Resolver(() => Lubricant)
 @UseGuards(GqlAuthGuard)
 export class LubricantResolver {
-  constructor (
-    private readonly lubricantService: LubricantService
-  ) {}
+  constructor(private readonly lubricantService: LubricantService) {}
 
   @Query(() => Lubricant, { nullable: true })
-  async lubricant (
+  async lubricant(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
-  ): Promise<Lubricant | undefined> {
+  ): Promise<Lubricant | null> {
     if (!currentUser) {
-      return undefined
+      return null
     }
 
     return this.lubricantService.findById(id)
   }
 
   @Query(() => dto.LubricantPaginateResponse)
-  async lubricantPaginate (
+  async lubricantPaginate(
     @Args() args: dto.LubricantPaginateArgs,
     @CurrentUser() currentUser?: User
   ): Promise<dto.LubricantPaginateResponse> {
@@ -52,7 +48,7 @@ export class LubricantResolver {
   }
 
   @Mutation(() => dto.LubricantCreateResponse)
-  async lubricantCreate (
+  async lubricantCreate(
     @Args('input') input: dto.LubricantCreateInput,
     @CurrentUser() currentUser?: User
   ): Promise<dto.LubricantCreateResponse> {
@@ -79,7 +75,7 @@ export class LubricantResolver {
   }
 
   @Mutation(() => dto.LubricantUpdateResponse)
-  async lubricantUpdate (
+  async lubricantUpdate(
     @Args('id', { type: () => Int }) id: number,
     @Args('input') input: dto.LubricantUpdateInput,
     @CurrentUser() currentUser?: User
@@ -115,9 +111,8 @@ export class LubricantResolver {
     }
   }
 
-
   @Mutation(() => DefaultMutationResponse)
-  async lubricantDelete (
+  async lubricantDelete(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
   ): Promise<DefaultMutationResponse> {

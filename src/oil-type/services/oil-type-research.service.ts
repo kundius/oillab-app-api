@@ -18,12 +18,12 @@ export class OilTypeResearchService {
     private readonly oilTypeResearchRepository: Repository<OilTypeResearch>
   ) {}
 
-  async findById(id: number): Promise<OilTypeResearch | undefined> {
-    return await this.oilTypeResearchRepository.findOne(id)
+  async findById(id: number): Promise<OilTypeResearch | null> {
+    return await this.oilTypeResearchRepository.findOneBy({ id })
   }
 
   async findByIdOrFail(id: number): Promise<OilTypeResearch> {
-    return await this.oilTypeResearchRepository.findOneOrFail(id)
+    return await this.oilTypeResearchRepository.findOneByOrFail({ id })
   }
 
   async create(oilType: OilType, input: dto.OilTypeResearchCreateInput) {
@@ -40,7 +40,7 @@ export class OilTypeResearchService {
     }
 
     await this.oilTypeResearchRepository.save(record)
-    
+
     return record
   }
 
@@ -51,10 +51,13 @@ export class OilTypeResearchService {
   async list(
     args: dto.OilTypeResearchListArgs
   ): Promise<dto.OilTypeResearchListResponse> {
-    const qb = this.oilTypeResearchRepository.createQueryBuilder('oil_type_research')
+    const qb =
+      this.oilTypeResearchRepository.createQueryBuilder('oil_type_research')
 
     qb.leftJoinAndSelect('oil_type_research.oilType', 'oilType')
-    qb.where('oil_type_research.oilType = :oilTypeId', { oilTypeId: args.oilTypeId })
+    qb.where('oil_type_research.oilType = :oilTypeId', {
+      oilTypeId: args.oilTypeId
+    })
 
     const items = await qb.getMany()
 

@@ -23,9 +23,9 @@ export class ReportResolver {
   async report(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
-  ): Promise<Report | undefined> {
+  ): Promise<Report | null> {
     if (!currentUser) {
-      return undefined
+      return null
     }
 
     return this.reportService.findById(id)
@@ -101,21 +101,30 @@ export class ReportResolver {
 
     if (typeof input.formNumber !== 'undefined' && !input.formNumber) {
       return {
-        error: new ValidationError('formNumber', 'Номер бланка не может быть пустым.'),
+        error: new ValidationError(
+          'formNumber',
+          'Номер бланка не может быть пустым.'
+        ),
         success: false
       }
     }
-    
+
     if (input.formNumber.startsWith('0') || input.formNumber.includes(' ')) {
       return {
-        error: new ValidationError('formNumber', 'Номер бланка не может начинаться с 0 или содержать пробелы.'),
+        error: new ValidationError(
+          'formNumber',
+          'Номер бланка не может начинаться с 0 или содержать пробелы.'
+        ),
         success: false
       }
     }
 
     if (await this.reportService.isFormNumberExists(input.formNumber)) {
       return {
-        error: new ValidationError('formNumber', 'Указанный номер бланка занят.'),
+        error: new ValidationError(
+          'formNumber',
+          'Указанный номер бланка занят.'
+        ),
         success: false
       }
     }
@@ -160,21 +169,33 @@ export class ReportResolver {
     if (typeof input.formNumber !== 'undefined') {
       if (!input.formNumber) {
         return {
-          error: new ValidationError('formNumber', 'Номер бланка не может быть пустым.'),
+          error: new ValidationError(
+            'formNumber',
+            'Номер бланка не может быть пустым.'
+          ),
           success: false
         }
       }
-        
+
       if (input.formNumber.startsWith('0') || input.formNumber.includes(' ')) {
         return {
-          error: new ValidationError('formNumber', 'Номер бланка не может начинаться с 0 или содержать пробелы.'),
+          error: new ValidationError(
+            'formNumber',
+            'Номер бланка не может начинаться с 0 или содержать пробелы.'
+          ),
           success: false
         }
       }
-    
-      if (record.formNumber !== input.formNumber && await this.reportService.isFormNumberExists(input.formNumber)) {
+
+      if (
+        record.formNumber !== input.formNumber &&
+        (await this.reportService.isFormNumberExists(input.formNumber))
+      ) {
         return {
-          error: new ValidationError('formNumber', 'Указанный номер бланка занят.'),
+          error: new ValidationError(
+            'formNumber',
+            'Указанный номер бланка занят.'
+          ),
           success: false
         }
       }

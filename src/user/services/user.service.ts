@@ -11,53 +11,53 @@ import { plainToClass } from 'class-transformer'
 export class UserService {
   tableName = 'user'
 
-  constructor (
+  constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>
   ) {}
 
-  async findById (id: number): Promise<User | undefined> {
-    return await this.userRepository.findOne(id)
+  async findById(id: number): Promise<User | null> {
+    return await this.userRepository.findOneBy({ id })
   }
 
-  async findByIdOrFail (id: number): Promise<User> {
-    return await this.userRepository.findOneOrFail(id)
+  async findByIdOrFail(id: number): Promise<User> {
+    return await this.userRepository.findOneByOrFail({ id })
   }
 
-  async findByEmail (email: string): Promise<User | undefined> {
-    return await this.userRepository.findOne({ email })
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.userRepository.findOneBy({ email })
   }
 
-  async isEmailExists (email: string): Promise<boolean> {
-    return !!(await this.userRepository.findOne({ email }))
+  async isEmailExists(email: string): Promise<boolean> {
+    return !!(await this.userRepository.findOneBy({ email }))
   }
 
-  async updateLastActivity (user: User): Promise<void> {
+  async updateLastActivity(user: User): Promise<void> {
     user.lastActivityAt = new Date()
     await this.userRepository.save(user)
   }
 
-  async activateUser (user: User): Promise<User> {
+  async activateUser(user: User): Promise<User> {
     user.isActive = true
     await this.userRepository.save(user)
     return user
   }
 
-  async deactivateUser (user: User): Promise<User> {
+  async deactivateUser(user: User): Promise<User> {
     user.isActive = false
     await this.userRepository.save(user)
     return user
   }
 
-  async removeUser (user: User): Promise<void> {
+  async removeUser(user: User): Promise<void> {
     await this.userRepository.remove(user)
   }
 
-  async generatePasswordHash (password: string): Promise<string> {
+  async generatePasswordHash(password: string): Promise<string> {
     return await argon2.hash(password)
   }
 
-  async checkPasswordHash (password: string, hash: string): Promise<boolean> {
+  async checkPasswordHash(password: string, hash: string): Promise<boolean> {
     try {
       return await argon2.verify(hash, password)
     } catch {
@@ -65,13 +65,13 @@ export class UserService {
     }
   }
 
-  async create (input: dto.UserCreateInput) {
+  async create(input: dto.UserCreateInput) {
     const record = await this.userRepository.create()
 
     return this.update(record, input)
   }
 
-  async update (record: User, input: dto.UserUpdateInput) {
+  async update(record: User, input: dto.UserUpdateInput) {
     const { password, ...data } = input
 
     for (let key of Object.keys(data)) {
@@ -87,11 +87,13 @@ export class UserService {
     return record
   }
 
-  async delete (record: User) {
+  async delete(record: User) {
     await this.userRepository.remove(record)
   }
 
-  async paginate (args: dto.UserPaginateArgs): Promise<dto.UserPaginateResponse> {
+  async paginate(
+    args: dto.UserPaginateArgs
+  ): Promise<dto.UserPaginateResponse> {
     const { page, perPage, filter, sort } = args
 
     const qb = this.userRepository.createQueryBuilder('user')
@@ -105,7 +107,10 @@ export class UserService {
     }
 
     const total = await qb.getCount()
-    const items = await qb.skip((page - 1) * perPage).take(perPage).getMany()
+    const items = await qb
+      .skip((page - 1) * perPage)
+      .take(perPage)
+      .getMany()
 
     return {
       items,
@@ -117,12 +122,12 @@ export class UserService {
     }
   }
 
-  async applySort (
+  async applySort(
     qb: SelectQueryBuilder<User>,
     sort: dto.UserSort[]
   ): Promise<SelectQueryBuilder<User>> {
     for (const value of sort) {
-      let arr = value.split('_') as [string, "ASC" | "DESC"]
+      let arr = value.split('_') as [string, 'ASC' | 'DESC']
       qb.orderBy(`${this.tableName}.${arr[0]}`, arr[1])
     }
     return qb

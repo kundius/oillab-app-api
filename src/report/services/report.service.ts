@@ -36,11 +36,11 @@ export class ReportService {
   ) {}
 
   async isFormNumberExists(formNumber: string): Promise<boolean> {
-    return !!(await this.reportRepository.findOne({ formNumber }))
+    return !!(await this.reportRepository.findOneBy({ formNumber }))
   }
 
-  async findById(id: number): Promise<Report | undefined> {
-    return await this.reportRepository.findOne(id)
+  async findById(id: number): Promise<Report | null> {
+    return await this.reportRepository.findOneBy({ id })
   }
 
   async findMany(): Promise<Report[]> {
@@ -48,7 +48,7 @@ export class ReportService {
   }
 
   async findByIdOrFail(id: number): Promise<Report> {
-    return await this.reportRepository.findOneOrFail(id)
+    return await this.reportRepository.findOneByOrFail({ id })
   }
 
   async getNewNumber(client: User): Promise<number> {
@@ -115,9 +115,8 @@ export class ReportService {
       if (lubricantEntityId === null) {
         record.lubricantEntity = Promise.resolve(null)
       } else {
-        const lubricantEntity = await this.lubricantService.findByIdOrFail(
-          lubricantEntityId
-        )
+        const lubricantEntity =
+          await this.lubricantService.findByIdOrFail(lubricantEntityId)
         record.lubricantEntity = Promise.resolve(lubricantEntity)
       }
     }
@@ -125,7 +124,7 @@ export class ReportService {
       if (oilTypeId === null) {
         record.oilType = Promise.resolve(null)
       } else {
-        const oilType = await OilType.findOneOrFail(oilTypeId)
+        const oilType = await OilType.findOneByOrFail({ id: oilTypeId })
         record.oilType = Promise.resolve(oilType)
       }
     }
@@ -146,9 +145,8 @@ export class ReportService {
       if (laboratoryResult === null) {
         record.laboratoryResult = Promise.resolve(null)
       } else {
-        const laboratoryResultEntity = await this.fileService.findByIdOrFail(
-          laboratoryResult
-        )
+        const laboratoryResultEntity =
+          await this.fileService.findByIdOrFail(laboratoryResult)
         record.laboratoryResult = Promise.resolve(laboratoryResultEntity)
       }
     }
@@ -294,8 +292,8 @@ export class ReportService {
           <td>${item.lubricantMileage}</td>
           <td>${item.samplingNodes}</td>
           <td>${lubricant?.brand} / ${lubricant?.model} / ${
-        lubricant?.viscosity
-      }</td>
+            lubricant?.viscosity
+          }</td>
           <td>${item.sampledAt.toLocaleDateString()}</td>
           <td>${item.note}</td>
         </tr>
@@ -425,16 +423,19 @@ export class ReportService {
 
     const resultIndicators = await result.indicators
     const oilTypeIndicators = await oilType.indicators
-    let indicators = ''    
+    let indicators = ''
     for (const oilTypeIndicator of oilTypeIndicators) {
       let resultIndicator: ResultIndicator | null = null
       for (const item of resultIndicators) {
         const resultOilTypeIndicator = await item.oilTypeIndicator
-        if (resultOilTypeIndicator && resultOilTypeIndicator.id === oilTypeIndicator.id) {
+        if (
+          resultOilTypeIndicator &&
+          resultOilTypeIndicator.id === oilTypeIndicator.id
+        ) {
           resultIndicator = item
         }
       }
-    
+
       indicators += `
       <tr>
         <td>${oilTypeIndicator.name}</td>
@@ -447,17 +448,20 @@ export class ReportService {
 
     const resultResearches = await result.researches
     const oilTypeResearches = await oilType.researches
-    let researches = ''  
-    let i = 0  
+    let researches = ''
+    let i = 0
     for (const oilTypeResearch of oilTypeResearches) {
       let resultResearch: ResultResearch | null = null
       for (const item of resultResearches) {
         const resultOilTypeResearch = await item.oilTypeResearch
-        if (resultOilTypeResearch && resultOilTypeResearch.id === oilTypeResearch.id) {
+        if (
+          resultOilTypeResearch &&
+          resultOilTypeResearch.id === oilTypeResearch.id
+        ) {
           resultResearch = item
         }
       }
-      
+
       i++
       researches += `
       <tr>
@@ -941,7 +945,7 @@ export class ReportService {
         Интерпретация полученных данных
       </div>
       
-      ${result.interpretation && `<p>${result.interpretation.replace(/\n/g, "<br />")}</p>`}
+      ${result.interpretation && `<p>${result.interpretation.replace(/\n/g, '<br />')}</p>`}
       
       <div class="pagebreak"></div>
 
@@ -1028,7 +1032,9 @@ export class ReportService {
         ${indicators}
       </table>
       
-      ${oilType.standard ? `
+      ${
+        oilType.standard
+          ? `
       <hr />
       
       <table class="table-indicators">
@@ -1039,7 +1045,9 @@ export class ReportService {
         </tr>
         ${researches}
       </table>
-      ` : ``}
+      `
+          : ``
+      }
     `
 
     return wkhtmltopdf(html, {
@@ -1052,26 +1060,18 @@ export class ReportService {
     })
   }
 
-  async getResultBuffer(
-    report: Report,
-    result: Result
-  ): Promise<Buffer> {
+  async getResultBuffer(report: Report, result: Result): Promise<Buffer> {
     const stream = await this.getResultStream(report, result)
 
     return new Promise<Buffer>((resolve, reject) => {
       const _buf = Array<any>()
       stream.on('data', (chunk) => _buf.push(chunk))
       stream.on('end', () => resolve(Buffer.concat(_buf)))
-      stream.on('error', (err) =>
-        reject(`error converting stream - ${err}`)
-      )
+      stream.on('error', (err) => reject(`error converting stream - ${err}`))
     })
   }
 
-  async getResultFile(
-    report: Report,
-    result: Result
-  ): Promise<File> {
+  async getResultFile(report: Report, result: Result): Promise<File> {
     const buffer = await this.getResultBuffer(report, result)
 
     const file = await this.fileService.uploadAndCreateFile({

@@ -538,7 +538,7 @@ export class ReportController {
       throw new BadRequestException()
     }
 
-    const result = await Result.findOne({
+    const result = await Result.findOneBy({
       formNumber: report.formNumber
     })
 
@@ -577,7 +577,9 @@ export class ReportController {
     const client = await report.client
     const lubricant = await report.lubricantEntity
     const vehicle = await report.vehicle
-    const productType = this.reportService.getProductTypeLabel(lubricant?.productType)
+    const productType = this.reportService.getProductTypeLabel(
+      lubricant?.productType
+    )
     const sampledAt = report?.sampledAt.toLocaleDateString('ru-RU')
     const number = await this.reportService.getApplicationFormNumber(report)
 
