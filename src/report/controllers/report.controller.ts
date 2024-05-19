@@ -1,24 +1,23 @@
+import { CurrentUser } from '@app/auth/CurrentUser'
+import { configService } from '@app/config/config.service'
+import { ProductType } from '@app/lubricant/entities/lubricant.entity'
+import { Result } from '@app/result/entities/result.entity'
+import { User, UserRole } from '@app/user/entities/user.entity'
 import {
+  BadRequestException,
   Controller,
+  ForbiddenException,
   Get,
   Header,
-  UseGuards,
-  ForbiddenException,
-  UnauthorizedException,
   NotFoundException,
   Param,
   Res,
-  BadRequestException,
-  StreamableFile
+  UnauthorizedException,
+  UseGuards
 } from '@nestjs/common'
-import { Response } from 'express'
 import { AuthGuard } from '@nestjs/passport'
-import { configService } from '@app/config/config.service'
-import { CurrentUser } from '@app/auth/CurrentUser'
-import { User, UserRole } from '@app/user/entities/user.entity'
-import { ProductType } from '@app/lubricant/entities/lubricant.entity'
+import { Response } from 'express'
 import { ReportService } from '../services/report.service'
-import { Result } from '@app/result/entities/result.entity'
 
 const wkhtmltopdf = require('wkhtmltopdf')
 
@@ -63,6 +62,7 @@ export class ReportController {
     }
 
     const lubricant = await report?.lubricantEntity
+    const brand = await lubricant?.brandEntity
     const vehicle = await report?.vehicle
     const customer = await report?.client
     const productType = this.reportService.getProductTypeLabel(
@@ -383,7 +383,7 @@ export class ReportController {
                 Бренд СМ
                 </div>
                 <div class="field__input">
-                  ${lubricant?.brand || ''}
+                  ${brand?.name || ''}
                 </div>
               </div>
             </td>
@@ -472,7 +472,7 @@ export class ReportController {
               Бренд
               </div>
               <div class="field__input">
-                ${lubricant?.brand || ''}
+                ${brand?.name || ''}
               </div>
             </div>
             </td>
@@ -576,6 +576,7 @@ export class ReportController {
 
     const client = await report.client
     const lubricant = await report.lubricantEntity
+    const brand = await lubricant?.brandEntity
     const vehicle = await report.vehicle
     const productType = this.reportService.getProductTypeLabel(
       lubricant?.productType
@@ -651,7 +652,7 @@ export class ReportController {
       ${client?.name}
       </div>
       <div class="value">
-      ${lubricant?.brand} ${lubricant?.model} ${lubricant?.viscosity}
+      ${brand?.name} ${lubricant?.model} ${lubricant?.viscosity}
       </div>
       <div class="value">
       ${vehicle?.model}

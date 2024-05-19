@@ -23,9 +23,17 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type Brand {
+  name: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  lubricants: [Lubricant]!
+  id: Float!
+}
+
 type Lubricant {
   model: String!
-  brand: String!
+  brandEntity: Brand
   viscosity: String
   productType: ProductType
   createdAt: DateTime!
@@ -225,6 +233,23 @@ type SignInResponse {
   record: User
 }
 
+type BrandCreateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Brand
+}
+
+type BrandUpdateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Brand
+}
+
+type BrandPaginateResponse {
+  pageInfo: PageInfo!
+  items: [Brand!]!
+}
+
 type LubricantCreateResponse {
   success: Boolean!
   error: DefaultError
@@ -360,6 +385,8 @@ type Query {
   reportPaginate(perPage: Int! = 12, page: Int! = 1, sort: [ReportSort!], filter: ReportFilter): ReportPaginateResponse!
   lubricant(id: Int!): Lubricant
   lubricantPaginate(perPage: Int! = 12, page: Int! = 1, sort: [LubricantSort!], filter: LubricantFilter): LubricantPaginateResponse!
+  brand(id: Int!): Brand
+  brandPaginate(perPage: Int! = 12, page: Int! = 1, sort: [BrandSort!], filter: BrandFilter): BrandPaginateResponse!
   result(id: Int!): Result
   resultPaginate(perPage: Int! = 12, page: Int! = 1, sort: [ResultSort!], filter: ResultFilter): ResultPaginateResponse!
   oiltype(id: Int!): OilType
@@ -458,8 +485,12 @@ input ReportFilter {
 
 input LubricantFilter {
   model: StringFilterOperator
-  brand: StringFilterOperator
+  brandEntity: BrandFilter
   viscosity: StringFilterOperator
+}
+
+input BrandFilter {
+  name: StringFilterOperator
 }
 
 input DateFilterOperator {
@@ -481,6 +512,13 @@ enum LubricantSort {
   BRAND_DESC
   VISCOSITY_ASC
   VISCOSITY_DESC
+}
+
+enum BrandSort {
+  NAME_ASC
+  NAME_DESC
+  ID_ASC
+  ID_DESC
 }
 
 enum ResultSort {
@@ -518,6 +556,9 @@ type Mutation {
   lubricantCreate(input: LubricantCreateInput!): LubricantCreateResponse!
   lubricantUpdate(id: Int!, input: LubricantUpdateInput!): LubricantUpdateResponse!
   lubricantDelete(id: Int!): DefaultMutationResponse!
+  brandCreate(input: BrandCreateInput!): BrandCreateResponse!
+  brandUpdate(id: Int!, input: BrandUpdateInput!): BrandUpdateResponse!
+  brandDelete(id: Int!): DefaultMutationResponse!
   resultCreate(input: ResultCreateInput!): ResultCreateResponse!
   resultUpdate(id: Int!, input: ResultUpdateInput!): ResultUpdateResponse!
   resultDelete(id: Int!): DefaultMutationResponse!
@@ -614,15 +655,23 @@ input ReportUpdateInput {
 input LubricantCreateInput {
   productType: String
   model: String!
-  brand: String!
+  brandId: Int!
   viscosity: String
 }
 
 input LubricantUpdateInput {
   productType: String
   model: String
-  brand: String
+  brandId: Int
   viscosity: String
+}
+
+input BrandCreateInput {
+  name: String!
+}
+
+input BrandUpdateInput {
+  name: String
 }
 
 input ResultCreateInput {

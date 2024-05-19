@@ -6,33 +6,33 @@ import { NotAllowedError } from '@app/graphql/errors/NotAllowedError'
 import { NotFoundError } from '@app/graphql/errors/NotFoundError'
 import { User, UserRole } from '@app/user/entities/user.entity'
 import { UseGuards } from '@nestjs/common'
-import { Args, Int, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql'
-import * as dto from '../dto/lubricant.dto'
-import { Lubricant } from '../entities/lubricant.entity'
-import { LubricantService } from '../services/lubricant.service'
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
+import * as dto from '../dto/brand.dto'
+import { Brand } from '../entities/brand.entity'
+import { BrandService } from '../services/brand.service'
 
-@Resolver(() => Lubricant)
+@Resolver(() => Brand)
 @UseGuards(GqlAuthGuard)
-export class LubricantResolver {
-  constructor(private readonly lubricantService: LubricantService) {}
+export class BrandResolver {
+  constructor(private readonly brandService: BrandService) {}
 
-  @Query(() => Lubricant, { nullable: true })
-  async lubricant(
+  @Query(() => Brand, { nullable: true })
+  async brand(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
-  ): Promise<Lubricant | null> {
+  ): Promise<Brand | null> {
     if (!currentUser) {
       return null
     }
 
-    return this.lubricantService.findById(id)
+    return this.brandService.findById(id)
   }
 
-  @Query(() => dto.LubricantPaginateResponse)
-  async lubricantPaginate(
-    @Args() args: dto.LubricantPaginateArgs,
+  @Query(() => dto.BrandPaginateResponse)
+  async brandPaginate(
+    @Args() args: dto.BrandPaginateArgs,
     @CurrentUser() currentUser?: User
-  ): Promise<dto.LubricantPaginateResponse> {
+  ): Promise<dto.BrandPaginateResponse> {
     if (!currentUser) {
       return {
         items: [],
@@ -44,14 +44,14 @@ export class LubricantResolver {
       }
     }
 
-    return this.lubricantService.paginate(args)
+    return this.brandService.paginate(args)
   }
 
-  @Mutation(() => dto.LubricantCreateResponse)
-  async lubricantCreate(
-    @Args('input') input: dto.LubricantCreateInput,
+  @Mutation(() => dto.BrandCreateResponse)
+  async brandCreate(
+    @Args('input') input: dto.BrandCreateInput,
     @CurrentUser() currentUser?: User
-  ): Promise<dto.LubricantCreateResponse> {
+  ): Promise<dto.BrandCreateResponse> {
     if (!currentUser) {
       return {
         error: new AuthenticationError(),
@@ -66,7 +66,7 @@ export class LubricantResolver {
       }
     }
 
-    const record = await this.lubricantService.create(input)
+    const record = await this.brandService.create(input)
 
     return {
       record,
@@ -74,12 +74,12 @@ export class LubricantResolver {
     }
   }
 
-  @Mutation(() => dto.LubricantUpdateResponse)
-  async lubricantUpdate(
+  @Mutation(() => dto.BrandUpdateResponse)
+  async brandUpdate(
     @Args('id', { type: () => Int }) id: number,
-    @Args('input') input: dto.LubricantUpdateInput,
+    @Args('input') input: dto.BrandUpdateInput,
     @CurrentUser() currentUser?: User
-  ): Promise<dto.LubricantUpdateResponse> {
+  ): Promise<dto.BrandUpdateResponse> {
     if (!currentUser) {
       return {
         error: new AuthenticationError(),
@@ -87,7 +87,7 @@ export class LubricantResolver {
       }
     }
 
-    const record = await this.lubricantService.findById(id)
+    const record = await this.brandService.findById(id)
 
     if (!record) {
       return {
@@ -103,7 +103,7 @@ export class LubricantResolver {
       }
     }
 
-    await this.lubricantService.update(record, input)
+    await this.brandService.update(record, input)
 
     return {
       record,
@@ -112,7 +112,7 @@ export class LubricantResolver {
   }
 
   @Mutation(() => DefaultMutationResponse)
-  async lubricantDelete(
+  async brandDelete(
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() currentUser?: User
   ): Promise<DefaultMutationResponse> {
@@ -123,7 +123,7 @@ export class LubricantResolver {
       }
     }
 
-    const record = await this.lubricantService.findById(id)
+    const record = await this.brandService.findById(id)
 
     if (!record) {
       return {
@@ -139,7 +139,7 @@ export class LubricantResolver {
       }
     }
 
-    await this.lubricantService.delete(record)
+    await this.brandService.delete(record)
 
     return {
       success: true

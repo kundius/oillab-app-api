@@ -4,6 +4,7 @@ import { plainToClass } from 'class-transformer'
 import { Repository, SelectQueryBuilder } from 'typeorm'
 import * as dto from '../dto/lubricant.dto'
 import { Lubricant } from '../entities/lubricant.entity'
+import { Brand } from '@app/brand/entities/brand.entity'
 
 @Injectable()
 export class LubricantService {
@@ -11,7 +12,9 @@ export class LubricantService {
 
   constructor(
     @InjectRepository(Lubricant)
-    private readonly lubricantRepository: Repository<Lubricant>
+    private readonly lubricantRepository: Repository<Lubricant>,
+    @InjectRepository(Brand)
+    private readonly brandRepository: Repository<Brand>
   ) {}
 
   async findById(id: number): Promise<Lubricant | null> {
@@ -28,7 +31,7 @@ export class LubricantService {
   }
 
   async update(record: Lubricant, input: dto.LubricantUpdateInput) {
-    const { productType, ...data } = input
+    const { productType, brandId, ...data } = input
 
     for (let key of Object.keys(data)) {
       record[key] = data[key]
@@ -36,6 +39,13 @@ export class LubricantService {
 
     if (typeof productType !== 'undefined') {
       record.productType = productType || null
+    }
+
+    if (typeof brandId !== 'undefined') {
+      const brand = await this.brandRepository.findOneBy({ id: brandId })
+      if (brand) {
+        record.brandEntity = Promise.resolve(brand)
+      }
     }
 
     await this.lubricantRepository.save(record)

@@ -7,6 +7,7 @@ import { StringFilterOperator } from '@app/graphql/filters/StringFilterOperator'
 import { PaginatedResponse } from '@app/graphql/PaginatedResponse'
 import { IdFilterOperator } from '@app/graphql/filters/IdFilterOperator'
 import { BaseFilter } from '@app/graphql/filters/BaseFilter'
+import { BrandFilter } from '@app/brand/dto/brand.dto'
 
 @InputType()
 export class LubricantCreateInput {
@@ -16,8 +17,8 @@ export class LubricantCreateInput {
   @Field()
   model: string
 
-  @Field()
-  brand: string
+  @Field(() => Int)
+  brandId: number
 
   @Field({ nullable: true })
   viscosity?: string
@@ -37,8 +38,8 @@ export class LubricantUpdateInput {
   @Field({ nullable: true })
   model?: string
 
-  @Field({ nullable: true })
-  brand?: string
+  @Field(() => Int, { nullable: true })
+  brandId?: number
 
   @Field({ nullable: true })
   viscosity?: string
@@ -70,8 +71,8 @@ export class LubricantFilter extends BaseFilter {
   model?: StringFilterOperator
 
   @Field({ nullable: true })
-  @Type(() => StringFilterOperator)
-  brand?: StringFilterOperator
+  @Type(() => BrandFilter)
+  brandEntity?: BrandFilter
 
   @Field({ nullable: true })
   @Type(() => StringFilterOperator)

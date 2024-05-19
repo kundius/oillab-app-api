@@ -10,15 +10,19 @@ import { ReportModule } from './report/report.module'
 import { ResultModule } from './result/result.module'
 import { UserModule } from './user/user.module'
 import { VehicleModule } from './vehicle/vehicle.module'
+import { BrandModule } from './brand/brand.module'
+import { MigrateModule } from './migrate/migrate.module'
 
 @Module({
   imports: [
+    MigrateModule,
     AuthModule,
     UserModule,
     FileModule,
     VehicleModule,
     ReportModule,
     LubricantModule,
+    BrandModule,
     ResultModule,
     OilTypeModule,
     TypeOrmModule.forRoot(configService.getTypeOrmConfig()),

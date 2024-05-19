@@ -286,6 +286,7 @@ export class ReportService {
       const client = await item.client
       const vehicle = await item.vehicle
       const lubricant = await item.lubricantEntity
+      const brand = await lubricant?.brandEntity
       itemsHtml.push(`
         <tr>
           <td>${item.id}</td>
@@ -295,7 +296,7 @@ export class ReportService {
           <td>${item.totalMileage}</td>
           <td>${item.lubricantMileage}</td>
           <td>${item.samplingNodes}</td>
-          <td>${lubricant?.brand} / ${lubricant?.model} / ${
+          <td>${brand?.name} / ${lubricant?.model} / ${
             lubricant?.viscosity
           }</td>
           <td>${item.sampledAt.toLocaleDateString()}</td>
@@ -419,6 +420,7 @@ export class ReportService {
     }
 
     const lubricant = await report?.lubricantEntity
+    const brand = await lubricant?.brandEntity
     const vehicle = await report?.vehicle
     const customer = await report?.client
     const productType = this.getProductTypeLabel(lubricant?.productType)
@@ -911,7 +913,7 @@ export class ReportService {
               <div class="data-label">Бренд СМ</div>
             </div>
             <div class="data-layout-value">
-              <div class="data-value">${lubricant?.brand || '-'}</div>
+              <div class="data-value">${brand?.name || '-'}</div>
             </div>
           </div>
           <div class="data-layout-row">
@@ -980,7 +982,7 @@ export class ReportService {
               <div class="data-label">Бренд СМ</div>
             </div>
             <div class="data-layout-value">
-              <div class="data-value">${lubricant?.brand || ''} ${lubricant?.model || ''} ${lubricant?.viscosity || ''}</div>
+              <div class="data-value">${brand?.name || ''} ${lubricant?.model || ''} ${lubricant?.viscosity || ''}</div>
             </div>
           </div>
           <div class="data-layout-row">

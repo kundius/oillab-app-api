@@ -4,6 +4,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm'
 import { S3 } from 'aws-sdk'
 import { config } from 'dotenv'
 import { join } from 'path'
+import { DataSourceOptions } from 'typeorm'
 
 config()
 
@@ -32,7 +33,7 @@ class ConfigService {
     return APP_MODE !== 'development'
   }
 
-  public getTypeOrmConfig(): TypeOrmModuleOptions {
+  public getTypeOrmConfig(): DataSourceOptions {
     return {
       type: 'mysql',
       host: this.getValue('TYPEORM_HOST'),
@@ -41,6 +42,7 @@ class ConfigService {
       password: this.getValue('TYPEORM_PASSWORD'),
       database: this.getValue('TYPEORM_DATABASE'),
       entities: [join(__dirname, '..', '**', '*.entity{.ts,.js}')], // Workaround https://stackoverflow.com/a/59607836
+      migrations: [join(__dirname, '..', '..', 'migration/*{.ts,.js}')],
       migrationsTableName: 'migration',
       synchronize: false,
       ssl: false

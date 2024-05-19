@@ -4,7 +4,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
+  ManyToOne,
+  VirtualColumn
 } from 'typeorm'
 import {
   Field,
@@ -14,6 +16,7 @@ import {
 
 import { Report } from '@app/report/entities/report.entity'
 import { Maybe } from 'graphql/jsutils/Maybe'
+import { Brand } from '@app/brand/entities/brand.entity'
 
 export enum ProductType {
   Fuel = 'Fuel',
@@ -35,9 +38,21 @@ export class Lubricant {
   @Column()
   model: string
 
-  @Field()
-  @Column()
-  brand: string
+  // @Field()
+  // @Column()
+  // brand: string
+
+  // @Field(() => String)
+  // // @Property({ persist: false })
+  // // get brand() {
+  // //   return (await this.brandEntity)?.name || ''
+  // // }
+  // @VirtualColumn({ query: (alias) => `SELECT "name" FROM "brand" WHERE "brand.id" = ${alias}.brandEntityId` })
+  // brand: string
+
+  @Field(() => Brand, { nullable: true })
+  @ManyToOne(() => Brand, brand => brand.lubricants, { nullable: true })
+  brandEntity: Promise<Brand | null>
 
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
