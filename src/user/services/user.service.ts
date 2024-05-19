@@ -6,6 +6,7 @@ import * as argon2 from 'argon2'
 import * as dto from '../dto/user.dto'
 import { User, UserRole } from '../entities/user.entity'
 import { plainToClass } from 'class-transformer'
+import { Brand } from '@app/brand/entities/brand.entity'
 
 @Injectable()
 export class UserService {
@@ -39,6 +40,23 @@ export class UserService {
 
   async activateUser(user: User): Promise<User> {
     user.isActive = true
+    await this.userRepository.save(user)
+    return user
+  }
+
+  async addBrand(user: User, brand: Brand): Promise<User> {
+    const brands = await user.brands
+    if (!brands.find((item) => item.id === brand.id)) {
+      user.brands = Promise.resolve([...brands, brand])
+      await this.userRepository.save(user)
+    }
+    return user
+  }
+
+  async removeBrand(user: User, brand: Brand): Promise<User> {
+    const brands = await user.brands
+    const withoutSelected = brands.filter((item) => item.id !== brand.id)
+    user.brands = Promise.resolve(withoutSelected)
     await this.userRepository.save(user)
     return user
   }

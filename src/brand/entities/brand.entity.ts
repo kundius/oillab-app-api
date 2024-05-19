@@ -1,9 +1,11 @@
 import { Lubricant } from '@app/lubricant/entities/lubricant.entity'
+import { User } from '@app/user/entities/user.entity'
 import { Field, ObjectType } from '@nestjs/graphql'
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
@@ -30,4 +32,8 @@ export class Brand {
   @Field(() => [Lubricant], { nullable: 'items' })
   @OneToMany(() => Lubricant, (lubricant) => lubricant.brandEntity)
   lubricants: Promise<Lubricant[]>
+
+  @Field(() => [User], { nullable: 'items' })
+  @ManyToMany(() => User, (user) => user.brands)
+  users: Promise<Brand[]>
 }

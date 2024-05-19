@@ -12,11 +12,15 @@ import { ValidationError } from '@app/graphql/errors/ValidationError'
 import { UserService } from '../services/user.service'
 import { User, UserRole } from '../entities/user.entity'
 import * as dto from '../dto/user.dto'
+import { BrandService } from '@app/brand/services/brand.service'
 
 @Resolver(() => User)
 @UseGuards(GqlAuthGuard)
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly brandService: BrandService
+  ) {}
 
   @Query(() => User, { nullable: true })
   async user(
@@ -122,7 +126,11 @@ export class UserResolver {
       }
     }
 
-    if (typeof input.email !== 'undefined' && record.email !== input.email && await this.userService.isEmailExists(input.email)) {
+    if (
+      typeof input.email !== 'undefined' &&
+      record.email !== input.email &&
+      (await this.userService.isEmailExists(input.email))
+    ) {
       return {
         error: new ValidationError('email', 'Указанный e-mail занят.'),
         success: false
@@ -169,6 +177,82 @@ export class UserResolver {
 
     return {
       success: true
+    }
+  }
+
+  @Mutation(() => dto.UserAddBrandResponse)
+  async userAddBrand(
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('brandId', { type: () => Int }) brandId: number,
+    @CurrentUser() currentUser?: User
+  ): Promise<dto.UserAddBrandResponse> {
+    if (!currentUser) {
+      return {
+        error: new AuthenticationError(),
+        success: false
+      }
+    }
+
+    const user = await this.userService.findById(userId)
+    const brand = await this.brandService.findById(brandId)
+
+    if (!user || !brand) {
+      return {
+        error: new NotFoundError(),
+        success: false
+      }
+    }
+
+    if (currentUser.role !== UserRole.Administrator) {
+      return {
+        error: new NotAllowedError(),
+        success: false
+      }
+    }
+
+    const record = await this.userService.addBrand(user, brand)
+
+    return {
+      success: true,
+      record
+    }
+  }
+
+  @Mutation(() => dto.UserRemoveBrandResponse)
+  async userRemoveBrand(
+    @Args('userId', { type: () => Int }) userId: number,
+    @Args('brandId', { type: () => Int }) brandId: number,
+    @CurrentUser() currentUser?: User
+  ): Promise<dto.UserRemoveBrandResponse> {
+    if (!currentUser) {
+      return {
+        error: new AuthenticationError(),
+        success: false
+      }
+    }
+
+    const user = await this.userService.findById(userId)
+    const brand = await this.brandService.findById(brandId)
+
+    if (!user || !brand) {
+      return {
+        error: new NotFoundError(),
+        success: false
+      }
+    }
+
+    if (currentUser.role !== UserRole.Administrator) {
+      return {
+        error: new NotAllowedError(),
+        success: false
+      }
+    }
+
+    const record = await this.userService.removeBrand(user, brand)
+
+    return {
+      success: true,
+      record
     }
   }
 }

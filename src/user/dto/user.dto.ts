@@ -118,3 +118,15 @@ export class UserPaginateResponse extends PaginatedResponse {
   @Field(() => [User])
   items: User[]
 }
+
+@ObjectType()
+export class UserAddBrandResponse extends DefaultMutationResponse {
+  @Field(() => User, { nullable: true })
+  record?: User
+}
+
+@ObjectType()
+export class UserRemoveBrandResponse extends DefaultMutationResponse {
+  @Field(() => User, { nullable: true })
+  record?: User
+}
