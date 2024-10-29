@@ -209,9 +209,22 @@ export class ReportService {
     const qb = this.reportRepository.createQueryBuilder('report')
 
     if (forUser) {
+      const lubricantIds: number[] = []
+      const brands = await forUser.brands
+      for (const brand of brands) {
+        const lubricants = await brand.lubricants
+        for (const lubricant of lubricants) {
+          lubricantIds.push(lubricant.id)
+        }
+      }
       qb.andWhere('report.client = :onlySelfId', {
         onlySelfId: forUser.id
       })
+      if (lubricantIds.length > 0) {
+        qb.orWhere('report.lubricantEntity.id IN (:...onlyLubricantIds)', {
+          onlyLubricantIds: lubricantIds
+        })
+      }
     }
 
     if (filter) {
