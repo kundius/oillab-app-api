@@ -1,4 +1,11 @@
-import { InputType, Field, Int, ArgsType, ObjectType, registerEnumType } from '@nestjs/graphql'
+import {
+  InputType,
+  Field,
+  Int,
+  ArgsType,
+  ObjectType,
+  registerEnumType
+} from '@nestjs/graphql'
 import { Type } from 'class-transformer'
 
 import { DefaultMutationResponse } from '@app/graphql/DefaultMutationResponse'
@@ -128,22 +135,22 @@ export class ReportUpdateResponse extends DefaultMutationResponse {
 }
 
 export enum ReportSort {
-  STATE_NUMBER_ASC = "stateNumber_ASC",
-  STATE_NUMBER_DESC = "stateNumber_DESC",
-  TOTAL_MILEAGE_ASC = "totalMileage_ASC",
-  TOTAL_MILEAGE_DESC = "totalMileage_DESC",
-  LUBRICANT_MILEAGE_ASC = "lubricantMileage_ASC",
-  LUBRICANT_MILEAGE_DESC = "lubricantMileage_DESC",
-  SAMPLING_NODES_ASC = "samplingNodes_ASC",
-  SAMPLING_NODES_DESC = "samplingNodes_DESC",
-  SAMPLED_AT_ASC = "sampledAt_ASC",
-  SAMPLED_AT_DESC = "sampledAt_DESC",
-  ID_ASC = "id_ASC",
-  ID_DESC = "id_DESC",
-  NUMBER_ASC = "number_ASC",
-  NUMBER_DESC = "number_DESC",
-  COLOR_ASC = "color_ASC",
-  COLOR_DESC = "color_DESC"
+  STATE_NUMBER_ASC = 'stateNumber_ASC',
+  STATE_NUMBER_DESC = 'stateNumber_DESC',
+  TOTAL_MILEAGE_ASC = 'totalMileage_ASC',
+  TOTAL_MILEAGE_DESC = 'totalMileage_DESC',
+  LUBRICANT_MILEAGE_ASC = 'lubricantMileage_ASC',
+  LUBRICANT_MILEAGE_DESC = 'lubricantMileage_DESC',
+  SAMPLING_NODES_ASC = 'samplingNodes_ASC',
+  SAMPLING_NODES_DESC = 'samplingNodes_DESC',
+  SAMPLED_AT_ASC = 'sampledAt_ASC',
+  SAMPLED_AT_DESC = 'sampledAt_DESC',
+  ID_ASC = 'id_ASC',
+  ID_DESC = 'id_DESC',
+  NUMBER_ASC = 'number_ASC',
+  NUMBER_DESC = 'number_DESC',
+  COLOR_ASC = 'color_ASC',
+  COLOR_DESC = 'color_DESC'
 }
 
 registerEnumType(ReportSort, {
@@ -155,6 +162,10 @@ export class ReportFilter extends BaseFilter {
   @Field({ nullable: true })
   @Type(() => StringFilterOperator)
   color?: StringFilterOperator
+
+  @Field({ nullable: true })
+  @Type(() => StringFilterOperator)
+  formNumber?: StringFilterOperator
 
   @Field({ nullable: true })
   @Type(() => LubricantFilter)
@@ -226,3 +237,36 @@ export class ReportGeneratePdfResponse extends DefaultMutationResponse {
   @Field(() => File, { nullable: true })
   record?: File
 }
+
+@InputType()
+export class ReportSendInputRecipient {
+  @Field(() => String, { nullable: true })
+  email?: string
+
+  @Field(() => Int, { nullable: true })
+  id?: number
+}
+
+@InputType()
+export class ReportSendInputReport {
+  @Field(() => String, { nullable: true })
+  formNumber?: string
+
+  @Field(() => Int, { nullable: true })
+  id?: number
+
+  @Field(() => Boolean)
+  extended: boolean
+}
+
+@InputType()
+export class ReportSendInput {
+  @Field(() => [ReportSendInputRecipient])
+  recipients: ReportSendInputRecipient[]
+
+  @Field(() => [ReportSendInputReport])
+  reports: ReportSendInputReport[]
+}
+
+@ObjectType()
+export class ReportSendResponse extends DefaultMutationResponse {}

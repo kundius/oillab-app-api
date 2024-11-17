@@ -4,6 +4,9 @@ import { Repository } from 'typeorm'
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder'
 import { S3 } from 'aws-sdk'
 import { fromBuffer } from 'file-type'
+// import https from 'https'
+import * as stream from 'node:stream'
+const https = require('https')
 
 import { configService } from '@app/config/config.service'
 
@@ -147,5 +150,18 @@ export class FileService {
       size: Buffer.byteLength(command.buffer),
       type: type?.mime
     }
+  }
+  async getStream(file: File): Promise<stream.Readable> {
+    const url = await this.getUrl(file)
+    return new Promise((resolve, reject) => {
+      https
+        .get(url)
+        .addListener('response', (response) => {
+          resolve(response)
+        })
+        .addListener('error', (error) => {
+          reject(error)
+        })
+    })
   }
 }

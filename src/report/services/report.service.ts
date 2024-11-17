@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, SelectQueryBuilder } from 'typeorm'
 import { configService } from '@app/config/config.service'
+import { Attachment } from 'nodemailer/lib/mailer'
 
+const nodemailer = require('nodemailer')
 const wkhtmltopdf = require('wkhtmltopdf')
 
 import { UserService } from '@app/user/services/user.service'
@@ -29,6 +31,8 @@ export class ReportService {
   constructor(
     @InjectRepository(Report)
     private readonly reportRepository: Repository<Report>,
+    @InjectRepository(Result)
+    private readonly resultRepository: Repository<Result>,
     private readonly userService: UserService,
     private readonly lubricantService: LubricantService,
     private readonly vehicleService: VehicleService,
@@ -269,6 +273,93 @@ export class ReportService {
     let classFilter = plainToClass(dto.ReportFilter, filter)
     classFilter.applyFilter(this.tableName, qb)
     return qb
+  }
+
+  async send(input: dto.ReportSendInput) {
+    const config = configService.getSmtpConfig()
+
+    if (!config['user']) throw new Error()
+
+    let testAccount = await nodemailer.createTestAccount()
+    let transporter = nodemailer.createTransport({
+      host: config['host'],
+      port: config['port'],
+      secure: config['secure'],
+      auth: {
+        user: config['user'] || testAccount.user, // generated ethereal user
+        pass: config['password'] || testAccount.pass // generated ethereal password
+      }
+    })
+
+    const attachments: any[] = []
+
+    let reportsHtml = ''
+    for (const inputReport of input.reports) {
+      let report: Report | null = null
+      if (inputReport.id) {
+        report = await this.findById(inputReport.id)
+      } else if (inputReport.formNumber) {
+        report = await this.findByFormNumber(inputReport.formNumber)
+      }
+      if (report && report.formNumber) {
+        const result = await this.resultRepository.findOneBy({
+          formNumber: report.formNumber
+        })
+        const lubricant = await report.lubricantEntity
+        const lubricantBrand = await lubricant?.brandEntity
+        const vehicle = await report.vehicle
+        reportsHtml += `
+        <p><strong>Протокол № ${report.formNumber}</strong><p>
+ <p>Техника ${vehicle?.model}<br>
+гос номер ${vehicle?.stateNumber}<br>
+наработка узла ${report?.totalMileage}<br>
+наработка на СМ ${report?.lubricantMileage}<br>
+см ${lubricantBrand?.name} ${lubricant?.model}</p>
+ <p>Интерпретация:</p>
+ <p>${result?.interpretation || ''}</p>
+        <p><br></p>`
+        if (inputReport.extended) {
+          const laboratoryResult = await report.laboratoryResult
+          if (laboratoryResult) {
+            attachments.push({
+              filename: `${report.formNumber} Техника ${vehicle?.model} гос номер ${vehicle?.stateNumber} Жидкость ${lubricantBrand?.name} ${lubricant?.model}.pdf`,
+              content: await this.fileService.getStream(laboratoryResult)
+            })
+          }
+        } else {
+          const expressLaboratoryResult = await report.expressLaboratoryResult
+          if (expressLaboratoryResult) {
+            attachments.push({
+              filename: `${report.formNumber} Техника ${vehicle?.model} гос номер ${vehicle?.stateNumber} Жидкость ${lubricantBrand?.name} ${lubricant?.model}.pdf`,
+              content: await this.fileService.getStream(expressLaboratoryResult)
+            })
+          }
+        }
+      }
+    }
+
+    for (const inputRecipient of input.recipients) {
+      let greeting = `<p>Здравствуйте.</p>`
+      let email: string | null = null
+      if (inputRecipient.id) {
+        const user = await this.userService.findById(inputRecipient.id)
+        if (user) {
+          email = user.email
+          greeting = `<p>Здравствуйте, ${user.name}.</p>`
+        }
+      } else if (inputRecipient.email) {
+        email = inputRecipient.email
+      }
+      if (email) {
+        await transporter.sendMail({
+          from: config['user'],
+          to: email,
+          subject: `oillabvrn.ru: Отчеты`,
+          html: `${greeting}<p>Прошу обратить внимание на состояние охлаждающей жидкости.</p><p><br></p>${reportsHtml}`,
+          attachments
+        })
+      }
+    }
   }
 
   async generatePdf(

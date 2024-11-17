@@ -66,6 +66,31 @@ export class ReportResolver {
     }
   }
 
+  @Mutation(() => dto.ReportSendResponse)
+  async reportSend(
+    @Args('input') input: dto.ReportSendInput,
+    @CurrentUser() currentUser?: User
+  ): Promise<dto.ReportSendResponse> {
+    if (!currentUser) {
+      return {
+        error: new AuthenticationError(),
+        success: false
+      }
+    }
+
+    if (currentUser.role !== UserRole.Administrator) {
+      return {
+        error: new NotAllowedError(),
+        success: false
+      }
+    }
+
+    await this.reportService.send(input)
+
+    return {
+      success: true
+    }
+  }
   @Mutation(() => dto.ReportGeneratePdfResponse)
   async reportGeneratePdf(
     @Args() args: dto.ReportGeneratePdfArgs,

@@ -370,6 +370,11 @@ type ReportGeneratePdfResponse {
   record: File
 }
 
+type ReportSendResponse {
+  success: Boolean!
+  error: DefaultError
+}
+
 type ResultCreateResponse {
   success: Boolean!
   error: DefaultError
@@ -498,6 +503,7 @@ enum ReportSort {
 
 input ReportFilter {
   color: StringFilterOperator
+  formNumber: StringFilterOperator
   lubricantEntity: LubricantFilter
   totalMileage: StringFilterOperator
   lubricantMileage: StringFilterOperator
@@ -568,6 +574,7 @@ type Mutation {
   vehicleCreate(input: VehicleCreateInput!): VehicleCreateResponse!
   vehicleUpdate(id: Int!, input: VehicleUpdateInput!): VehicleUpdateResponse!
   vehicleDelete(id: Int!): DefaultMutationResponse!
+  reportSend(input: ReportSendInput!): ReportSendResponse!
   reportGeneratePdf(sort: [ReportSort!], filter: ReportFilter): ReportGeneratePdfResponse!
   reportCreate(input: ReportCreateInput!): ReportCreateResponse!
   reportUpdate(id: Int!, input: ReportUpdateInput!): ReportUpdateResponse!
@@ -636,6 +643,22 @@ input VehicleUpdateInput {
   engineModel: String
   liquidVolume: String
   owner: Float
+}
+
+input ReportSendInput {
+  recipients: [ReportSendInputRecipient!]!
+  reports: [ReportSendInputReport!]!
+}
+
+input ReportSendInputRecipient {
+  email: String
+  id: Int
+}
+
+input ReportSendInputReport {
+  formNumber: String
+  id: Int
+  extended: Boolean!
 }
 
 input ReportCreateInput {

@@ -33,6 +33,16 @@ class ConfigService {
     return APP_MODE !== 'development'
   }
 
+  public getSmtpConfig() {
+    return {
+      user: this.getValue('SMTP_USER'),
+      host: this.getValue('SMTP_HOST'),
+      port: this.getValue('SMTP_PORT'),
+      secure: this.getValue('SMTP_SECURE'),
+      password: this.getValue('SMTP_PASSWORD'),
+    }
+  }
+
   public getTypeOrmConfig(): DataSourceOptions {
     return {
       type: 'mysql',
