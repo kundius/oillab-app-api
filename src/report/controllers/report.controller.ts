@@ -28,7 +28,7 @@ export class ReportController {
   @UseGuards(AuthGuard('jwt'))
   @Get(':id/applicationForm')
   @Header('Content-Type', 'application/pdf')
-  // @Header('Content-Disposition', 'attachment; filename=applicationForm.pdf')
+  @Header('Content-Disposition', 'attachment; filename=applicationForm.pdf')
   async applicationForm(
     @Param('id') id: string,
     @Res() response: Response,
