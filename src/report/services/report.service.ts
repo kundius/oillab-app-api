@@ -311,12 +311,12 @@ export class ReportService {
         reportsHtml += `
         <p><strong>Протокол № ${report.formNumber}</strong><p>
  <p>Техника ${vehicle?.model}<br>
-гос номер ${vehicle?.stateNumber}<br>
-наработка узла ${report?.totalMileage}<br>
-наработка на СМ ${report?.lubricantMileage}<br>
-см ${lubricantBrand?.name} ${lubricant?.model}</p>
+<strong>Гос номер</strong> ${vehicle?.stateNumber}<br>
+<strong>Наработка узла</strong> ${report?.totalMileage}<br>
+<strong>Наработка на СМ</strong> ${report?.lubricantMileage}<br>
+<strong>СМ</strong> ${lubricantBrand?.name} ${lubricant?.model}</p>
  <p>Интерпретация:</p>
- <p>${result?.interpretation || ''}</p>
+  ${result?.interpretation ? `<p>${result.interpretation.replace(/\n/g, '<br />')}</p>` : ``}
         <p><br></p>`
         if (inputReport.extended) {
           const laboratoryResult = await report.laboratoryResult
