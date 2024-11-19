@@ -503,7 +503,7 @@ export class ReportController {
     `
 
     response.set({
-      'Content-Disposition': `filename=${report.formNumber}. Бланк отбора пробы_${vehicle?.stateNumber || ''}_${brand?.name || ''} ${lubricant?.model || ''}.pdf`
+      'Content-Disposition': `filename="${report.formNumber}. Бланк отбора пробы_${vehicle?.stateNumber || ''}_${brand?.name || ''} ${lubricant?.model || ''}.pdf"`
     })
 
     // 2949. Бланк отбора пробы_2061 УН 48_GAZPROMNEFT GPROFI MSI 15W40
