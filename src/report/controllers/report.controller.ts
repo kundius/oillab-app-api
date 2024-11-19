@@ -28,10 +28,11 @@ export class ReportController {
   @UseGuards(AuthGuard('jwt'))
   @Get(':id/applicationForm')
   @Header('Content-Type', 'application/pdf')
-  @Header('Content-Disposition', 'filename=applicationForm.pdf')
+  // @Header('Content-Disposition', 'filename=applicationForm.pdf')
   async applicationForm(
     @Param('id') id: string,
     @Res() response: Response,
+    // @Response() res: Res,
     @CurrentUser() currentUser?: User
   ): Promise<void> {
     if (!currentUser) {
@@ -501,6 +502,8 @@ export class ReportController {
       </div>
     `
 
+    response.set({ 'Content-Disposition': 'filename=applicationForm.pdf' })
+    
     wkhtmltopdf(html, {
       marginLeft: 0,
       marginTop: 0,
