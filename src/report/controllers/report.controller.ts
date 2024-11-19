@@ -502,8 +502,12 @@ export class ReportController {
       </div>
     `
 
-    response.set({ 'Content-Disposition': 'filename=applicationForm.pdf' })
-    
+    response.set({
+      'Content-Disposition': `filename=${report.formNumber}. Бланк отбора пробы_${vehicle?.stateNumber || ''}_${brand?.name || ''} ${lubricant?.model || ''}.pdf`
+    })
+
+    // 2949. Бланк отбора пробы_2061 УН 48_GAZPROMNEFT GPROFI MSI 15W40
+
     wkhtmltopdf(html, {
       marginLeft: 0,
       marginTop: 0,
