@@ -1183,11 +1183,15 @@ export class ReportService {
 
   async getResultFile(report: Report, result: Result): Promise<File> {
     const buffer = await this.getResultBuffer(report, result)
+    const lubricant = await report?.lubricantEntity
+    const brand = await lubricant?.brandEntity
+    const vehicle = await report?.vehicle
+    const customer = await report?.client
 
     const file = await this.fileService.uploadAndCreateFile({
       buffer,
       dir: 'result/pdf',
-      name: `${nanoid()}/${result.formNumber}.pdf`
+      name: `${nanoid()}/${result.formNumber || ''}. ${customer?.name || ''}_${vehicle?.stateNumber || ''}_${brand?.name || ''} ${lubricant?.model || ''}.pdf`
     })
 
     return file
