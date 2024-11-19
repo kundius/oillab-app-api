@@ -502,9 +502,9 @@ export class ReportController {
       </div>
     `
 
-    response.set({
-      'Content-Disposition': `filename=Бланк.pdf`
-    })
+    // response.set({
+    //   'Content-Disposition': `filename=Бланк.pdf`
+    // })
     // response.set({
     //   'Content-Disposition': `filename="${report.formNumber}. Бланк отбора пробы_${vehicle?.stateNumber || ''}_${brand?.name || ''} ${lubricant?.model || ''}.pdf"`
     // })
