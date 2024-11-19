@@ -26,11 +26,12 @@ export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
   @UseGuards(AuthGuard('jwt'))
-  @Get(':id/applicationForm')
+  @Get(':id/applicationForm/:name')
   @Header('Content-Type', 'application/pdf')
   // @Header('Content-Disposition', 'filename=applicationForm.pdf')
   async applicationForm(
     @Param('id') id: string,
+    @Param('name') name: string,
     @Res() response: Response,
     // @Response() res: Res,
     @CurrentUser() currentUser?: User
