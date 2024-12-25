@@ -314,7 +314,7 @@ export class ReportService {
 <strong>Гос номер</strong> ${vehicle?.stateNumber}<br>
 <strong>Наработка узла</strong> ${report?.totalMileage}<br>
 <strong>Наработка на СМ</strong> ${report?.lubricantMileage}<br>
-<strong>СМ</strong> ${lubricantBrand?.name} ${lubricant?.model}</p>
+<strong>СМ</strong> ${lubricantBrand?.name} ${lubricant?.model} ${lubricant?.viscosity}</p>
  <p>Интерпретация:</p>
   ${result?.interpretation ? `<p>${result.interpretation.replace(/\n/g, '<br />')}</p>` : ``}
         <p><br></p>`
@@ -355,7 +355,7 @@ export class ReportService {
           from: config['user'],
           to: email,
           subject: `oillabvrn.ru: Отчеты`,
-          html: `${greeting}<p>Прошу обратить внимание на состояние охлаждающей жидкости.</p><p><br></p>${reportsHtml}`,
+          html: `${greeting}<p><br></p>${reportsHtml}`,
           attachments
         })
       }
@@ -1188,10 +1188,15 @@ export class ReportService {
     const vehicle = await report?.vehicle
     const customer = await report?.client
 
+    const part1 = result.formNumber ? `${result.formNumber.trim()}.` : ''
+    const part2 = [customer?.name, vehicle?.stateNumber, brand?.name].filter(part => !!part).map(part => part?.trim()).join('_')
+    const part3 = [lubricant?.model, lubricant?.viscosity].filter(part => !!part).map(part => part?.trim()).join('_')
+    const name = [part1, part2, part3].join(' ')
+
     const file = await this.fileService.uploadAndCreateFile({
       buffer,
-      dir: 'result/pdf',
-      name: `${nanoid()}/${result.formNumber || ''}. ${customer?.name || ''}_${vehicle?.stateNumber || ''}_${brand?.name || ''} ${lubricant?.model || ''}.pdf`
+      dir: `result/pdf/${nanoid()}`,
+      name: `${name}.pdf`
     })
 
     return file
