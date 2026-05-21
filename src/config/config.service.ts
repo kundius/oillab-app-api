@@ -53,7 +53,7 @@ class ConfigService {
       database: this.getValue('TYPEORM_DATABASE'),
       entities: [join(__dirname, '..', '**', '*.entity{.ts,.js}')], // Workaround https://stackoverflow.com/a/59607836
       migrations: [join(__dirname, '..', '..', 'migration/*{.ts,.js}')],
-      migrationsTableName: 'migration',
+      migrationsTableName: 'migrations',
       synchronize: false,
       ssl: false
     }

@@ -134,6 +134,7 @@ type Report {
   lubricantEntity: Lubricant
   laboratoryResult: File
   expressLaboratoryResult: File
+  consolidatedLaboratoryResult: File
   id: Float!
   totalMileage: String!
   lubricantMileage: String!

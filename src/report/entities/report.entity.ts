@@ -121,4 +121,8 @@ export class Report extends BaseEntity {
   @Field(() => File, { nullable: true })
   @ManyToOne(() => File, { nullable: true })
   expressLaboratoryResult: Promise<File | null>
+
+  @Field(() => File, { nullable: true })
+  @ManyToOne(() => File, { nullable: true })
+  consolidatedLaboratoryResult?: Promise<File | null>
 }
