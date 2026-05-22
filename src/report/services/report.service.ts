@@ -1201,4 +1201,120 @@ export class ReportService {
 
     return file
   }
+
+  async consolidateReports(report: Report, input: dto.ReportConsolidateInput): Promise<Report> {
+    // Собираем отчеты для консолидации
+    const reportsToConsolidate: Report[] = []
+    
+    // Поиск по гос. номерам
+    if (input.stateNumbers && input.stateNumbers.length > 0) {
+      for (const stateNumber of input.stateNumbers) {
+        const reports = await this.reportRepository
+          .createQueryBuilder('report')
+          .leftJoinAndSelect('report.vehicle', 'vehicle')
+          .where('vehicle.stateNumber = :stateNumber', { stateNumber })
+          .getMany()
+        
+        reportsToConsolidate.push(...reports)
+      }
+    }
+    
+    // Поиск по номерам бланков
+    if (input.formNumbers && input.formNumbers.length > 0) {
+      for (const formNumber of input.formNumbers) {
+        const foundReport = await this.findByFormNumber(formNumber)
+        if (foundReport) {
+          reportsToConsolidate.push(foundReport)
+        }
+      }
+    }
+    
+    // Удаляем дубликаты и основной отчет из списка
+    const uniqueReportIds = new Set(reportsToConsolidate.map(r => r.id))
+    uniqueReportIds.delete(report.id)
+    
+    const filteredReports = reportsToConsolidate.filter(r => uniqueReportIds.has(r.id))
+    
+    // Генерируем сводный PDF
+    const pdfBuffer = await this.generateConsolidatedPdf(report, filteredReports)
+    
+    // Создаем файл
+    const fileName = `Сводный_отчет_${report.formNumber || report.id}_${nanoid()}.pdf`
+    
+    const consolidatedFile = await this.fileService.uploadAndCreateFile({
+      buffer: pdfBuffer,
+      dir: `report/consolidated/${nanoid()}`,
+      name: fileName
+    })
+    
+    // Обновляем основной отчет
+    report.consolidatedLaboratoryResult = Promise.resolve(consolidatedFile)
+    await this.reportRepository.save(report)
+    
+    return report
+  }
+
+  private async generateConsolidatedPdf(mainReport: Report, additionalReports: Report[]): Promise<Buffer> {
+    const htmlParts: string[] = []
+    
+    // Генерируем HTML для основного отчета
+    const mainResult = await this.resultRepository.findOneBy({
+      formNumber: mainReport.formNumber || undefined
+    })
+    
+    if (mainResult) {
+      const mainHtmlStream = await this.getResultStream(mainReport, mainResult)
+      const mainHtmlBuffer = await new Promise<Buffer>((resolve, reject) => {
+        const chunks: Uint8Array[] = []
+        mainHtmlStream.on('data', (chunk: Uint8Array) => chunks.push(chunk))
+        mainHtmlStream.on('end', () => resolve(Buffer.concat(chunks)))
+        mainHtmlStream.on('error', reject)
+      })
+      htmlParts.push(mainHtmlBuffer.toString('utf8'))
+    }
+    
+    // Генерируем HTML для дополнительных отчетов
+    for (const report of additionalReports) {
+      const result = await this.resultRepository.findOneBy({
+        formNumber: report.formNumber || undefined
+      })
+      
+      if (result) {
+        const htmlStream = await this.getResultStream(report, result)
+        const htmlBuffer = await new Promise<Buffer>((resolve, reject) => {
+          const chunks: Uint8Array[] = []
+          htmlStream.on('data', (chunk: Uint8Array) => chunks.push(chunk))
+          htmlStream.on('end', () => resolve(Buffer.concat(chunks)))
+          htmlStream.on('error', reject)
+        })
+        htmlParts.push(htmlBuffer.toString('utf8'))
+      }
+    }
+    
+    // Объединяем все HTML части с разрывами страниц
+    const combinedHtml = htmlParts.join('<div class="pagebreak"></div>')
+    
+    // Конвертируем в PDF
+    return new Promise<Buffer>((resolve, reject) => {
+      wkhtmltopdf(
+        combinedHtml,
+        {
+          marginLeft: 0,
+          marginTop: 0,
+          marginRight: 0,
+          marginBottom: 0,
+          encoding: 'utf8',
+          disableSmartShrinking: true
+        },
+        function (err, stream) {
+          const _buf = Array<any>()
+          stream.on('data', (chunk) => _buf.push(chunk))
+          stream.on('end', () => resolve(Buffer.concat(_buf)))
+          stream.on('error', (err) =>
+            reject(`error converting stream - ${err}`)
+          )
+        }
+      )
+    })
+  }
 }

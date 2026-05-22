@@ -280,4 +280,52 @@ export class ReportResolver {
       success: true
     }
   }
+
+  @Mutation(() => dto.ReportConsolidateResponse)
+  async reportConsolidate(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('input') input: dto.ReportConsolidateInput,
+    @CurrentUser() currentUser?: User
+  ): Promise<dto.ReportConsolidateResponse> {
+    if (!currentUser) {
+      return {
+        error: new AuthenticationError(),
+        success: false
+      }
+    }
+
+    if (currentUser.role !== UserRole.Administrator) {
+      return {
+        error: new NotAllowedError(),
+        success: false
+      }
+    }
+
+    try {
+      const mainReport = await this.reportService.findById(id)
+      
+      if (!mainReport) {
+        return {
+          error: new NotFoundError(),
+          success: false
+        }
+      }
+
+      const record = await this.reportService.consolidateReports(mainReport, input)
+
+      return {
+        record,
+        success: true
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Ошибка при формировании сводного отчета'
+      
+      return {
+        error: {
+          message: errorMessage
+        },
+        success: false
+      }
+    }
+  }
 }

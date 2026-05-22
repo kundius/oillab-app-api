@@ -376,6 +376,12 @@ type ReportSendResponse {
   error: DefaultError
 }
 
+type ReportConsolidateResponse {
+  success: Boolean!
+  error: DefaultError
+  record: Report
+}
+
 type ResultCreateResponse {
   success: Boolean!
   error: DefaultError
@@ -580,6 +586,7 @@ type Mutation {
   reportCreate(input: ReportCreateInput!): ReportCreateResponse!
   reportUpdate(id: Int!, input: ReportUpdateInput!): ReportUpdateResponse!
   reportDelete(id: Int!): DefaultMutationResponse!
+  reportConsolidate(id: Int!, input: ReportConsolidateInput!): ReportConsolidateResponse!
   lubricantCreate(input: LubricantCreateInput!): LubricantCreateResponse!
   lubricantUpdate(id: Int!, input: LubricantUpdateInput!): LubricantUpdateResponse!
   lubricantDelete(id: Int!): DefaultMutationResponse!
@@ -698,6 +705,11 @@ input ReportUpdateInput {
   lubricantEntityId: Int
   expressLaboratoryResult: Int
   laboratoryResult: Int
+}
+
+input ReportConsolidateInput {
+  stateNumbers: [String!]
+  formNumbers: [String!]
 }
 
 input LubricantCreateInput {

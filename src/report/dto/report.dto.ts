@@ -270,3 +270,18 @@ export class ReportSendInput {
 
 @ObjectType()
 export class ReportSendResponse extends DefaultMutationResponse {}
+
+@InputType()
+export class ReportConsolidateInput {
+  @Field(() => [String], { nullable: true })
+  stateNumbers?: string[]
+
+  @Field(() => [String], { nullable: true })
+  formNumbers?: string[]
+}
+
+@ObjectType()
+export class ReportConsolidateResponse extends DefaultMutationResponse {
+  @Field(() => Report, { nullable: true })
+  record?: Report
+}
