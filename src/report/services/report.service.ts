@@ -55,6 +55,14 @@ export class ReportService {
     return await this.reportRepository.findOneBy({ formNumber })
   }
 
+  async findByStateNumber(stateNumber: string): Promise<Report | null> {
+    return await this.reportRepository
+      .createQueryBuilder('report')
+      .innerJoin('report.vehicle', 'vehicle')
+      .where('vehicle.stateNumber = :stateNumber', { stateNumber })
+      .getOne()
+  }
+
   async findByIdOrFail(id: number): Promise<Report> {
     return await this.reportRepository.findOneByOrFail({ id })
   }
@@ -506,10 +514,11 @@ export class ReportService {
     return number
   }
 
-  async getResultStream(
+  private async buildResultHtml(
     report: Report,
-    result: Result
-  ): Promise<NodeJS.ReadableStream> {
+    result: Result,
+    withResearches: boolean
+  ): Promise<string> {
     const getSelectionTitle = () => {
       if (lubricant?.productType === ProductType.Coolant) {
         return 'Информация об отборе образца охлаждающей жидкотсти:'
@@ -582,11 +591,11 @@ export class ReportService {
       `
     }
 
-    const html = `
+    return `
       <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
       <style>
         html, body {
-          font-size: 16px;
+          font-size: 12px;
           font-family: 'PT Serif', serif;
         }
         body {
@@ -1143,7 +1152,7 @@ export class ReportService {
       </table>
       
       ${
-        oilType.standard
+        withResearches
           ? `
       <hr />
       
@@ -1159,6 +1168,13 @@ export class ReportService {
           : ``
       }
     `
+  }
+
+  async getLaboratoryResultStream(
+    report: Report,
+    result: Result
+  ): Promise<NodeJS.ReadableStream> {
+    const html = await this.buildResultHtml(report, result, false)
 
     return wkhtmltopdf(html, {
       marginLeft: 0,
@@ -1168,6 +1184,35 @@ export class ReportService {
       encoding: 'utf8',
       disableSmartShrinking: true
     })
+  }
+
+  async getExpressLaboratoryResultStream(
+    report: Report,
+    result: Result
+  ): Promise<NodeJS.ReadableStream> {
+    const html = await this.buildResultHtml(report, result, true)
+
+    return wkhtmltopdf(html, {
+      marginLeft: 0,
+      marginTop: 0,
+      marginRight: 0,
+      marginBottom: 0,
+      encoding: 'utf8',
+      disableSmartShrinking: true
+    })
+  }
+
+  async getResultStream(
+    report: Report,
+    result: Result
+  ): Promise<NodeJS.ReadableStream> {
+    const oilType = await result.oilType
+
+    if (oilType.standard) {
+      return this.getExpressLaboratoryResultStream(report, result)
+    }
+
+    return this.getLaboratoryResultStream(report, result)
   }
 
   async getResultBuffer(report: Report, result: Result): Promise<Buffer> {
@@ -1203,40 +1248,33 @@ export class ReportService {
   }
 
   async consolidateReports(report: Report, input: dto.ReportConsolidateInput): Promise<Report> {
-    // Собираем отчеты для консолидации
-    const reportsToConsolidate: Report[] = []
+    // Получаем отчеты для консолидации по ID
+    let reportsToConsolidate: Report[] = []
     
-    // Поиск по гос. номерам
-    if (input.stateNumbers && input.stateNumbers.length > 0) {
-      for (const stateNumber of input.stateNumbers) {
-        const reports = await this.reportRepository
+    if (input.reportIds && input.reportIds.length > 0) {
+      // Фильтруем, чтобы не включать основной отчет в список консолидируемых
+      const filteredReportIds = input.reportIds.filter(id => id !== report.id)
+      
+      if (filteredReportIds.length > 0) {
+        reportsToConsolidate = await this.reportRepository
           .createQueryBuilder('report')
-          .leftJoinAndSelect('report.vehicle', 'vehicle')
-          .where('vehicle.stateNumber = :stateNumber', { stateNumber })
+          .whereInIds(filteredReportIds)
           .getMany()
-        
-        reportsToConsolidate.push(...reports)
       }
     }
     
-    // Поиск по номерам бланков
-    if (input.formNumbers && input.formNumbers.length > 0) {
-      for (const formNumber of input.formNumbers) {
-        const foundReport = await this.findByFormNumber(formNumber)
-        if (foundReport) {
-          reportsToConsolidate.push(foundReport)
-        }
+    // Проверяем, что все запрошенные отчеты были найдены
+    if (input.reportIds && input.reportIds.length > 0) {
+      const foundIds = new Set(reportsToConsolidate.map(r => r.id))
+      const missingIds = input.reportIds.filter(id => id !== report.id && !foundIds.has(id))
+      
+      if (missingIds.length > 0) {
+        throw new Error(`Не удалось найти следующие отчеты: ${missingIds.join(', ')}`)
       }
     }
-    
-    // Удаляем дубликаты и основной отчет из списка
-    const uniqueReportIds = new Set(reportsToConsolidate.map(r => r.id))
-    uniqueReportIds.delete(report.id)
-    
-    const filteredReports = reportsToConsolidate.filter(r => uniqueReportIds.has(r.id))
     
     // Генерируем сводный PDF
-    const pdfBuffer = await this.generateConsolidatedPdf(report, filteredReports)
+    const pdfBuffer = await this.generateConsolidatedPdf(report, reportsToConsolidate)
     
     // Создаем файл
     const fileName = `Сводный_отчет_${report.formNumber || report.id}_${nanoid()}.pdf`

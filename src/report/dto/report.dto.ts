@@ -273,11 +273,8 @@ export class ReportSendResponse extends DefaultMutationResponse {}
 
 @InputType()
 export class ReportConsolidateInput {
-  @Field(() => [String], { nullable: true })
-  stateNumbers?: string[]
-
-  @Field(() => [String], { nullable: true })
-  formNumbers?: string[]
+  @Field(() => [Int], { nullable: true })
+  reportIds?: number[]
 }
 
 @ObjectType()
