@@ -514,83 +514,7 @@ export class ReportService {
     return number
   }
 
-  private async buildResultHtml(
-    report: Report,
-    result: Result,
-    withResearches: boolean
-  ): Promise<string> {
-    const getSelectionTitle = () => {
-      if (lubricant?.productType === ProductType.Coolant) {
-        return 'Информация об отборе образца охлаждающей жидкотсти:'
-      }
-      if (lubricant?.productType === ProductType.Fuel) {
-        return 'Информация об отборе образца топлива:'
-      }
-      if (lubricant?.productType === ProductType.Oil) {
-        return 'Информация об отборе образца масла:'
-      }
-      return 'Информация об отборе образца:'
-    }
-
-    const lubricant = await report?.lubricantEntity
-    const brand = await lubricant?.brandEntity
-    const vehicle = await report?.vehicle
-    const customer = await report?.client
-    const productType = this.getProductTypeLabel(lubricant?.productType)
-    const number = await this.getApplicationFormNumber(report)
-    const oilType = await result.oilType
-
-    const resultIndicators = await result.indicators
-    const oilTypeIndicators = await oilType.indicators
-    let indicators = ''
-    for (const oilTypeIndicator of oilTypeIndicators) {
-      let resultIndicator: ResultIndicator | null = null
-      for (const item of resultIndicators) {
-        const resultOilTypeIndicator = await item.oilTypeIndicator
-        if (
-          resultOilTypeIndicator &&
-          resultOilTypeIndicator.id === oilTypeIndicator.id
-        ) {
-          resultIndicator = item
-        }
-      }
-
-      indicators += `
-      <tr>
-        <td>${oilTypeIndicator.name}</td>
-        <td align="center">${oilTypeIndicator.ntd}</td>
-        <td align="center">${oilTypeIndicator.units}</td>
-        <td align="center" class="background-${(resultIndicator?.color || 'white').toLowerCase()}">${resultIndicator?.value}</td>
-      </tr>
-      `
-    }
-
-    const resultResearches = await result.researches
-    const oilTypeResearches = await oilType.researches
-    let researches = ''
-    let i = 0
-    for (const oilTypeResearch of oilTypeResearches) {
-      let resultResearch: ResultResearch | null = null
-      for (const item of resultResearches) {
-        const resultOilTypeResearch = await item.oilTypeResearch
-        if (
-          resultOilTypeResearch &&
-          resultOilTypeResearch.id === oilTypeResearch.id
-        ) {
-          resultResearch = item
-        }
-      }
-
-      i++
-      researches += `
-      <tr>
-        <td>${i}</td>
-        <td>${oilTypeResearch.name}</td>
-        <td align="center" class="background-${(resultResearch?.color || 'white').toLowerCase()}">${resultResearch?.value}</td>
-      </tr>
-      `
-    }
-
+  private buildLabResultStyles(): string {
     return `
       <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
       <style>
@@ -743,30 +667,6 @@ export class ReportService {
           overflow: hidden;
           border-bottom: 1px solid currentColor;
         }
-        /*.data-value::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 1.5rem;
-          margin-top: -1px;
-          width: 100%;
-          height: 1.5rem;
-          border-top: 1px solid currentColor;
-          border-bottom: 1px solid currentColor;
-          box-sizing: border-box;
-        }
-        .data-value::after {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 4.5rem;
-          margin-top: -1px;
-          width: 100%;
-          height: 1.5rem;
-          border-top: 1px solid currentColor;
-          border-bottom: 1px solid currentColor;
-          box-sizing: border-box;
-        }*/
         .table-layout {
           border-collapse: collapse;
           border: none;
@@ -837,6 +737,11 @@ export class ReportService {
           text-align: left;
         }
       </style>
+    `
+  }
+
+  private buildLabResultHeader(): string {
+    return `
       <table style="font-size: 1rem">
         <tr>
           <td>
@@ -865,7 +770,61 @@ export class ReportService {
           </td>
         </tr>
       </table>
-  
+    `
+  }
+
+  private async buildLabResultIndicatorsTable(result: Result): Promise<string> {
+    const oilType = await result.oilType
+    const resultIndicators = await result.indicators
+    const oilTypeIndicators = await oilType.indicators
+    let indicators = ''
+    for (const oilTypeIndicator of oilTypeIndicators) {
+      let resultIndicator: ResultIndicator | null = null
+      for (const item of resultIndicators) {
+        const resultOilTypeIndicator = await item.oilTypeIndicator
+        if (
+          resultOilTypeIndicator &&
+          resultOilTypeIndicator.id === oilTypeIndicator.id
+        ) {
+          resultIndicator = item
+        }
+      }
+
+      indicators += `
+      <tr>
+        <td>${oilTypeIndicator.name}</td>
+        <td align="center">${oilTypeIndicator.ntd}</td>
+        <td align="center">${oilTypeIndicator.units}</td>
+        <td align="center" class="background-${(resultIndicator?.color || 'white').toLowerCase()}">${resultIndicator?.value}</td>
+      </tr>
+      `
+    }
+
+    return `
+      <table class="table-indicators">
+        <tr>
+          <th>Параметры</th>
+          <th width="100">Метод измерения</th>
+          <th width="100">Единицы измерения</th>
+          <th width="142">Результат</th>
+        </tr>
+        ${indicators}
+      </table>
+    `
+  }
+
+  private async buildLabResultBody(
+    report: Report,
+    result: Result
+  ): Promise<string> {
+    const lubricant = await report?.lubricantEntity
+    const brand = await lubricant?.brandEntity
+    const vehicle = await report?.vehicle
+    const customer = await report?.client
+    const productType = this.getProductTypeLabel(lubricant?.productType)
+    const number = await this.getApplicationFormNumber(report)
+
+    return `
       <hr />
       
       <div class="data-layout">
@@ -1140,20 +1099,42 @@ export class ReportService {
           </div>
         </div>
       </div>
+    `
+  }
 
-      <table class="table-indicators">
-        <tr>
-          <th>Параметры</th>
-          <th width="100">Метод измерения</th>
-          <th width="100">Единицы измерения</th>
-          <th width="142">Результат</th>
-        </tr>
-        ${indicators}
-      </table>
-      
-      ${
-        withResearches
-          ? `
+  private async buildLabResultResearchesTable(
+    report: Report,
+    result: Result
+  ): Promise<string> {
+    const oilType = await result.oilType
+    const resultResearches = await result.researches
+    const oilTypeResearches = await oilType.researches
+    let researches = ''
+    let i = 0
+
+    for (const oilTypeResearch of oilTypeResearches) {
+      let resultResearch: ResultResearch | null = null
+      for (const item of resultResearches) {
+        const resultOilTypeResearch = await item.oilTypeResearch
+        if (
+          resultOilTypeResearch &&
+          resultOilTypeResearch.id === oilTypeResearch.id
+        ) {
+          resultResearch = item
+        }
+      }
+
+      i++
+      researches += `
+      <tr>
+        <td>${i}</td>
+        <td>${oilTypeResearch.name}</td>
+        <td align="center" class="background-${(resultResearch?.color || 'white').toLowerCase()}">${resultResearch?.value}</td>
+      </tr>
+      `
+    }
+
+    return `
       <hr />
       
       <table class="table-indicators">
@@ -1164,42 +1145,45 @@ export class ReportService {
         </tr>
         ${researches}
       </table>
-      `
-          : ``
-      }
     `
+  }
+
+  private htmlToPdfStream(html: string): NodeJS.ReadableStream {
+    return wkhtmltopdf(html, {
+      marginLeft: 0,
+      marginTop: 0,
+      marginRight: 0,
+      marginBottom: 0,
+      encoding: 'utf8',
+      disableSmartShrinking: true
+    })
   }
 
   async getLaboratoryResultStream(
     report: Report,
     result: Result
   ): Promise<NodeJS.ReadableStream> {
-    const html = await this.buildResultHtml(report, result, false)
+    const html =
+      this.buildLabResultStyles() +
+      this.buildLabResultHeader() +
+      (await this.buildLabResultBody(report, result)) +
+      (await this.buildLabResultIndicatorsTable(result))
 
-    return wkhtmltopdf(html, {
-      marginLeft: 0,
-      marginTop: 0,
-      marginRight: 0,
-      marginBottom: 0,
-      encoding: 'utf8',
-      disableSmartShrinking: true
-    })
+    return this.htmlToPdfStream(html)
   }
 
   async getExpressLaboratoryResultStream(
     report: Report,
     result: Result
   ): Promise<NodeJS.ReadableStream> {
-    const html = await this.buildResultHtml(report, result, true)
+    const html =
+      this.buildLabResultStyles() +
+      this.buildLabResultHeader() +
+      (await this.buildLabResultBody(report, result)) +
+      (await this.buildLabResultIndicatorsTable(result)) +
+      (await this.buildLabResultResearchesTable(report, result))
 
-    return wkhtmltopdf(html, {
-      marginLeft: 0,
-      marginTop: 0,
-      marginRight: 0,
-      marginBottom: 0,
-      encoding: 'utf8',
-      disableSmartShrinking: true
-    })
+    return this.htmlToPdfStream(html)
   }
 
   async getResultStream(
@@ -1215,9 +1199,9 @@ export class ReportService {
     return this.getLaboratoryResultStream(report, result)
   }
 
-  async getResultBuffer(report: Report, result: Result): Promise<Buffer> {
-    const stream = await this.getResultStream(report, result)
-
+  private async streamToBuffer(
+    stream: NodeJS.ReadableStream
+  ): Promise<Buffer> {
     return new Promise<Buffer>((resolve, reject) => {
       const _buf = Array<any>()
       stream.on('data', (chunk) => _buf.push(chunk))
@@ -1226,25 +1210,56 @@ export class ReportService {
     })
   }
 
-  async getResultFile(report: Report, result: Result): Promise<File> {
-    const buffer = await this.getResultBuffer(report, result)
+  private async buildPdfFileName(
+    result: Result,
+    report: Report
+  ): Promise<string> {
     const lubricant = await report?.lubricantEntity
     const brand = await lubricant?.brandEntity
     const vehicle = await report?.vehicle
     const customer = await report?.client
 
     const part1 = result.formNumber ? `${result.formNumber.trim()}.` : ''
-    const part2 = [customer?.name, vehicle?.stateNumber, brand?.name].filter(part => !!part).map(part => part?.trim()).join('_')
-    const part3 = [lubricant?.model, lubricant?.viscosity].filter(part => !!part).map(part => part?.trim()).join('_')
-    const name = [part1, part2, part3].join(' ')
+    const part2 = [customer?.name, vehicle?.stateNumber, brand?.name]
+      .filter(Boolean)
+      .map(part => part?.trim())
+      .join('_')
+    const part3 = [lubricant?.model, lubricant?.viscosity]
+      .filter(Boolean)
+      .map(part => part?.trim())
+      .join('_')
 
-    const file = await this.fileService.uploadAndCreateFile({
+    return [part1, part2, part3].join(' ')
+  }
+
+  private async uploadPdfFile(
+    buffer: Buffer,
+    fileName: string
+  ): Promise<File> {
+    return this.fileService.uploadAndCreateFile({
       buffer,
       dir: `result/pdf/${nanoid()}`,
-      name: `${name}.pdf`
+      name: `${fileName}.pdf`
     })
+  }
 
-    return file
+  async setResultFile(report: Report, result: Result): Promise<Report> {
+    const oilType = await result.oilType
+    const fileName = await this.buildPdfFileName(result, report)
+
+    if (oilType.standard) {
+      const stream = await this.getExpressLaboratoryResultStream(report, result)
+      const buffer = await this.streamToBuffer(stream)
+      const file = await this.uploadPdfFile(buffer, fileName)
+      report.expressLaboratoryResult = Promise.resolve(file)
+    } else {
+      const stream = await this.getLaboratoryResultStream(report, result)
+      const buffer = await this.streamToBuffer(stream)
+      const file = await this.uploadPdfFile(buffer, fileName)
+      report.laboratoryResult = Promise.resolve(file)
+    }
+
+    return report.save()
   }
 
   async consolidateReports(report: Report, input: dto.ReportConsolidateInput): Promise<Report> {

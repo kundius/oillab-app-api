@@ -102,16 +102,7 @@ export class ResultService {
       formNumber: result.formNumber
     })
     if (report) {
-      const oilType = await result.oilType
-      const file = await this.reportService.getResultFile(report, result)
-
-      if (oilType.standard) {
-        report.expressLaboratoryResult = Promise.resolve(file)
-      } else {
-        report.laboratoryResult = Promise.resolve(file)
-      }
-
-      report.save()
+      await this.reportService.setResultFile(report, result)
     }
 
     result.save()
