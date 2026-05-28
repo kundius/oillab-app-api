@@ -548,7 +548,12 @@ export class ReportController {
       throw new NotFoundException()
     }
 
-    const stream = await this.reportService.getResultStream(report, result)
+    const oilType = await result.oilType
+    const stream = await this.reportService.getLabResultStream(
+      report,
+      result,
+      oilType.standard
+    )
 
     stream.pipe(response)
   }

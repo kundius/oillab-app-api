@@ -102,7 +102,7 @@ export class ResultService {
       formNumber: result.formNumber
     })
     if (report) {
-      await this.reportService.setResultFile(report, result)
+      await this.reportService.updateLaboratoryResult(report, result)
     }
 
     result.save()
