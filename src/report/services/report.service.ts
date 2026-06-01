@@ -1035,8 +1035,8 @@ export class ReportService {
           <th>Параметры</th>
           <th width="100">Метод измерения</th>
           <th width="100">Единицы измерения</th>
-          <th width="90">Результат</th>
-          ${consolidatedItems ? consolidatedItems.map(() => '<th width="90">Результат</th>').join('') : ''}
+          <th width="100">Результат</th>
+          ${consolidatedItems ? consolidatedItems.map(() => '<th width="100">Результат</th>').join('') : ''}
         </tr>
         ${indicators}
       </table>
@@ -1320,8 +1320,8 @@ export class ReportService {
         <tr>
           <th>№</th>
           <th>Направленность исследования</th>
-          <th width="90">Результат</th>
-          ${consolidatedItems ? consolidatedItems.map(() => '<th width="90">Результат</th>').join('') : ''}
+          <th width="100">Результат</th>
+          ${consolidatedItems ? consolidatedItems.map(() => '<th width="100">Результат</th>').join('') : ''}
         </tr>
         ${researches}
       </table>
