@@ -743,8 +743,8 @@ export class ReportService {
           text-align: center;
           margin-left: 2px;
           margin-right: 2px;
-          min-width: 96px;
-          max-width: 96px;
+          min-width: 92px;
+          max-width: 92px;
         }
         .data-layout-row_vertical .data-layout-value {
           margin-left: 0;
