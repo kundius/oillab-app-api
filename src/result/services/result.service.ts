@@ -34,6 +34,13 @@ export class ResultService {
     return await this.resultRepository.findOneByOrFail({ id })
   }
 
+  async findManyByFormNumber(formNumber: string): Promise<Result[]> {
+    return await this.resultRepository.find({
+      where: { formNumber },
+      relations: { oilType: true }
+    })
+  }
+
   async create(input: dto.ResultCreateInput) {
     const oilType = await OilType.findOneByOrFail({
       id: input.oilTypeId

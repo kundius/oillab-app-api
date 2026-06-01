@@ -410,11 +410,14 @@ type Query {
   vehiclePaginate(perPage: Int! = 12, page: Int! = 1, sort: [VehicleSort!], filter: VehicleFilter): VehiclePaginateResponse!
   report(id: Int!): Report
   reportByFormNumber(formNumber: String!): Report
+  reportsByFormNumber(formNumber: String!): [Report!]!
   reportByStateNumber(stateNumber: String!): Report
+  reportsByStateNumber(stateNumber: String!): [Report!]!
   reportPaginate(perPage: Int! = 12, page: Int! = 1, sort: [ReportSort!], filter: ReportFilter): ReportPaginateResponse!
   lubricant(id: Int!): Lubricant
   lubricantPaginate(perPage: Int! = 12, page: Int! = 1, sort: [LubricantSort!], filter: LubricantFilter): LubricantPaginateResponse!
   result(id: Int!): Result
+  resultsByFormNumber(formNumber: String!): [Result!]!
   resultPaginate(perPage: Int! = 12, page: Int! = 1, sort: [ResultSort!], filter: ResultFilter): ResultPaginateResponse!
   oiltype(id: Int!): OilType
   oiltypePaginate(perPage: Int! = 12, page: Int! = 1, sort: [OilTypeSort!], filter: OilTypeFilter): OilTypePaginateResponse!
@@ -587,7 +590,7 @@ type Mutation {
   reportCreate(input: ReportCreateInput!): ReportCreateResponse!
   reportUpdate(id: Int!, input: ReportUpdateInput!): ReportUpdateResponse!
   reportDelete(id: Int!): DefaultMutationResponse!
-  reportConsolidate(id: Int!, input: ReportConsolidateInput!): ReportConsolidateResponse!
+  reportConsolidate(input: ReportConsolidateInput!): ReportConsolidateResponse!
   lubricantCreate(input: LubricantCreateInput!): LubricantCreateResponse!
   lubricantUpdate(id: Int!, input: LubricantUpdateInput!): LubricantUpdateResponse!
   lubricantDelete(id: Int!): DefaultMutationResponse!
@@ -709,7 +712,14 @@ input ReportUpdateInput {
 }
 
 input ReportConsolidateInput {
-  reportIds: [Int!]
+  mainReportId: Int!
+  mainResultId: Int!
+  items: [ReportConsolidateItemInput!]
+}
+
+input ReportConsolidateItemInput {
+  reportId: Int!
+  resultId: Int!
 }
 
 input LubricantCreateInput {
