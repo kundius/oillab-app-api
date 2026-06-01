@@ -743,8 +743,8 @@ export class ReportService {
           text-align: center;
           margin-left: 2px;
           margin-right: 2px;
-          min-width: 102px;
-          max-width: 102px;
+          min-width: 100px;
+          max-width: 100px;
         }
         .data-layout-row_vertical .data-layout-value {
           margin-left: 0;
@@ -1035,8 +1035,8 @@ export class ReportService {
           <th>Параметры</th>
           <th>Метод измерения</th>
           <th>Единицы измерения</th>
-          <th width="96">Результат</th>
-          ${consolidatedItems ? consolidatedItems.map(() => '<th width="96">Результат</th>').join('') : ''}
+          <th width="94">Результат</th>
+          ${consolidatedItems ? consolidatedItems.map(() => '<th width="94">Результат</th>').join('') : ''}
         </tr>
         ${indicators}
       </table>
@@ -1320,8 +1320,8 @@ export class ReportService {
         <tr>
           <th>№</th>
           <th>Направленность исследования</th>
-          <th width="96">Результат</th>
-          ${consolidatedItems ? consolidatedItems.map(() => '<th width="96">Результат</th>').join('') : ''}
+          <th width="94">Результат</th>
+          ${consolidatedItems ? consolidatedItems.map(() => '<th width="94">Результат</th>').join('') : ''}
         </tr>
         ${researches}
       </table>
