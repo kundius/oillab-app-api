@@ -1259,11 +1259,27 @@ export class ReportService {
   private async buildLabResultResearches(
     report: Report,
     result: Result,
-    _consolidatedItems?: { report: Report; result: Result }[]
+    consolidatedItems?: { report: Report; result: Result }[]
   ): Promise<string> {
     const oilType = await result.oilType
     const resultResearches = await result.researches
     const oilTypeResearches = await oilType.researches
+
+    const consolidatedResearchMaps: Map<number, ResultResearch>[] = []
+    if (consolidatedItems) {
+      for (const item of consolidatedItems) {
+        const consResearches = await item.result.researches
+        const researchMap = new Map<number, ResultResearch>()
+        for (const research of consResearches) {
+          const consOilTypeResearch = await research.oilTypeResearch
+          if (consOilTypeResearch) {
+            researchMap.set(consOilTypeResearch.id, research)
+          }
+        }
+        consolidatedResearchMaps.push(researchMap)
+      }
+    }
+
     let researches = ''
     let i = 0
 
@@ -1279,12 +1295,20 @@ export class ReportService {
         }
       }
 
+      const consolidatedTds = consolidatedResearchMaps
+        .map((researchMap) => {
+          const consResearch = researchMap.get(oilTypeResearch.id)
+          return `<td align="center" class="background-${(consResearch?.color || 'white').toLowerCase()}">${consResearch?.value || ''}</td>`
+        })
+        .join('')
+
       i++
       researches += `
       <tr>
         <td>${i}</td>
         <td>${oilTypeResearch.name}</td>
         <td align="center" class="background-${(resultResearch?.color || 'white').toLowerCase()}">${resultResearch?.value}</td>
+        ${consolidatedTds}
       </tr>
       `
     }
@@ -1296,7 +1320,8 @@ export class ReportService {
         <tr>
           <th>№</th>
           <th>Направленность исследования</th>
-          <th width="142">Результат</th>
+          <th width="132">Результат</th>
+          ${consolidatedItems ? consolidatedItems.map(() => '<th width="132">Результат</th>').join('') : ''}
         </tr>
         ${researches}
       </table>
