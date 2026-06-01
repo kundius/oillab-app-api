@@ -10,7 +10,6 @@ import { CurrentUser } from '@app/auth/CurrentUser'
 import { AuthenticationError } from '@app/graphql/errors/AuthenticationError'
 import { ValidationError } from '@app/graphql/errors/ValidationError'
 
-import { Result } from '@app/result/entities/result.entity'
 import { ReportService } from '../services/report.service'
 import { Report } from '../entities/report.entity'
 import * as dto from '../dto/report.dto'
@@ -44,18 +43,6 @@ export class ReportResolver {
     return this.reportService.findByFormNumber(formNumber)
   }
 
-  @Query(() => [Report])
-  async reportsByFormNumber(
-    @Args('formNumber', { type: () => String }) formNumber: string,
-    @CurrentUser() currentUser?: User
-  ): Promise<Report[]> {
-    if (!currentUser) {
-      return []
-    }
-
-    return this.reportService.findManyByFormNumber(formNumber)
-  }
-
   @Query(() => Report, { nullable: true })
   async reportByStateNumber(
     @Args('stateNumber', { type: () => String }) stateNumber: string,
@@ -66,18 +53,6 @@ export class ReportResolver {
     }
 
     return this.reportService.findByStateNumber(stateNumber)
-  }
-
-  @Query(() => [Report])
-  async reportsByStateNumber(
-    @Args('stateNumber', { type: () => String }) stateNumber: string,
-    @CurrentUser() currentUser?: User
-  ): Promise<Report[]> {
-    if (!currentUser) {
-      return []
-    }
-
-    return this.reportService.findManyByStateNumber(stateNumber)
   }
 
   @Query(() => dto.ReportPaginateResponse)
@@ -320,6 +295,7 @@ export class ReportResolver {
 
   @Mutation(() => dto.ReportConsolidateResponse)
   async reportConsolidate(
+    @Args('id', { type: () => Int }) id: number,
     @Args('input') input: dto.ReportConsolidateInput,
     @CurrentUser() currentUser?: User
   ): Promise<dto.ReportConsolidateResponse> {
@@ -337,67 +313,25 @@ export class ReportResolver {
       }
     }
 
-    const mainReport = await Report.findOneBy({ id: input.mainReportId })
-
-    if (!mainReport) {
-      return {
-        error: new NotFoundError(),
-        success: false
-      }
-    }
-
-    const mainResult = await Result.findOneBy({ id: input.mainResultId })
-
-    if (!mainResult) {
-      return {
-        error: new NotFoundError(),
-        success: false
-      }
-    }
-
-    const consolidatedItems: { report: Report; result: Result }[] = []
-
-    if (input.items && input.items.length > 0) {
-      for (const item of input.items) {
-        const linkedReport = await Report.findOneBy({ id: item.reportId })
-
-        if (!linkedReport) {
-          return {
-            error: new NotFoundError(),
-            success: false
-          }
-        }
-
-        const linkedResult = await Result.findOneBy({ id: item.resultId })
-
-        if (!linkedResult) {
-          return {
-            error: new NotFoundError(),
-            success: false
-          }
-        }
-
-        consolidatedItems.push({ report: linkedReport, result: linkedResult })
-      }
-    }
-
     try {
-      const record = await this.reportService.consolidateReports(
-        mainReport,
-        mainResult,
-        consolidatedItems
-      )
+      const mainReport = await this.reportService.findById(id)
+      
+      if (!mainReport) {
+        return {
+          error: new NotFoundError(),
+          success: false
+        }
+      }
+
+      const record = await this.reportService.consolidateReports(mainReport, input)
 
       return {
         record,
         success: true
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Ошибка при формировании сводного отчета'
-
+      const errorMessage = error instanceof Error ? error.message : 'Ошибка при формировании сводного отчета'
+      
       return {
         error: {
           message: errorMessage

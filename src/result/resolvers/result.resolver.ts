@@ -28,18 +28,6 @@ export class ResultResolver {
     return this.resultService.findById(id)
   }
 
-  @Query(() => [Result])
-  async resultsByFormNumber(
-    @Args('formNumber', { type: () => String }) formNumber: string,
-    @CurrentUser() currentUser?: User
-  ): Promise<Result[]> {
-    if (!currentUser) {
-      return []
-    }
-
-    return this.resultService.findManyByFormNumber(formNumber)
-  }
-
   @Query(() => dto.ResultPaginateResponse)
   async resultPaginate(
     @Args() args: dto.ResultPaginateArgs,
