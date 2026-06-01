@@ -67,9 +67,6 @@ export class ReportController {
     const brand = await lubricant?.brandEntity
     const vehicle = await report?.vehicle
     const customer = await report?.client
-    const productType = this.reportService.getProductTypeLabel(
-      lubricant?.productType
-    )
     const number = await this.reportService.getApplicationFormNumber(report)
 
     const html = `
@@ -452,7 +449,7 @@ export class ReportController {
                 Вид
                 </div>
                 <div class="field__input">
-                  ${productType || ''}
+                  ${lubricant?.productType ? this.reportService.getProductTypeLabel(lubricant.productType) : '-'}
                 </div>
               </div>
             </td>
@@ -585,9 +582,6 @@ export class ReportController {
     const lubricant = await report.lubricantEntity
     const brand = await lubricant?.brandEntity
     const vehicle = await report.vehicle
-    const productType = this.reportService.getProductTypeLabel(
-      lubricant?.productType
-    )
     const sampledAt = report?.sampledAt.toLocaleDateString('ru-RU')
     const number = await this.reportService.getApplicationFormNumber(report)
 

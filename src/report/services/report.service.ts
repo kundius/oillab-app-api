@@ -55,12 +55,24 @@ export class ReportService {
     return await this.reportRepository.findOneBy({ formNumber })
   }
 
+  async findManyByFormNumber(formNumber: string): Promise<Report[]> {
+    return await this.reportRepository.findBy({ formNumber })
+  }
+
   async findByStateNumber(stateNumber: string): Promise<Report | null> {
     return await this.reportRepository
       .createQueryBuilder('report')
       .innerJoin('report.vehicle', 'vehicle')
       .where('vehicle.stateNumber = :stateNumber', { stateNumber })
       .getOne()
+  }
+
+  async findManyByStateNumber(stateNumber: string): Promise<Report[]> {
+    return await this.reportRepository
+      .createQueryBuilder('report')
+      .innerJoin('report.vehicle', 'vehicle')
+      .where('vehicle.stateNumber = :stateNumber', { stateNumber })
+      .getMany()
   }
 
   async findByIdOrFail(id: number): Promise<Report> {
@@ -485,7 +497,7 @@ export class ReportService {
     })
   }
 
-  getProductTypeLabel(type?: ProductType | null) {
+  getProductTypeLabel(type: ProductType) {
     if (type === ProductType.Coolant) {
       return 'ОЖ'
     }
@@ -495,16 +507,17 @@ export class ReportService {
     if (type === ProductType.Oil) {
       return 'СМ'
     }
-    return type
+    throw new Error(`Unknown product type: ${type}`)
   }
 
   async getApplicationFormNumber(report: Report): Promise<string | undefined> {
     const lubricant = await report.lubricantEntity
     const client = await report.client
     const vehicle = await report.vehicle
-    const productType = this.getProductTypeLabel(lubricant?.productType)
     const numberArr = [
-      productType || 'X',
+      lubricant?.productType
+        ? this.getProductTypeLabel(lubricant.productType)
+        : 'X',
       client?.name || 'X',
       vehicle?.model || 'X',
       report?.totalMileage || 'X',
@@ -555,13 +568,15 @@ export class ReportService {
         }
         table.table-indicators td {
           border: 1px solid #000;
-          padding: 0 4px;
+          padding: 4px;
           font-size: 0.875rem;
+          line-height: 1;
         }
         table.table-indicators th {
           border: 1px solid #000;
-          padding: 0 4px;
+          padding: 4px;
           font-size: 0.875rem;
+          line-height: 1;
         }
         .pagebreak {
           page-break-before: always;
@@ -726,9 +741,10 @@ export class ReportService {
         }
         .data-layout-value {
           text-align: center;
-          margin-left: 0.75rem;
-          min-width: 150px;
-          max-width: 150px;
+          margin-left: 3px;
+          margin-right: 3px;
+          min-width: 136px;
+          max-width: 136px;
         }
         .data-layout-row_vertical .data-layout-value {
           margin-left: 0;
@@ -750,7 +766,7 @@ export class ReportService {
           <td style="text-align: center; vertical-align: middle">
             Испытательная лаборатория (центр)<br />
             Общество с Ограниченной Ответственностью<br />
-            <strong>«OILLAB»</strong>
+            <strong>«ОЙЛ-ЛАБ»</strong>
           </td>
           <td style="text-align: right">
             <img src="${configService.getOrigin()}/images/qr-code.png" width="90" height="90" />
@@ -783,34 +799,55 @@ export class ReportService {
   private async buildLabResultIndicators(
     report: Report,
     result: Result,
-    consolidatedReports?: Report[]
+    consolidatedItems?: { report: Report; result: Result }[]
   ): Promise<string> {
     const oilType = await result.oilType
     const resultIndicators = await result.indicators
     const oilTypeIndicators = await oilType.indicators
     const lubricant = await report?.lubricantEntity
     const brand = await lubricant?.brandEntity
-    const productType = this.getProductTypeLabel(lubricant?.productType)
+    // const productType = this.getProductTypeLabel(lubricant?.productType)
 
-    const consolidatedIndicatorMaps: Map<number, ResultIndicator>[] = []
-    if (consolidatedReports) {
-      for (const consolidatedReport of consolidatedReports) {
-        const consResult = consolidatedReport.formNumber
-          ? await this.resultRepository.findOneBy({
-              formNumber: consolidatedReport.formNumber
-            })
-          : null
-        if (consResult) {
-          const consIndicators = await consResult.indicators
-          const indicatorMap = new Map<number, ResultIndicator>()
-          for (const item of consIndicators) {
-            const consOilTypeIndicator = await item.oilTypeIndicator
-            if (consOilTypeIndicator) {
-              indicatorMap.set(consOilTypeIndicator.id, item)
-            }
+    const consolidatedData: {
+      indicatorMap: Map<number, ResultIndicator>
+      productType: string
+      brand: string
+      formNumber: string
+      createdAt: string
+      totalMileage: string
+      lubricantMileage: string
+      vehicleToppingUpLubricant: string
+    }[] = []
+    if (consolidatedItems) {
+      for (const item of consolidatedItems) {
+        const consIndicators = await item.result.indicators
+        const indicatorMap = new Map<number, ResultIndicator>()
+        for (const indicator of consIndicators) {
+          const consOilTypeIndicator = await indicator.oilTypeIndicator
+          if (consOilTypeIndicator) {
+            indicatorMap.set(consOilTypeIndicator.id, indicator)
           }
-          consolidatedIndicatorMaps.push(indicatorMap)
         }
+
+        const consLubricant = await item.report?.lubricantEntity
+        const consBrand = await consLubricant?.brandEntity
+
+        consolidatedData.push({
+          indicatorMap,
+          productType: consLubricant?.productType
+            ? this.getProductTypeLabel(consLubricant.productType)
+            : '-',
+          brand:
+            [consBrand?.name, consLubricant?.model, consLubricant?.viscosity]
+              .filter(Boolean)
+              .join(' ') || '',
+          formNumber: item.report?.formNumber ?? '',
+          createdAt: item.report?.createdAt?.toLocaleDateString('ru-RU') ?? '',
+          totalMileage: item.report?.totalMileage ?? '',
+          lubricantMileage: item.report?.lubricantMileage ?? '',
+          vehicleToppingUpLubricant:
+            item.report?.vehicleToppingUpLubricant ?? ''
+        })
       }
     }
 
@@ -827,9 +864,9 @@ export class ReportService {
         }
       }
 
-      const consolidatedTds = consolidatedIndicatorMaps
-        .map((indicatorMap) => {
-          const consIndicator = indicatorMap.get(oilTypeIndicator.id)
+      const consolidatedTds = consolidatedData
+        .map((data) => {
+          const consIndicator = data.indicatorMap.get(oilTypeIndicator.id)
           return `<td align="center" class="background-${(consIndicator?.color || 'white').toLowerCase()}">${consIndicator?.value || ''}</td>`
         })
         .join('')
@@ -846,7 +883,7 @@ export class ReportService {
     }
 
     return `
-      <hr />
+      <div class="pagebreak"></div>
 
       <div class="title-normal">
         Результаты измерений
@@ -861,14 +898,32 @@ export class ReportService {
             <div class="data-layout-value">
               <div class="data-value">1</div>
             </div>
+            ${consolidatedData
+              .map(
+                (_, i) => `
+                <div class="data-layout-value">
+                  <div class="data-value">${i + 2}</div>
+                </div>
+                `
+              )
+              .join('')}
           </div>
           <div class="data-layout-row">
             <div class="data-layout-label">
               <div class="data-label">Тип СМ</div>
             </div>
             <div class="data-layout-value">
-              <div class="data-value">${productType}</div>
+              <div class="data-value">${lubricant?.productType ? this.getProductTypeLabel(lubricant.productType) : '-'}</div>
             </div>
+            ${consolidatedData
+              .map(
+                (data) => `
+                <div class="data-layout-value">
+                  <div class="data-value">${data.productType}</div>
+                </div>
+                `
+              )
+              .join('')}
           </div>
           <div class="data-layout-row">
             <div class="data-layout-label">
@@ -877,6 +932,15 @@ export class ReportService {
             <div class="data-layout-value">
               <div class="data-value">${brand?.name || ''} ${lubricant?.model || ''} ${lubricant?.viscosity || ''}</div>
             </div>
+            ${consolidatedData
+              .map(
+                (data) => `
+                <div class="data-layout-value">
+                  <div class="data-value">${data.brand}</div>
+                </div>
+                `
+              )
+              .join('')}
           </div>
           <div class="data-layout-row">
             <div class="data-layout-label">
@@ -885,6 +949,15 @@ export class ReportService {
             <div class="data-layout-value">
               <div class="data-value">${report?.formNumber || ''}</div>
             </div>
+            ${consolidatedData
+              .map(
+                (data) => `
+                <div class="data-layout-value">
+                  <div class="data-value">${data.formNumber}</div>
+                </div>
+                `
+              )
+              .join('')}
           </div>
           <div class="data-layout-row">
             <div class="data-layout-label">
@@ -893,6 +966,15 @@ export class ReportService {
             <div class="data-layout-value">
               <div class="data-value">${report.createdAt.toLocaleDateString('ru-RU')}</div>
             </div>
+            ${consolidatedData
+              .map(
+                (data) => `
+                <div class="data-layout-value">
+                  <div class="data-value">${data.createdAt}</div>
+                </div>
+                `
+              )
+              .join('')}
           </div>
           <div class="data-layout-row">
             <div class="data-layout-label">
@@ -901,6 +983,15 @@ export class ReportService {
             <div class="data-layout-value">
               <div class="data-value">${report?.totalMileage || ''}</div>
             </div>
+            ${consolidatedData
+              .map(
+                (data) => `
+                <div class="data-layout-value">
+                  <div class="data-value">${data.totalMileage}</div>
+                </div>
+                `
+              )
+              .join('')}
           </div>
           <div class="data-layout-row">
             <div class="data-layout-label">
@@ -909,6 +1000,15 @@ export class ReportService {
             <div class="data-layout-value">
               <div class="data-value">${report?.lubricantMileage || ''}</div>
             </div>
+            ${consolidatedData
+              .map(
+                (data) => `
+                <div class="data-layout-value">
+                  <div class="data-value">${data.lubricantMileage}</div>
+                </div>
+                `
+              )
+              .join('')}
           </div>
           <div class="data-layout-row">
             <div class="data-layout-label">
@@ -917,6 +1017,15 @@ export class ReportService {
             <div class="data-layout-value">
               <div class="data-value">${report?.vehicleToppingUpLubricant || ''}</div>
             </div>
+            ${consolidatedData
+              .map(
+                (data) => `
+                <div class="data-layout-value">
+                  <div class="data-value">${data.vehicleToppingUpLubricant}</div>
+                </div>
+                `
+              )
+              .join('')}
           </div>
         </div>
       </div>
@@ -926,8 +1035,8 @@ export class ReportService {
           <th>Параметры</th>
           <th width="100">Метод измерения</th>
           <th width="100">Единицы измерения</th>
-          <th width="142">Результат</th>
-          ${consolidatedReports ? consolidatedReports.map(() => '<th width="142">Результат</th>').join('') : ''}
+          <th width="132">Результат</th>
+          ${consolidatedItems ? consolidatedItems.map(() => '<th width="132">Результат</th>').join('') : ''}
         </tr>
         ${indicators}
       </table>
@@ -1150,7 +1259,7 @@ export class ReportService {
   private async buildLabResultResearches(
     report: Report,
     result: Result,
-    consolidatedReports?: Report[]
+    _consolidatedItems?: { report: Report; result: Result }[]
   ): Promise<string> {
     const oilType = await result.oilType
     const resultResearches = await result.researches
@@ -1209,7 +1318,7 @@ export class ReportService {
     report: Report,
     result: Result,
     withResearches: boolean,
-    consolidatedReports?: Report[]
+    consolidatedItems?: { report: Report; result: Result }[]
   ): Promise<NodeJS.ReadableStream> {
     let html = this.buildLabResultStyles()
     html += this.buildLabResultHeader()
@@ -1217,14 +1326,14 @@ export class ReportService {
     html += await this.buildLabResultIndicators(
       report,
       result,
-      consolidatedReports
+      consolidatedItems
     )
 
     if (withResearches) {
       html += await this.buildLabResultResearches(
         report,
         result,
-        consolidatedReports
+        consolidatedItems
       )
     }
 
@@ -1294,66 +1403,25 @@ export class ReportService {
   }
 
   async consolidateReports(
-    report: Report,
-    input: dto.ReportConsolidateInput
+    mainReport: Report,
+    mainResult: Result,
+    consolidatedItems: { report: Report; result: Result }[]
   ): Promise<Report> {
-    // Получаем отчеты для консолидации по ID
-    let reportsToConsolidate: Report[] = []
-
-    if (input.reportIds && input.reportIds.length > 0) {
-      // Фильтруем, чтобы не включать основной отчет в список консолидируемых
-      const filteredReportIds = input.reportIds.filter((id) => id !== report.id)
-
-      if (filteredReportIds.length > 0) {
-        reportsToConsolidate = await this.reportRepository
-          .createQueryBuilder('report')
-          .whereInIds(filteredReportIds)
-          .getMany()
-      }
-    }
-
-    // Проверяем, что все запрошенные отчеты были найдены
-    if (input.reportIds && input.reportIds.length > 0) {
-      const foundIds = new Set(reportsToConsolidate.map((r) => r.id))
-      const missingIds = input.reportIds.filter(
-        (id) => id !== report.id && !foundIds.has(id)
-      )
-
-      if (missingIds.length > 0) {
-        throw new Error(
-          `Не удалось найти следующие отчеты: ${missingIds.join(', ')}`
-        )
-      }
-    }
-
-    if (!report.formNumber) {
-      throw new Error(`У отчета не указан номер бланка`)
-    }
-
-    const result = await this.resultRepository.findOneBy({
-      formNumber: report.formNumber
-    })
-
-    if (!result) {
-      throw new Error(`С отчетом не связан ни один результат`)
-    }
-
-    // Генерируем сводный PDF
-    const oilType = await result.oilType
+    const oilType = await mainResult.oilType
     const stream = await this.getLabResultStream(
-      report,
-      result,
+      mainReport,
+      mainResult,
       oilType.standard,
-      reportsToConsolidate
+      consolidatedItems
     )
     const buffer = await this.streamToBuffer(stream)
-    const fileName = await this.buildLabResultFileName(result, report)
+    const fileName = await this.buildLabResultFileName(mainResult, mainReport)
     const file = await this.uploadPdfFile(buffer, fileName)
 
-    report.consolidatedLaboratoryResult = Promise.resolve(file)
+    mainReport.consolidatedLaboratoryResult = Promise.resolve(file)
 
-    await this.reportRepository.save(report)
+    await this.reportRepository.save(mainReport)
 
-    return report
+    return mainReport
   }
 }

@@ -272,9 +272,24 @@ export class ReportSendInput {
 export class ReportSendResponse extends DefaultMutationResponse {}
 
 @InputType()
+export class ReportConsolidateItemInput {
+  @Field(() => Int)
+  reportId: number
+
+  @Field(() => Int)
+  resultId: number
+}
+
+@InputType()
 export class ReportConsolidateInput {
-  @Field(() => [Int], { nullable: true })
-  reportIds?: number[]
+  @Field(() => Int)
+  mainReportId: number
+
+  @Field(() => Int)
+  mainResultId: number
+
+  @Field(() => [ReportConsolidateItemInput], { nullable: true })
+  items?: ReportConsolidateItemInput[]
 }
 
 @ObjectType()
