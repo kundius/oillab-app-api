@@ -532,6 +532,7 @@ export class ReportService {
   private buildLabResultStyles(): string {
     return `
       <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
         html, body {
           font-size: 16px;
@@ -1262,7 +1263,8 @@ export class ReportService {
       marginRight: 0,
       marginBottom: 0,
       encoding: 'utf8',
-      disableSmartShrinking: true
+      disableSmartShrinking: true,
+      dpi: 96
     })
   }
 
