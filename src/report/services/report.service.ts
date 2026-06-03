@@ -71,7 +71,9 @@ export class ReportService {
     return await this.reportRepository
       .createQueryBuilder('report')
       .innerJoin('report.vehicle', 'vehicle')
-      .where('vehicle.stateNumber = :stateNumber', { stateNumber })
+      .where('vehicle.stateNumber LIKE :stateNumber', {
+        stateNumber: `%${stateNumber}%`
+      })
       .getMany()
   }
 
@@ -532,18 +534,18 @@ export class ReportService {
       <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
       <style>
         html, body {
-          font-size: 10px;
+          font-size: 16px;
           font-family: 'PT Serif', serif;
         }
         body {
-          padding: 1rem;
+          padding: 16px;
         }
         hr {
-          height: 0.5rem;
+          height: 8px;
           border: none;
           display: block;
           background: #4f81bd;
-          margin: 1rem 0;
+          margin: 16px 0;
         }
         .background-green {
           background: #eaf1dd;
@@ -563,139 +565,66 @@ export class ReportService {
           border-collapse: collapse;
         }
         table.table-indicators {
-          margin: 1rem 0;
+          margin: 16px 0;
           border: 1px solid #000;
         }
         table.table-indicators td {
           border: 1px solid #000;
           padding: 4px;
-          font-size: 0.875rem;
           line-height: 1;
+          font-size: 12px;
+          line-height: 12px;
+          box-sizing: border-box;
         }
         table.table-indicators th {
           border: 1px solid #000;
           padding: 4px;
-          font-size: 0.875rem;
           line-height: 1;
+          font-size: 12px;
+          line-height: 12px;;
+          box-sizing: border-box;
         }
+
         .pagebreak {
           page-break-before: always;
-          height: 1rem;
+          height: 16px;
         }
-        .screen {
-          page-break-after: always;
-          min-height: 297mm;
-          box-sizing: border-box;
-          padding: 20px;
-        }
+
         .title-normal {
-          font-size: 1.125rem;
+          font-size: 18px;
           line-height: 1;
           font-weight: bold;
-          margin: 1rem 0;
-        }
-        .title-small {
-          font-size: 1rem;
-          line-height: 1;
-          font-weight: bold;
-          margin: 1rem 0;
-        }
-        .field {
-          display: -webkit-box;
-          display: flex;
-        }
-        .field_vertical {
-          flex-direction: column;
-          -webkit-box-orient: vertical;
-          -webkit-box-direction: normal;
-          -webkit-flex-direction: column;
-        }
-        .field__label {
-          font-size: 0.875rem;
-          line-height: 1.5rem;
-          margin-right: 0.75rem;
-        }
-        .field__label_large {
-          font-size: 1.25rem;
-          font-weight: bold;
-        }
-        .field__input {
-          flex-grow: 1;
-          -webkit-box-flex: 1;
-          -webkit-flex-grow: 1;
-          font-size: 0.875rem;
-          line-height: 1.5rem;
-          min-height: 1.5rem;
-          position: relative;
-          overflow: hidden;
-          font-weight: bold;
-        }
-        .field__input::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 1.5rem;
-          margin-top: -1px;
-          width: 100%;
-          height: 1.5rem;
-          border-top: 1px solid currentColor;
-          border-bottom: 1px solid currentColor;
-          box-sizing: border-box;
-        }
-        .field__input::after {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 4.5rem;
-          margin-top: -1px;
-          width: 100%;
-          height: 1.5rem;
-          border-top: 1px solid currentColor;
-          border-bottom: 1px solid currentColor;
-          box-sizing: border-box;
-        }
-        .fields {
-          margin-left: -1.5rem;
-          margin-right: -1.5rem;
-          margin-top: -0.75rem;
-          margin-bottom: -0.75rem;
-        }
-        .fields table {
-          border-collapse: separate;
-          border-spacing: 1.5rem 0.75rem;
+          margin: 16px 0;
         }
 
         .data-label {
-          font-size: 0.875rem;
-          line-height: 0.875rem;
-          padding: 0.125rem 0;
+          font-size: 14px;
+          line-height: 14px;
+          padding: 2px 0;
         }
         .data-value {
           flex-grow: 1;
           -webkit-box-flex: 1;
           -webkit-flex-grow: 1;
-          font-size: 0.875rem;
-          line-height: 0.875rem;
-          padding: 0.125rem 0;
-          min-height: 1.125rem;
+          font-size: 14px;
+          line-height: 14px;
+          padding: 2px 0;
+          min-height: 18px;
           position: relative;
           overflow: hidden;
           border-bottom: 1px solid currentColor;
         }
-        .table-layout {
-          border-collapse: collapse;
-          border: none;
-        }
         .data-layout {
           display: -webkit-box;
           display: flex;
+         	justify-content: space-between;
+         	-webkit-box-pack: justify;
+         	-webkit-justify-content: space-between;
+         	-ms-flex-pack: justify;
         }
         .data-layout-group {
           display: -webkit-box;
           display: flex;
-          flex-grow: 1;
-          -webkit-box-flex: 1;
-          -webkit-flex-grow: 1;
           flex-direction: column;
           -webkit-box-orient: vertical;
           -webkit-box-direction: normal;
@@ -704,21 +633,16 @@ export class ReportService {
         	-webkit-box-pack: justify;
         	-webkit-justify-content: space-between;
         	-ms-flex-pack: justify;
-        }
-        .data-layout-group_vehicle-left {
-          width: 400px;
+          width: 460px
         }
         .data-layout-group_w-full {
           width: 100%;
         }
-        .data-layout-group + .data-layout-group {
-          margin-left: 1.5rem;
-        }
         .data-layout-row + .data-layout-row {
-          margin-top: 0.75rem;
+          margin-top: 12px;
         }
-        .data-layout_tight .data-layout-row + .data-layout-row {
-          margin-top: 0.25rem;
+        .data-layout-group_tight .data-layout-row + .data-layout-row {
+          margin-top: 4px;
         }
         .data-layout-row {
           display: -webkit-box;
@@ -741,10 +665,8 @@ export class ReportService {
         }
         .data-layout-value {
           text-align: center;
-          margin-left: 2px;
-          margin-right: 2px;
-          min-width: 100px;
-          max-width: 100px;
+          min-width: 160px;
+          max-width: 160px;
         }
         .data-layout-row_vertical .data-layout-value {
           margin-left: 0;
@@ -752,13 +674,24 @@ export class ReportService {
           max-width: 100%;
           text-align: left;
         }
+
+        .data-indicators .data-layout-value {
+          min-width: 112px;
+          max-width: 112px;
+          margin-left: 2px;
+          margin-right: 2px;
+        }
+        .data-indicators .data-value {
+          font-size: 12px;
+          line-height: 12px;
+        }
       </style>
     `
   }
 
   private buildLabResultHeader(): string {
     return `
-      <table style="font-size: 1rem">
+      <table>
         <tr>
           <td>
             <img src="${configService.getOrigin()}/images/logo.png" width="200" height="90" />
@@ -773,7 +706,7 @@ export class ReportService {
           </td>
         </tr>
         <tr>
-          <td colspan="3" style="height: 1rem"></td>
+          <td colspan="3" style="height: 16px"></td>
         </tr>
         <tr>
           <td colspan="2">
@@ -789,13 +722,6 @@ export class ReportService {
     `
   }
 
-  // ${
-  //   consolidatedReports
-  //     ? consolidatedReports.map((consolidateReport) => {
-  //         return `<td align="center" class="background-${(resultIndicator?.color || 'white').toLowerCase()}">${resultIndicator?.value}</td>`
-  //       }).join('')
-  //     : ''
-  // }
   private async buildLabResultIndicators(
     report: Report,
     result: Result,
@@ -806,7 +732,6 @@ export class ReportService {
     const oilTypeIndicators = await oilType.indicators
     const lubricant = await report?.lubricantEntity
     const brand = await lubricant?.brandEntity
-    // const productType = this.getProductTypeLabel(lubricant?.productType)
 
     const consolidatedData: {
       indicatorMap: Map<number, ResultIndicator>
@@ -876,8 +801,8 @@ export class ReportService {
         <td>${oilTypeIndicator.name}</td>
         <td align="center">${oilTypeIndicator.ntd}</td>
         <td align="center">${oilTypeIndicator.units}</td>
-        <td align="center" class="background-${(resultIndicator?.color || 'white').toLowerCase()}">${resultIndicator?.value}</td>
         ${consolidatedTds}
+        <td align="center" class="background-${(resultIndicator?.color || 'white').toLowerCase()}">${resultIndicator?.value}</td>
       </tr>
       `
     }
@@ -889,143 +814,145 @@ export class ReportService {
         Результаты измерений
       </div>
 
-      <div class="data-layout data-layout_tight">
-        <div class="data-layout-group">
-          <div class="data-layout-row">
-            <div class="data-layout-label">
-              <div class="data-label">Номер</div>
+      <div class="data-indicators">
+        <div class="data-layout">
+          <div class="data-layout-group data-layout-group_w-full data-layout-group_tight">
+            <div class="data-layout-row">
+              <div class="data-layout-label">
+                <div class="data-label">Номер</div>
+              </div>
+              ${consolidatedData
+                .map(
+                  (_, i) => `
+                  <div class="data-layout-value">
+                    <div class="data-value">${i + 1}</div>
+                  </div>
+                  `
+                )
+                .join('')}
+              <div class="data-layout-value">
+                <div class="data-value">${consolidatedData?.length + 1}</div>
+              </div>
             </div>
-            <div class="data-layout-value">
-              <div class="data-value">1</div>
+            <div class="data-layout-row">
+              <div class="data-layout-label">
+                <div class="data-label">Тип СМ</div>
+              </div>
+              ${consolidatedData
+                .map(
+                  (data) => `
+                  <div class="data-layout-value">
+                    <div class="data-value">${data.productType}</div>
+                  </div>
+                  `
+                )
+                .join('')}
+              <div class="data-layout-value">
+                <div class="data-value">${lubricant?.productType ? this.getProductTypeLabel(lubricant.productType) : '-'}</div>
+              </div>
             </div>
-            ${consolidatedData
-              .map(
-                (_, i) => `
-                <div class="data-layout-value">
-                  <div class="data-value">${i + 2}</div>
-                </div>
-                `
-              )
-              .join('')}
-          </div>
-          <div class="data-layout-row">
-            <div class="data-layout-label">
-              <div class="data-label">Тип СМ</div>
+            <div class="data-layout-row">
+              <div class="data-layout-label">
+                <div class="data-label">Бренд СМ</div>
+              </div>
+              ${consolidatedData
+                .map(
+                  (data) => `
+                  <div class="data-layout-value">
+                    <div class="data-value">${data.brand}</div>
+                  </div>
+                  `
+                )
+                .join('')}
+              <div class="data-layout-value">
+                <div class="data-value">${brand?.name || ''} ${lubricant?.model || ''} ${lubricant?.viscosity || ''}</div>
+              </div>
             </div>
-            <div class="data-layout-value">
-              <div class="data-value">${lubricant?.productType ? this.getProductTypeLabel(lubricant.productType) : '-'}</div>
+            <div class="data-layout-row">
+              <div class="data-layout-label">
+                <div class="data-label">Номер протокола</div>
+              </div>
+              ${consolidatedData
+                .map(
+                  (data) => `
+                  <div class="data-layout-value">
+                    <div class="data-value">${data.formNumber}</div>
+                  </div>
+                  `
+                )
+                .join('')}
+              <div class="data-layout-value">
+                <div class="data-value">${report?.formNumber || ''}</div>
+              </div>
             </div>
-            ${consolidatedData
-              .map(
-                (data) => `
-                <div class="data-layout-value">
-                  <div class="data-value">${data.productType}</div>
-                </div>
-                `
-              )
-              .join('')}
-          </div>
-          <div class="data-layout-row">
-            <div class="data-layout-label">
-              <div class="data-label">Бренд СМ</div>
+            <div class="data-layout-row">
+              <div class="data-layout-label">
+                <div class="data-label">Дата выдачи заключения</div>
+              </div>
+              ${consolidatedData
+                .map(
+                  (data) => `
+                  <div class="data-layout-value">
+                    <div class="data-value">${data.createdAt}</div>
+                  </div>
+                  `
+                )
+                .join('')}
+              <div class="data-layout-value">
+                <div class="data-value">${report.createdAt.toLocaleDateString('ru-RU')}</div>
+              </div>
             </div>
-            <div class="data-layout-value">
-              <div class="data-value">${brand?.name || ''} ${lubricant?.model || ''} ${lubricant?.viscosity || ''}</div>
+            <div class="data-layout-row">
+              <div class="data-layout-label">
+                <div class="data-label">Общая наработка узла</div>
+              </div>
+              ${consolidatedData
+                .map(
+                  (data) => `
+                  <div class="data-layout-value">
+                    <div class="data-value">${data.totalMileage}</div>
+                  </div>
+                  `
+                )
+                .join('')}
+              <div class="data-layout-value">
+                <div class="data-value">${report?.totalMileage || ''}</div>
+              </div>
             </div>
-            ${consolidatedData
-              .map(
-                (data) => `
-                <div class="data-layout-value">
-                  <div class="data-value">${data.brand}</div>
-                </div>
-                `
-              )
-              .join('')}
-          </div>
-          <div class="data-layout-row">
-            <div class="data-layout-label">
-              <div class="data-label">Номер протокола</div>
+            <div class="data-layout-row">
+              <div class="data-layout-label">
+                <div class="data-label">Общая наработка на СМ</div>
+              </div>
+              ${consolidatedData
+                .map(
+                  (data) => `
+                  <div class="data-layout-value">
+                    <div class="data-value">${data.lubricantMileage}</div>
+                  </div>
+                  `
+                )
+                .join('')}
+              <div class="data-layout-value">
+                <div class="data-value">${report?.lubricantMileage || ''}</div>
+              </div>
             </div>
-            <div class="data-layout-value">
-              <div class="data-value">${report?.formNumber || ''}</div>
+            <div class="data-layout-row">
+              <div class="data-layout-label">
+                <div class="data-label">Долив СМ</div>
+              </div>
+              ${consolidatedData
+                .map(
+                  (data) => `
+                  <div class="data-layout-value">
+                    <div class="data-value">${data.vehicleToppingUpLubricant}</div>
+                  </div>
+                  `
+                )
+                .join('')}
+              <div class="data-layout-value">
+                <div class="data-value">${report?.vehicleToppingUpLubricant || ''}</div>
+              </div>
             </div>
-            ${consolidatedData
-              .map(
-                (data) => `
-                <div class="data-layout-value">
-                  <div class="data-value">${data.formNumber}</div>
-                </div>
-                `
-              )
-              .join('')}
-          </div>
-          <div class="data-layout-row">
-            <div class="data-layout-label">
-              <div class="data-label">Дата выдачи заключения</div>
-            </div>
-            <div class="data-layout-value">
-              <div class="data-value">${report.createdAt.toLocaleDateString('ru-RU')}</div>
-            </div>
-            ${consolidatedData
-              .map(
-                (data) => `
-                <div class="data-layout-value">
-                  <div class="data-value">${data.createdAt}</div>
-                </div>
-                `
-              )
-              .join('')}
-          </div>
-          <div class="data-layout-row">
-            <div class="data-layout-label">
-              <div class="data-label">Общая наработка узла</div>
-            </div>
-            <div class="data-layout-value">
-              <div class="data-value">${report?.totalMileage || ''}</div>
-            </div>
-            ${consolidatedData
-              .map(
-                (data) => `
-                <div class="data-layout-value">
-                  <div class="data-value">${data.totalMileage}</div>
-                </div>
-                `
-              )
-              .join('')}
-          </div>
-          <div class="data-layout-row">
-            <div class="data-layout-label">
-              <div class="data-label">Общая наработка на СМ</div>
-            </div>
-            <div class="data-layout-value">
-              <div class="data-value">${report?.lubricantMileage || ''}</div>
-            </div>
-            ${consolidatedData
-              .map(
-                (data) => `
-                <div class="data-layout-value">
-                  <div class="data-value">${data.lubricantMileage}</div>
-                </div>
-                `
-              )
-              .join('')}
-          </div>
-          <div class="data-layout-row">
-            <div class="data-layout-label">
-              <div class="data-label">Долив СМ</div>
-            </div>
-            <div class="data-layout-value">
-              <div class="data-value">${report?.vehicleToppingUpLubricant || ''}</div>
-            </div>
-            ${consolidatedData
-              .map(
-                (data) => `
-                <div class="data-layout-value">
-                  <div class="data-value">${data.vehicleToppingUpLubricant}</div>
-                </div>
-                `
-              )
-              .join('')}
           </div>
         </div>
       </div>
@@ -1035,8 +962,8 @@ export class ReportService {
           <th>Параметры</th>
           <th>Метод измерения</th>
           <th>Единицы измерения</th>
-          <th width="94">Результат</th>
-          ${consolidatedItems ? consolidatedItems.map(() => '<th width="94">Результат</th>').join('') : ''}
+          ${consolidatedItems ? consolidatedItems.map(() => '<th width="116">Результат</th>').join('') : ''}
+          <th width="116">Результат</th>
         </tr>
         ${indicators}
       </table>
@@ -1057,7 +984,7 @@ export class ReportService {
       <hr />
 
       <div class="data-layout">
-        <div class="data-layout-group data-layout-group_w-full">
+        <div class="data-layout-group">
           <div class="data-layout-row data-layout-row_vertical">
             <div class="data-layout-label">
               <div class="data-label">ПРОТОКОЛ РЕЗУЛЬТАТОВ ИЗМЕРЕНИЙ</div>
@@ -1067,7 +994,7 @@ export class ReportService {
             </div>
           </div>
         </div>
-        <div class="data-layout-group data-layout-group_w-full">
+        <div class="data-layout-group">
           <div class="data-layout-row data-layout-row_vertical">
             <div class="data-layout-label">
               <div class="data-label">НОМЕР ОБРАЗЦА ЗАКАЗЧИКА</div>
@@ -1131,7 +1058,7 @@ export class ReportService {
       </div>
 
       <div class="data-layout">
-        <div class="data-layout-group data-layout-group_vehicle-left">
+        <div class="data-layout-group">
           <div class="data-layout-row">
             <div class="data-layout-label">
               <div class="data-label">Производитель оборудования</div>
@@ -1307,8 +1234,8 @@ export class ReportService {
       <tr>
         <td>${i}</td>
         <td>${oilTypeResearch.name}</td>
-        <td align="center" class="background-${(resultResearch?.color || 'white').toLowerCase()}">${resultResearch?.value}</td>
         ${consolidatedTds}
+        <td align="center" class="background-${(resultResearch?.color || 'white').toLowerCase()}">${resultResearch?.value}</td>
       </tr>
       `
     }
@@ -1320,8 +1247,8 @@ export class ReportService {
         <tr>
           <th>№</th>
           <th>Направленность исследования</th>
-          <th width="94">Результат</th>
-          ${consolidatedItems ? consolidatedItems.map(() => '<th width="94">Результат</th>').join('') : ''}
+          ${consolidatedItems ? consolidatedItems.map(() => '<th width="116">Результат</th>').join('') : ''}
+          <th width="116">Результат</th>
         </tr>
         ${researches}
       </table>
