@@ -514,7 +514,7 @@ export class ReportService {
           font-family: 'PT Serif', serif;
         }
         body {
-          padding: 16px;
+          padding: 8px;
         }
         hr {
           height: 8px;
