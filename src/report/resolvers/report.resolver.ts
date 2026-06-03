@@ -15,6 +15,7 @@ import { ReportService } from '../services/report.service'
 import { Report } from '../entities/report.entity'
 import * as dto from '../dto/report.dto'
 import { DefaultError } from '@app/graphql/errors/DefaultError'
+import { ServerError } from '@app/graphql/errors/ServerError'
 
 @Resolver(() => Report)
 @UseGuards(GqlAuthGuard)
@@ -400,7 +401,7 @@ export class ReportResolver {
           : 'Ошибка при формировании сводного отчета'
 
       return {
-        error: new DefaultError(errorMessage),
+        error: new ServerError(errorMessage),
         success: false
       }
     }

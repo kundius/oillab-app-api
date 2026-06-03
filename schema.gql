@@ -382,6 +382,10 @@ type ReportConsolidateResponse {
   record: Report
 }
 
+type ServerError implements DefaultError {
+  message: String!
+}
+
 type ResultCreateResponse {
   success: Boolean!
   error: DefaultError
