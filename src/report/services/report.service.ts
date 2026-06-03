@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, SelectQueryBuilder } from 'typeorm'
 import { configService } from '@app/config/config.service'
 import { Attachment } from 'nodemailer/lib/mailer'
+import puppeteer from 'puppeteer'
 
 const nodemailer = require('nodemailer')
 const wkhtmltopdf = require('wkhtmltopdf')
@@ -1256,24 +1257,35 @@ export class ReportService {
     `
   }
 
-  private htmlToPdfStream(html: string): NodeJS.ReadableStream {
-    return wkhtmltopdf(html, {
-      marginLeft: 0,
-      marginTop: 0,
-      marginRight: 0,
-      marginBottom: 0,
-      encoding: 'utf8',
-      disableSmartShrinking: true,
-      dpi: 96
+  private async htmlToPdf(html: string): Promise<Buffer> {
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
     })
+
+    const page = await browser.newPage()
+
+    // Устанавливаем контент
+    await page.setContent(html, { waitUntil: 'load' })
+
+    // Генерируем PDF
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true, // Важно! Иначе фоны не отобразятся
+      margin: { top: 0, right: 0, bottom: 0, left: 0 }
+    })
+
+    await browser.close()
+
+    return Buffer.from(pdfBuffer)
   }
 
-  async getLabResultStream(
+  async getLabResult(
     report: Report,
     result: Result,
     withResearches: boolean,
     consolidatedItems?: { report: Report; result: Result }[]
-  ): Promise<NodeJS.ReadableStream> {
+  ): Promise<Buffer> {
     let html = this.buildLabResultStyles()
     html += this.buildLabResultHeader()
     html += await this.buildLabResultMain(report, result)
@@ -1291,17 +1303,17 @@ export class ReportService {
       )
     }
 
-    return this.htmlToPdfStream(html)
+    return await this.htmlToPdf(html)
   }
 
-  private async streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
-    return new Promise<Buffer>((resolve, reject) => {
-      const _buf = Array<any>()
-      stream.on('data', (chunk) => _buf.push(chunk))
-      stream.on('end', () => resolve(Buffer.concat(_buf)))
-      stream.on('error', (err) => reject(`error converting stream - ${err}`))
-    })
-  }
+  // private async streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
+  //   return new Promise<Buffer>((resolve, reject) => {
+  //     const _buf = Array<any>()
+  //     stream.on('data', (chunk) => _buf.push(chunk))
+  //     stream.on('end', () => resolve(Buffer.concat(_buf)))
+  //     stream.on('error', (err) => reject(`error converting stream - ${err}`))
+  //   })
+  // }
 
   private async buildLabResultFileName(
     result: Result,
@@ -1338,12 +1350,7 @@ export class ReportService {
     result: Result
   ): Promise<Report> {
     const oilType = await result.oilType
-    const stream = await this.getLabResultStream(
-      report,
-      result,
-      oilType.standard
-    )
-    const buffer = await this.streamToBuffer(stream)
+    const buffer = await this.getLabResult(report, result, oilType.standard)
     const fileName = await this.buildLabResultFileName(result, report)
     const file = await this.uploadPdfFile(buffer, fileName)
 
@@ -1362,13 +1369,12 @@ export class ReportService {
     consolidatedItems: { report: Report; result: Result }[]
   ): Promise<Report> {
     const oilType = await mainResult.oilType
-    const stream = await this.getLabResultStream(
+    const buffer = await this.getLabResult(
       mainReport,
       mainResult,
       oilType.standard,
       consolidatedItems
     )
-    const buffer = await this.streamToBuffer(stream)
     const fileName = await this.buildLabResultFileName(mainResult, mainReport)
     const file = await this.uploadPdfFile(buffer, fileName)
 

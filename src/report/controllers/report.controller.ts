@@ -546,13 +546,13 @@ export class ReportController {
     }
 
     const oilType = await result.oilType
-    const stream = await this.reportService.getLabResultStream(
+    const buffer = await this.reportService.getLabResult(
       report,
       result,
       oilType.standard
     )
 
-    stream.pipe(response)
+    response.send(buffer)
   }
 
   @UseGuards(AuthGuard('jwt'))
