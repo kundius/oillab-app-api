@@ -19,8 +19,6 @@ import { AuthGuard } from '@nestjs/passport'
 import { Response } from 'express'
 import { ReportService } from '../services/report.service'
 
-const wkhtmltopdf = require('wkhtmltopdf')
-
 @Controller('report')
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
@@ -500,14 +498,9 @@ export class ReportController {
       </div>
     `
 
-    wkhtmltopdf(html, {
-      marginLeft: 0,
-      marginTop: 0,
-      marginRight: 0,
-      marginBottom: 0,
-      encoding: 'utf8',
-      disableSmartShrinking: true
-    }).pipe(response)
+    const buffer = await this.reportService.htmlToPdf(html)
+
+    response.send(buffer)
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -692,14 +685,8 @@ export class ReportController {
     </table>
     `
 
-    wkhtmltopdf(html, {
-      marginLeft: 0,
-      marginTop: 0,
-      marginRight: 0,
-      marginBottom: 0,
-      encoding: 'utf8',
-      dpi: 300,
-      disableSmartShrinking: true
-    }).pipe(response)
+    const buffer = await this.reportService.htmlToPdf(html)
+
+    response.send(buffer)
   }
 }

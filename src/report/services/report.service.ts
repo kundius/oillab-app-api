@@ -2,11 +2,9 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, SelectQueryBuilder } from 'typeorm'
 import { configService } from '@app/config/config.service'
-import { Attachment } from 'nodemailer/lib/mailer'
 import puppeteer from 'puppeteer'
 
 const nodemailer = require('nodemailer')
-const wkhtmltopdf = require('wkhtmltopdf')
 
 import { UserService } from '@app/user/services/user.service'
 import { LubricantService } from '@app/lubricant/services/lubricant.service'
@@ -469,32 +467,8 @@ export class ReportService {
       </table>
     `
 
-    async function getPdf(html: string): Promise<Buffer> {
-      return new Promise<Buffer>((resolve, reject) => {
-        wkhtmltopdf(
-          html,
-          {
-            marginLeft: 0,
-            marginTop: 0,
-            marginRight: 0,
-            marginBottom: 0,
-            encoding: 'utf8',
-            disableSmartShrinking: true
-          },
-          function (err, stream) {
-            const _buf = Array<any>()
-            stream.on('data', (chunk) => _buf.push(chunk))
-            stream.on('end', () => resolve(Buffer.concat(_buf)))
-            stream.on('error', (err) =>
-              reject(`error converting stream - ${err}`)
-            )
-          }
-        )
-      })
-    }
-
     return await this.fileService.uploadAndCreateFile({
-      buffer: await getPdf(html),
+      buffer: await this.htmlToPdf(html),
       dir: 'report/pdf',
       name: nanoid()
     })
@@ -574,16 +548,16 @@ export class ReportService {
           border: 1px solid #000;
           padding: 4px;
           line-height: 1;
-          font-size: 12px;
-          line-height: 12px;
+          font-size: 10px;
+          line-height: 10px;
           box-sizing: border-box;
         }
         table.table-indicators th {
           border: 1px solid #000;
           padding: 4px;
           line-height: 1;
-          font-size: 12px;
-          line-height: 12px;;
+          font-size: 10px;
+          line-height: 10px;;
           box-sizing: border-box;
         }
 
@@ -606,8 +580,6 @@ export class ReportService {
         }
         .data-value {
           flex-grow: 1;
-          -webkit-box-flex: 1;
-          -webkit-flex-grow: 1;
           font-size: 14px;
           line-height: 14px;
           padding: 2px 0;
@@ -617,48 +589,28 @@ export class ReportService {
           border-bottom: 1px solid currentColor;
         }
         .data-layout {
-          display: -webkit-box;
-          display: flex;
-         	justify-content: space-between;
-         	-webkit-box-pack: justify;
-         	-webkit-justify-content: space-between;
-         	-ms-flex-pack: justify;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
         }
         .data-layout-group {
-          display: -webkit-box;
           display: flex;
           flex-direction: column;
-          -webkit-box-orient: vertical;
-          -webkit-box-direction: normal;
-          -webkit-flex-direction: column;
-        	justify-content: space-between;
-        	-webkit-box-pack: justify;
-        	-webkit-justify-content: space-between;
-        	-ms-flex-pack: justify;
-          width: 460px
+          gap: 12px;
+          justify-content: space-between;
         }
         .data-layout-group_w-full {
-          width: 100%;
+          grid-column: span 2;
         }
-        .data-layout-row + .data-layout-row {
-          margin-top: 12px;
-        }
-        .data-layout-group_tight .data-layout-row + .data-layout-row {
-          margin-top: 4px;
+        .data-layout-group_tight {
+          gap: 4px;
         }
         .data-layout-row {
-          display: -webkit-box;
           display: flex;
           align-items: center
-          -webkit-box-align: center;
-          -webkit-align-items: center;
-          -ms-flex-align: center;
         }
         .data-layout-row_vertical {
           flex-direction: column;
-          -webkit-box-orient: vertical;
-          -webkit-box-direction: normal;
-          -webkit-flex-direction: column;
         }
         .data-layout-label {
           flex-grow: 1;
@@ -678,14 +630,19 @@ export class ReportService {
         }
 
         .data-indicators .data-layout-value {
-          min-width: 112px;
-          max-width: 112px;
+          min-width: 96px;
+          max-width: 96px;
           margin-left: 2px;
           margin-right: 2px;
         }
+        .data-indicators .data-label {
+          font-size: 10px;
+          line-height: 10px;
+        }
         .data-indicators .data-value {
-          font-size: 12px;
-          line-height: 12px;
+          font-size: 10px;
+          line-height: 10px;
+          min-height: 14px;
         }
       </style>
     `
@@ -964,8 +921,8 @@ export class ReportService {
           <th>Параметры</th>
           <th>Метод измерения</th>
           <th>Единицы измерения</th>
-          ${consolidatedItems ? consolidatedItems.map(() => '<th width="116">Результат</th>').join('') : ''}
-          <th width="116">Результат</th>
+          ${consolidatedItems ? consolidatedItems.map(() => '<th width="100">Результат</th>').join('') : ''}
+          <th width="100">Результат</th>
         </tr>
         ${indicators}
       </table>
@@ -1249,15 +1206,15 @@ export class ReportService {
         <tr>
           <th>№</th>
           <th>Направленность исследования</th>
-          ${consolidatedItems ? consolidatedItems.map(() => '<th width="116">Результат</th>').join('') : ''}
-          <th width="116">Результат</th>
+          ${consolidatedItems ? consolidatedItems.map(() => '<th width="100">Результат</th>').join('') : ''}
+          <th width="100">Результат</th>
         </tr>
         ${researches}
       </table>
     `
   }
 
-  private async htmlToPdf(html: string): Promise<Buffer> {
+  async htmlToPdf(html: string): Promise<Buffer> {
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox']
