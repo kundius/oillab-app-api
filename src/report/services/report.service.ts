@@ -691,10 +691,11 @@ export class ReportService {
     const oilTypeIndicators = await oilType.indicators
     const lubricant = await report?.lubricantEntity
     const brand = await lubricant?.brandEntity
+    const vehicle = await report?.vehicle
 
     const consolidatedData: {
       indicatorMap: Map<number, ResultIndicator>
-      productType: string
+      vehicleModel: string
       brand: string
       formNumber: string
       createdAt: string
@@ -715,12 +716,11 @@ export class ReportService {
 
         const consLubricant = await item.report?.lubricantEntity
         const consBrand = await consLubricant?.brandEntity
+        const consVehicle = await item.report?.vehicle
 
         consolidatedData.push({
           indicatorMap,
-          productType: consLubricant?.productType
-            ? this.getProductTypeLabel(consLubricant.productType)
-            : '-',
+          vehicleModel: consVehicle?.model || '-',
           brand:
             [consBrand?.name, consLubricant?.model, consLubricant?.viscosity]
               .filter(Boolean)
@@ -795,19 +795,19 @@ export class ReportService {
             </div>
             <div class="data-layout-row">
               <div class="data-layout-label">
-                <div class="data-label">Тип СМ</div>
+                <div class="data-label">Производитель оборудования</div>
               </div>
               ${consolidatedData
                 .map(
                   (data) => `
                   <div class="data-layout-value">
-                    <div class="data-value">${data.productType}</div>
+                    <div class="data-value">${data.vehicleModel}</div>
                   </div>
                   `
                 )
                 .join('')}
               <div class="data-layout-value">
-                <div class="data-value">${lubricant?.productType ? this.getProductTypeLabel(lubricant.productType) : '-'}</div>
+                <div class="data-value">${vehicle?.model || '-'}</div>
               </div>
             </div>
             <div class="data-layout-row">
