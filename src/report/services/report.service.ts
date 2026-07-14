@@ -693,8 +693,11 @@ export class ReportService {
     const brand = await lubricant?.brandEntity
     const vehicle = await report?.vehicle
 
+    const normalizeIndicatorName = (name?: string) =>
+      (name || '').trim().toLowerCase()
+
     const consolidatedData: {
-      indicatorMap: Map<number, ResultIndicator>
+      indicatorMap: Map<string, ResultIndicator>
       vehicleModel: string
       brand: string
       formNumber: string
@@ -706,11 +709,12 @@ export class ReportService {
     if (consolidatedItems) {
       for (const item of consolidatedItems) {
         const consIndicators = await item.result.indicators
-        const indicatorMap = new Map<number, ResultIndicator>()
+        const indicatorMap = new Map<string, ResultIndicator>()
         for (const indicator of consIndicators) {
           const consOilTypeIndicator = await indicator.oilTypeIndicator
-          if (consOilTypeIndicator) {
-            indicatorMap.set(consOilTypeIndicator.id, indicator)
+          const key = normalizeIndicatorName(consOilTypeIndicator?.name)
+          if (key) {
+            indicatorMap.set(key, indicator)
           }
         }
 
@@ -750,7 +754,8 @@ export class ReportService {
 
       const consolidatedTds = consolidatedData
         .map((data) => {
-          const consIndicator = data.indicatorMap.get(oilTypeIndicator.id)
+          const key = normalizeIndicatorName(oilTypeIndicator.name)
+          const consIndicator = data.indicatorMap.get(key)
           return `<td align="center" class="background-${(consIndicator?.color || 'white').toLowerCase()}">${consIndicator?.value || ''}</td>`
         })
         .join('')
