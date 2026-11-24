@@ -220,12 +220,16 @@ export class RecoveryService {
       const result = await this.findResult(report.formNumber, standard)
 
       if (!result) {
+        const protocol = standard ? 'экспресс-протокола' : 'расширенного протокола'
+        const noResult = report.formNumber
+          ? `нет результата с номером бланка ${report.formNumber} для ${protocol}`
+          : 'у отчёта не указан номер бланка, результат не найти'
         state.unrecoverable.push(
           await this.toItem(
             candidate,
             kind === 'upload'
-              ? 'загрузка пользователя отсутствует, исходника нет'
-              : 'нет подходящего результата'
+              ? `загрузка пользователя, исходника нет, ${noResult}`
+              : noResult
           )
         )
         return browser
