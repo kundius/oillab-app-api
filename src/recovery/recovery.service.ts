@@ -12,11 +12,13 @@ import { Result } from '@app/result/entities/result.entity'
 const BATCH_SIZE = 20
 
 type CandidateKind = 'lab' | 'consolidated' | 'upload'
+type CandidateSlot = 'express' | 'extended' | 'consolidated'
 
 interface Candidate {
   file: File
   kind: CandidateKind
-  report: Report | null
+  slot: CandidateSlot
+  report: Report
 }
 
 export interface RecoveryItem {
@@ -24,6 +26,7 @@ export interface RecoveryItem {
   name: string
   path: string
   reason: string
+  usage: string
 }
 
 export interface RecoveryError {
@@ -51,8 +54,6 @@ export class RecoveryService {
   private state: RecoveryStatus = this.createState(false)
 
   constructor(
-    @InjectRepository(File)
-    private readonly fileRepository: Repository<File>,
     @InjectRepository(Report)
     private readonly reportRepository: Repository<Report>,
     @InjectRepository(Result)
@@ -148,47 +149,47 @@ export class RecoveryService {
     const reports = await this.reportRepository.find()
 
     for (const report of reports) {
-      const expressLaboratoryResult = await report.expressLaboratoryResult
-      if (expressLaboratoryResult) {
-        candidates.set(expressLaboratoryResult.id, {
-          file: expressLaboratoryResult,
-          kind: 'lab',
-          report
-        })
-      }
+      const slots: { slot: CandidateSlot; file: File | null | undefined }[] = [
+        { slot: 'express', file: await report.expressLaboratoryResult },
+        { slot: 'extended', file: await report.laboratoryResult },
+        { slot: 'consolidated', file: await report.consolidatedLaboratoryResult }
+      ]
 
-      const laboratoryResult = await report.laboratoryResult
-      if (laboratoryResult) {
-        candidates.set(laboratoryResult.id, {
-          file: laboratoryResult,
-          kind: 'lab',
-          report
-        })
-      }
+      for (const { slot, file } of slots) {
+        if (!file || candidates.has(file.id)) continue
 
-      const consolidatedLaboratoryResult =
-        await report.consolidatedLaboratoryResult
-      if (consolidatedLaboratoryResult) {
-        candidates.set(consolidatedLaboratoryResult.id, {
-          file: consolidatedLaboratoryResult,
-          kind: 'consolidated',
-          report
-        })
-      }
-    }
+        const kind: CandidateKind = file.path.startsWith('user/')
+          ? 'upload'
+          : slot === 'consolidated'
+            ? 'consolidated'
+            : 'lab'
 
-    const uploads = await this.fileRepository
-      .createQueryBuilder('file')
-      .where('file.path LIKE :pattern', { pattern: 'user/%/upload/%' })
-      .getMany()
-
-    for (const file of uploads) {
-      if (!candidates.has(file.id)) {
-        candidates.set(file.id, { file, kind: 'upload', report: null })
+        candidates.set(file.id, { file, kind, slot, report })
       }
     }
 
     return [...candidates.values()].sort((a, b) => a.file.id - b.file.id)
+  }
+
+  private async findResult(
+    formNumber: string | null,
+    standard: boolean
+  ): Promise<Result | null> {
+    if (!formNumber) return null
+
+    const results = await this.resultRepository.find({
+      where: { formNumber },
+      order: { updatedAt: 'DESC' }
+    })
+
+    for (const result of results) {
+      const oilType = await result.oilType
+      if (!!oilType?.standard === standard) {
+        return result
+      }
+    }
+
+    return null
   }
 
   private async processCandidate(
@@ -196,7 +197,7 @@ export class RecoveryService {
     candidate: Candidate,
     browser: Browser | null
   ): Promise<Browser | null> {
-    const { file, kind, report } = candidate
+    const { file, kind, slot, report } = candidate
 
     state.checked++
 
@@ -209,21 +210,26 @@ export class RecoveryService {
       state.missing++
 
       if (kind === 'upload') {
-        state.unrecoverable.push(this.toItem(file, 'загрузка пользователя отсутствует, исходника нет'))
+        state.unrecoverable.push(
+          await this.toItem(candidate, 'загрузка пользователя отсутствует, исходника нет')
+        )
         return browser
       }
 
       if (kind === 'consolidated') {
-        state.unrecoverable.push(this.toItem(file, 'сводный протокол, состав не сохранён'))
+        state.unrecoverable.push(
+          await this.toItem(candidate, 'сводный протокол, состав не сохранён')
+        )
         return browser
       }
 
-      const result = report?.formNumber
-        ? await this.resultRepository.findOneBy({ formNumber: report.formNumber })
-        : null
+      const standard = slot === 'express'
+      const result = await this.findResult(report.formNumber, standard)
 
-      if (!report || !result) {
-        state.unrecoverable.push(this.toItem(file, 'нет результата для протокола'))
+      if (!result) {
+        state.unrecoverable.push(
+          await this.toItem(candidate, 'нет подходящего результата')
+        )
         return browser
       }
 
@@ -233,11 +239,10 @@ export class RecoveryService {
 
       const instance = browser ?? (await this.reportService.launchBrowser())
 
-      const oilType = await result.oilType
       const html = await this.reportService.buildLabResultHtml(
         report,
         result,
-        oilType.standard
+        standard
       )
       const buffer = await this.reportService.htmlToPdf(html, instance)
       await this.fileService.restore(file, buffer)
@@ -251,12 +256,32 @@ export class RecoveryService {
     }
   }
 
-  private toItem(file: File, reason: string): RecoveryItem {
+  private async toItem(candidate: Candidate, reason: string): Promise<RecoveryItem> {
+    const { file, kind, slot, report } = candidate
+
+    const reportPart = `Отчёт № ${report.formNumber ?? 'без номера'}`
+    const slotLabel =
+      slot === 'express'
+        ? 'экспресс-протокол'
+        : slot === 'extended'
+          ? 'расширенный протокол'
+          : 'сводный протокол'
+
+    let usage: string
+    if (kind === 'upload') {
+      const uploader = await file.user
+      usage = `Загрузил ${uploader?.name ?? 'неизвестно'} · ${reportPart} · ${slotLabel}`
+    } else {
+      const client = await report.client
+      usage = [reportPart, client?.name, slotLabel].filter(Boolean).join(' · ')
+    }
+
     return {
       id: file.id,
       name: file.name,
       path: file.path,
-      reason
+      reason,
+      usage
     }
   }
 }
