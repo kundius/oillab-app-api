@@ -209,14 +209,7 @@ export class RecoveryService {
 
       state.missing++
 
-      if (kind === 'upload') {
-        state.unrecoverable.push(
-          await this.toItem(candidate, 'загрузка пользователя отсутствует, исходника нет')
-        )
-        return browser
-      }
-
-      if (kind === 'consolidated') {
+      if (kind === 'consolidated' || (kind === 'upload' && slot === 'consolidated')) {
         state.unrecoverable.push(
           await this.toItem(candidate, 'сводный протокол, состав не сохранён')
         )
@@ -228,7 +221,12 @@ export class RecoveryService {
 
       if (!result) {
         state.unrecoverable.push(
-          await this.toItem(candidate, 'нет подходящего результата')
+          await this.toItem(
+            candidate,
+            kind === 'upload'
+              ? 'загрузка пользователя отсутствует, исходника нет'
+              : 'нет подходящего результата'
+          )
         )
         return browser
       }
