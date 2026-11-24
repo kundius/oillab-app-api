@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, SelectQueryBuilder } from 'typeorm'
 import { configService } from '@app/config/config.service'
-import puppeteer from 'puppeteer'
+import puppeteer, { Browser } from 'puppeteer'
 
 const nodemailer = require('nodemailer')
 
@@ -1219,35 +1219,45 @@ export class ReportService {
     `
   }
 
-  async htmlToPdf(html: string): Promise<Buffer> {
-    const browser = await puppeteer.launch({
+  async launchBrowser(): Promise<Browser> {
+    return await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     })
-
-    const page = await browser.newPage()
-
-    // Устанавливаем контент
-    await page.setContent(html, { waitUntil: 'load' })
-
-    // Генерируем PDF
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true, // Важно! Иначе фоны не отобразятся
-      margin: { top: 0, right: 0, bottom: 0, left: 0 }
-    })
-
-    await browser.close()
-
-    return Buffer.from(pdfBuffer)
   }
 
-  async getLabResult(
+  async htmlToPdf(html: string, browser?: Browser): Promise<Buffer> {
+    const instance = browser ?? (await this.launchBrowser())
+
+    try {
+      const page = await instance.newPage()
+
+      // Устанавливаем контент
+      await page.setContent(html, { waitUntil: 'load' })
+
+      // Генерируем PDF
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true, // Важно! Иначе фоны не отобразятся
+        margin: { top: 0, right: 0, bottom: 0, left: 0 }
+      })
+
+      await page.close()
+
+      return Buffer.from(pdfBuffer)
+    } finally {
+      if (!browser) {
+        await instance.close()
+      }
+    }
+  }
+
+  async buildLabResultHtml(
     report: Report,
     result: Result,
     withResearches: boolean,
     consolidatedItems?: { report: Report; result: Result }[]
-  ): Promise<Buffer> {
+  ): Promise<string> {
     let html = this.buildLabResultStyles()
     html += this.buildLabResultHeader()
     html += await this.buildLabResultMain(report, result)
@@ -1264,6 +1274,22 @@ export class ReportService {
         consolidatedItems
       )
     }
+
+    return html
+  }
+
+  async getLabResult(
+    report: Report,
+    result: Result,
+    withResearches: boolean,
+    consolidatedItems?: { report: Report; result: Result }[]
+  ): Promise<Buffer> {
+    const html = await this.buildLabResultHtml(
+      report,
+      result,
+      withResearches,
+      consolidatedItems
+    )
 
     return await this.htmlToPdf(html)
   }

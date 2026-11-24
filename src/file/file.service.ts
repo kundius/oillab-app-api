@@ -151,6 +151,43 @@ export class FileService {
       type: type?.mime
     }
   }
+  async exists(path: string): Promise<boolean> {
+    const s3 = new S3(configService.getS3ClientConfig())
+
+    try {
+      await s3
+        .headObject({
+          Bucket: configService.getS3Bucket(),
+          Key: path
+        })
+        .promise()
+      return true
+    } catch (error: any) {
+      if (error.statusCode === 404) {
+        return false
+      }
+      throw error
+    }
+  }
+
+  async restore(file: File, buffer: Buffer): Promise<File> {
+    const s3 = new S3(configService.getS3ClientConfig())
+
+    await s3
+      .putObject({
+        Bucket: configService.getS3Bucket(),
+        Body: buffer,
+        Key: file.path,
+        ContentType: file.type || 'application/pdf'
+      })
+      .promise()
+
+    file.size = Buffer.byteLength(buffer)
+    await this.fileRepository.save(file)
+
+    return file
+  }
+
   async getStream(file: File): Promise<stream.Readable> {
     const url = await this.getUrl(file)
     return new Promise((resolve, reject) => {

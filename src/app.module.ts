@@ -12,10 +12,12 @@ import { UserModule } from './user/user.module'
 import { VehicleModule } from './vehicle/vehicle.module'
 import { BrandModule } from './brand/brand.module'
 import { MigrateModule } from './migrate/migrate.module'
+import { RecoveryModule } from './recovery/recovery.module'
 
 @Module({
   imports: [
     MigrateModule,
+    RecoveryModule,
     AuthModule,
     UserModule,
     FileModule,
